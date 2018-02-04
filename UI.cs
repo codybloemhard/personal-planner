@@ -14,10 +14,23 @@ namespace Planner
         public float y { get; private set; }
         public float w { get; private set; }
         public float h { get; private set; }
+        public float padding { get; private set; }
+        public bool padXaxis { get; private set; }
+        public bool padded { get; private set; }
+
+        public Space()
+        {
+            Set(0f, 0f, 0f, 0f);
+        }
 
         public Space(float x, float y, float w, float h)
         {
             Set(x, y, w, h);
+        }
+
+        public Space(float padding, bool xAxis, float globalX, float globalY)
+        {
+            SetPadded(padding, xAxis, globalX, globalY);
         }
 
         public void Set(float x, float y, float w, float h)
@@ -26,7 +39,37 @@ namespace Planner
             this.y = y;
             this.w = w;
             this.h = h;
+            this.padding = 0f;
+            this.padded = false;
             Clamp();
+        }
+
+        public void RePad(float globalW, float globalH)
+        {
+            SetPadded(padding, padXaxis, globalW, globalH);
+        }
+
+        public void SetPadded(float padding, bool xAxis, float globalW, float globalH)
+        {
+            Clamp(padding);
+            this.padding = padding;
+            this.padXaxis = xAxis;
+            this.padded = true;
+            float ratio = xAxis ? globalW / globalH : globalH / globalW;
+            if (xAxis)
+            {
+                x = padding;
+                w = 1f - x*2f;
+                y = padding * ratio * Drawing.ratio;
+                h = 1f - y*2f;
+            }
+            else
+            {
+                x = padding * ratio / Drawing.ratio;
+                w = 1f - x*2f;
+                y = padding;
+                h = 1f - y*2f;
+            }
         }
 
         private void Clamp()
@@ -67,6 +110,14 @@ namespace Planner
             node.ComputeGlobalSpace();
         }
 
+        public void AddPadded(UINode node, float padding, bool xAxis)
+        {
+            node.parent = this;
+            node.space = new Space(padding, xAxis, globalSpace.w, globalSpace.h);
+            childs.Add(node);
+            node.ComputeGlobalSpace();
+        }
+
         public void Remove(UINode node)
         {
             node.parent = null;
@@ -94,10 +145,10 @@ namespace Planner
 
         private void ComputeGlobalSpace()
         {
-            if(parent == null)
-            {
+            if (space.padded)
+                space.RePad(parent.globalSpace.w, parent.globalSpace.h);
+            if (parent == null)
                 globalSpace = new Space(0f, 0f, 1f, 1f);
-            }
             else
             {
                 float x = parent.globalSpace.x + (parent.globalSpace.w * space.x);
@@ -105,7 +156,7 @@ namespace Planner
                 float w = parent.globalSpace.w * space.w;
                 float h = parent.globalSpace.h * space.h;
                 globalSpace = new Space(x, y, w, h);
-            }
+            }            
             for (int i = 0; i < childs.Count; i++)
                 childs[i].ComputeGlobalSpace();
         }

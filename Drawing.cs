@@ -93,11 +93,19 @@ namespace Planner
     public static class Drawing
     {
         public static Size screenSize;
+        public static float ratio;
 
         static Drawing()
         {
             screenSize = new Size(0, 0);
+            ratio = 0f;
         } 
+
+        public static void SetScreen(Size s)
+        {
+            screenSize = s;
+            ratio = (float)s.Width / s.Height;
+        }
 
         public static void Draw(PaintEventArgs e)
         {

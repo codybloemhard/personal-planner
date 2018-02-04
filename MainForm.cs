@@ -19,17 +19,18 @@ namespace Planner
             InitializeComponent();
             Size drawableSize = new Size(1600, 900);
             this.ClientSize = drawableSize;
-            Drawing.screenSize = drawableSize;
+            Drawing.SetScreen(drawableSize);
 
             ColourSchemes.AddScheme("std");
             ColourSchemes.SetScheme("std");
             ColourSchemes.AddColour("std", "dark", Color.FromArgb(255, 32, 32, 32));
             ColourSchemes.AddColour("std", "medium", Color.FromArgb(255, 64, 64, 64));
+            ColourSchemes.AddColour("std", "light", Color.FromArgb(255, 128, 128, 128));
 
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
-            Label button0 = new Label(new Space(0.1f, 0.1f, 0.8f, 0.1f), "medium");
-            menu.Add(button0);
+            Label button0 = new Label(new Space(), "medium");
+            menu.AddPadded(button0, 0.05f, false);
             scene.Add(menu);
         }
 
