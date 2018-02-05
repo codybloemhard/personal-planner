@@ -18,9 +18,10 @@ namespace Planner
         public bool padXaxis { get; private set; }
         public bool padded { get; private set; }
 
-        public Space()
+        public Space(bool full = false)
         {
-            Set(0f, 0f, 0f, 0f);
+            if (full) Set(0f, 0f, 1f, 1f);
+            else Set(0f, 0f, 0f, 0f);
         }
 
         public Space(float x, float y, float w, float h)
@@ -86,20 +87,23 @@ namespace Planner
             if (x > 1f) x = 1f;
             return x;
         }
+
+        public string String()
+        {
+            return "" + x + " - " + y + " - " + w + " - " + h;
+        }
     }
 
     public class UINode
     {
-        public string colour { get; protected set; }
         public UINode parent { get; private set; }
         protected Space space { get; private set; }
         protected Space globalSpace { get; private set; }
         private List<UINode> childs;
 
-        public UINode(Space space, string colour)
+        public UINode(Space space)
         {
             childs = new List<UINode>();
-            this.colour = colour;
             SetSpace(space);
         }
 
@@ -162,12 +166,67 @@ namespace Planner
         }
     }
 
+    public class Grid : UINode
+    {
+        private UINode[,] grid;
+        private uint w, h;
+
+        public Grid(Space space, uint w, uint h) : base(space)
+        {
+            grid = new UINode[w, h];
+            this.w = w;
+            this.h = h;
+            CreateGrid(w, h);
+        }
+
+        private void CreateGrid(uint w, uint h)
+        {
+            if (w < 1) w = 1;
+            if (h < 1) h = 1;
+            if (w * h == 1) return;
+            float stepx = 1f / w;
+            float stepy = 1f / h;
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < h; y++)
+                {
+                    float xx = stepx * x;
+                    float yy = stepy * y;
+                    Space gridpiece = new Space(xx, yy, stepx, stepy);
+                    UINode gridelement = new UINode(gridpiece);
+                    grid[x, y] = gridelement;
+                    Add(gridelement);
+                }
+        }
+
+        public void Add(UINode node, uint x, uint y)
+        {
+            if (x >= h && y >= h) return;
+            grid[x, y].Add(node);
+        }
+
+        public void AddPadded(UINode node, float padding, bool xAxis, uint x, uint y)
+        {
+            if (x >= h && y >= h) return;
+            grid[x, y].AddPadded(node, padding, xAxis);
+        }
+
+        public void Remove(UINode node, uint x, uint y)
+        {
+            if (x >= h && y >= h) return;
+            grid[x, y].Remove(node);
+        }
+    }
+
     public class Drawable : UINode
     {
+        public string colour { get; protected set; }
         protected Rectangle screenPart;
 
         public Drawable(Space space, string colour)
-            : base(space, colour) { }
+            : base(space)
+        {
+            this.colour = colour;
+        }
 
         protected void UpdateScreenPart()
         {
@@ -189,7 +248,7 @@ namespace Planner
             UpdateScreenPart();
         }
     }
-
+    
     public class Label : Drawable
     {
         public Label(Space space, string colour)

@@ -29,11 +29,19 @@ namespace Planner
 
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
-            Label button0 = new Label(new Space(), "medium");
-            menu.AddPadded(button0, 0.05f, false);
-            scene.Add(menu);
+            Label test = new Label(new Space(), "medium");
+            /*Grid grid = new Grid(new Space(true), 2, 4);
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                {
+                    Label l = new Label(new Space(), "medium");
+                    grid.AddPadded(l, 0.1f, true, (uint)x, (uint)y);
+                }
+            menu.Add(grid);*/
+            
+            scene.Add(menu);        
         }
-
+        
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

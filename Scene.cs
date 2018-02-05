@@ -9,7 +9,7 @@ namespace Planner
 {
     public class Scene
     {
-        private UINode root;
+        private Label root;
         
         public Scene()
         {

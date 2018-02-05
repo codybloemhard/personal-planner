@@ -89,7 +89,7 @@ namespace Planner
             currentScheme = scheme;
         }
     }
-
+    
     public static class Drawing
     {
         public static Size screenSize;
@@ -99,7 +99,7 @@ namespace Planner
         {
             screenSize = new Size(0, 0);
             ratio = 0f;
-        } 
+        }
 
         public static void SetScreen(Size s)
         {
