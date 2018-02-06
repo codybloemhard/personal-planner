@@ -26,19 +26,19 @@ namespace Planner
             ColourSchemes.AddColour("std", "dark", Color.FromArgb(255, 32, 32, 32));
             ColourSchemes.AddColour("std", "medium", Color.FromArgb(255, 64, 64, 64));
             ColourSchemes.AddColour("std", "light", Color.FromArgb(255, 128, 128, 128));
-
+            
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
             Label test = new Label(new Space(), "medium");
-            /*Grid grid = new Grid(new Space(true), 2, 4);
-            for (int x = 0; x < 2; x++)
-                for (int y = 0; y < 4; y++)
+            uint w = 4, h = 3;
+            Grid grid = new Grid(new Space(true), w, h);
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < h; y++)
                 {
                     Label l = new Label(new Space(), "medium");
-                    grid.AddPadded(l, 0.1f, true, (uint)x, (uint)y);
+                    grid.AddPaddedEven(l, 0.1f, true, (uint)x, (uint)y);
                 }
-            menu.Add(grid);*/
-            
+            menu.Add(grid);
             scene.Add(menu);        
         }
         

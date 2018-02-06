@@ -17,6 +17,11 @@ namespace Planner
         public float padding { get; private set; }
         public bool padXaxis { get; private set; }
         public bool padded { get; private set; }
+        public bool inGrid { get; private set; }
+        public bool isLeft { get; private set; }
+        public bool isRight { get; private set; }
+        public bool isTop { get; private set; }
+        public bool isBottom { get; private set; }
 
         public Space(bool full = false)
         {
@@ -34,6 +39,11 @@ namespace Planner
             SetPadded(padding, xAxis, globalX, globalY);
         }
 
+        public Space(float padding, bool xAxis, float globalW, float globalH, bool isLeft, bool isRight, bool isTop, bool isBottom)
+        {
+            SetPaddedGrid(padding, xAxis, globalW, globalH, isLeft, isRight, isTop, isBottom);
+        }
+
         public void Set(float x, float y, float w, float h)
         {
             this.x = x;
@@ -47,7 +57,9 @@ namespace Planner
 
         public void RePad(float globalW, float globalH)
         {
-            SetPadded(padding, padXaxis, globalW, globalH);
+            if (!padded) return;
+            if (!inGrid) SetPadded(padding, padXaxis, globalW, globalH);
+            else SetPaddedGrid(padding, padXaxis, globalW, globalH, isLeft, isRight, isTop, isBottom);
         }
 
         public void SetPadded(float padding, bool xAxis, float globalW, float globalH)
@@ -56,20 +68,51 @@ namespace Planner
             this.padding = padding;
             this.padXaxis = xAxis;
             this.padded = true;
+            this.inGrid = false;
             float ratio = xAxis ? globalW / globalH : globalH / globalW;
             if (xAxis)
             {
                 x = padding;
-                w = 1f - x*2f;
+                w = 1f - x * 2f;
                 y = padding * ratio * Drawing.ratio;
-                h = 1f - y*2f;
+                h = 1f - y * 2f;
             }
             else
             {
                 x = padding * ratio / Drawing.ratio;
-                w = 1f - x*2f;
+                w = 1f - x * 2f;
                 y = padding;
-                h = 1f - y*2f;
+                h = 1f - y * 2f;
+            }
+        }
+
+        public void SetPaddedGrid(float padding, bool xAxis, float globalW, float globalH, bool isLeft, bool isRight, bool isTop, bool isBottom)
+        {
+            Clamp(padding);
+            this.padding = padding;
+            this.padXaxis = xAxis;
+            this.padded = true;
+            this.inGrid = true;
+            this.isLeft = isLeft;
+            this.isRight = isRight;
+            this.isTop = isTop;
+            this.isBottom = isBottom;
+            float ratio = xAxis ? globalW / globalH : globalH / globalW;
+            if (xAxis)
+            {
+                float verpad = padding * ratio * Drawing.ratio;
+                x = isLeft ? padding : padding / 2f;
+                w = isRight ? 1f - x - padding : 1f - x - (padding / 2f);
+                y = isTop ? verpad : verpad / 2f;
+                h = isBottom ? 1f - y - verpad : 1f - y - (verpad / 2f);
+            }
+            else
+            {
+                float horpad = padding * ratio / Drawing.ratio;
+                x = isLeft ? horpad : horpad / 2f;
+                w = isRight ? 1f - x - horpad : 1f - x - (horpad / 2f);
+                y = isTop ? padding : padding / 2f;
+                h = isBottom ? 1f - y - padding : 1f - y - (padding / 2f);
             }
         }
 
@@ -118,6 +161,14 @@ namespace Planner
         {
             node.parent = this;
             node.space = new Space(padding, xAxis, globalSpace.w, globalSpace.h);
+            childs.Add(node);
+            node.ComputeGlobalSpace();
+        }
+
+        public void AddPaddedGridStyle(UINode node, float padding, bool xAxis, bool isLeft, bool isRight, bool isTop, bool isBottom)
+        {
+            node.parent = this;
+            node.space = new Space(padding, xAxis, globalSpace.w, globalSpace.h, isLeft, isRight, isTop, isBottom);
             childs.Add(node);
             node.ComputeGlobalSpace();
         }
@@ -185,7 +236,7 @@ namespace Planner
             if (h < 1) h = 1;
             if (w * h == 1) return;
             float stepx = 1f / w;
-            float stepy = 1f / h;
+            float stepy = 1f / h; 
             for (int x = 0; x < w; x++)
                 for (int y = 0; y < h; y++)
                 {
@@ -208,6 +259,16 @@ namespace Planner
         {
             if (x >= h && y >= h) return;
             grid[x, y].AddPadded(node, padding, xAxis);
+        }
+
+        public void AddPaddedEven(UINode node, float padding, bool xAxis, uint x, uint y)
+        {
+            if (x >= h && y >= h) return;
+            bool isLeft = x == 0;
+            bool isRight = x == w - 1;
+            bool isTop = y == 0;
+            bool isBottom = y == h - 1;
+            grid[x, y].AddPaddedGridStyle(node, padding, xAxis, isLeft, isRight, isTop, isBottom);
         }
 
         public void Remove(UINode node, uint x, uint y)
