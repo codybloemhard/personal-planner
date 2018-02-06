@@ -291,10 +291,10 @@ namespace Planner
 
         protected void UpdateScreenPart()
         {
-            int x = (int)(globalSpace.x * Drawing.screenSize.Width);
-            int y = (int)(globalSpace.y * Drawing.screenSize.Height);
-            int w = (int)(globalSpace.w * Drawing.screenSize.Width);
-            int h = (int)(globalSpace.h * Drawing.screenSize.Height);
+            int x = (int)Math.Round(globalSpace.x * Drawing.screenSize.Width);
+            int y = (int)Math.Round(globalSpace.y * Drawing.screenSize.Height);
+            int w = (int)Math.Round(globalSpace.w * Drawing.screenSize.Width);
+            int h = (int)Math.Round(globalSpace.h * Drawing.screenSize.Height);
             screenPart = new Rectangle(x, y, w, h);
         }
 

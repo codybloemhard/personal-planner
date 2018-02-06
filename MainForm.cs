@@ -30,7 +30,7 @@ namespace Planner
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
             Label test = new Label(new Space(), "medium");
-            uint w = 4, h = 3;
+            uint w = 5, h = 3;
             Grid grid = new Grid(new Space(true), w, h);
             for (int x = 0; x < w; x++)
                 for (int y = 0; y < h; y++)
