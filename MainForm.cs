@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,6 +21,7 @@ namespace Planner
             Size drawableSize = new Size(1600, 900);
             this.ClientSize = drawableSize;
             Drawing.SetScreen(drawableSize);
+            this.ResizeRedraw = true;
 
             ColourSchemes.AddScheme("std");
             ColourSchemes.SetScheme("std");
@@ -47,6 +49,15 @@ namespace Planner
             base.OnPaint(e);
             Drawing.Draw(e);
             scene.DrawAll(e.Graphics);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            int w = ClientSize.Width;
+            float aspect = 16f / 9f;
+            this.ClientSize = new Size(w, (int)(w / aspect));
+            Drawing.SetScreen(ClientSize);
         }
     }
 }
