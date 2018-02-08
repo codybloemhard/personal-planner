@@ -94,22 +94,18 @@ namespace Planner
     {
         public static Size screenSize;
         public static float ratio;
+        public static bool needRedraw = false;
 
         static Drawing()
         {
             screenSize = new Size(0, 0);
             ratio = 0f;
         }
-
+        
         public static void SetScreen(Size s)
         {
             screenSize = s;
             ratio = (float)s.Width / s.Height;
-        }
-
-        public static void Draw(PaintEventArgs e)
-        {
-            Graphics g = e.Graphics;
         }
 
         public static void DrawRectangle(Graphics g, Rectangle r, string schemeColour)

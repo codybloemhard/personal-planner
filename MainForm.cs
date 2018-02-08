@@ -28,7 +28,8 @@ namespace Planner
             ColourSchemes.AddColour("std", "dark", Color.FromArgb(255, 32, 32, 32));
             ColourSchemes.AddColour("std", "medium", Color.FromArgb(255, 64, 64, 64));
             ColourSchemes.AddColour("std", "light", Color.FromArgb(255, 128, 128, 128));
-            
+            ColourSchemes.AddColour("std", "green", Color.Green);
+
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
             Label test = new Label(new Space(), "medium");
@@ -41,14 +42,17 @@ namespace Planner
                     grid.AddPaddedEven(l, 0.1f, true, (uint)x, (uint)y);
                 }
             menu.Add(grid);
-            scene.Add(menu);        
+            scene.Add(menu);
+
+            Button button = new Button(new Space(0.3f, 0.1f, 0.4f, 0.1f), () => { Console.WriteLine("hello"); }, "medium", "light", "green");
+            scene.Add(button);
         }
         
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Drawing.Draw(e);
             scene.DrawAll(e.Graphics);
+            Drawing.needRedraw = false;
         }
 
         protected override void OnResize(EventArgs e)
@@ -58,6 +62,47 @@ namespace Planner
             float aspect = 16f / 9f;
             this.ClientSize = new Size(w, (int)(w / aspect));
             Drawing.SetScreen(ClientSize);
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+            MouseEvent ev = new MouseEvent();
+            ev.clicked = true;
+            ev.down = false;
+            ev.button = e.Button;
+            ev.x = (float)e.X / ClientSize.Width;
+            ev.y = (float)e.Y / ClientSize.Height;
+            scene.FeedMouseEvent(ev);
+            if (Drawing.needRedraw)
+                this.Refresh();
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            MouseEvent ev = new MouseEvent();
+            ev.clicked = false;
+            ev.down = true;
+            ev.button = e.Button;
+            ev.x = (float)e.X / ClientSize.Width;
+            ev.y = (float)e.Y / ClientSize.Height;
+            scene.FeedMouseEvent(ev);
+            if (Drawing.needRedraw)
+                this.Refresh();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            MouseEvent ev = new MouseEvent();
+            ev.clicked = false;
+            ev.button = MouseButtons.None;
+            ev.x = (float)e.X / ClientSize.Width;
+            ev.y = (float)e.Y / ClientSize.Height;
+            scene.FeedMouseEvent(ev);
+            if (Drawing.needRedraw)
+                this.Refresh();
         }
     }
 }

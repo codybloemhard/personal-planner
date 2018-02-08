@@ -25,5 +25,10 @@ namespace Planner
         {
             root.DrawAllUnder(g);
         }
+
+        public void FeedMouseEvent(MouseEvent e)
+        {
+            root.MouseEvent(e);
+        }
     }
 }

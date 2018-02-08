@@ -137,6 +137,13 @@ namespace Planner
         }
     }
 
+    public struct MouseEvent
+    {
+        public MouseButtons button;
+        public bool clicked, down;
+        public float x, y;
+    }
+
     public class UINode
     {
         public UINode parent { get; private set; }
@@ -198,6 +205,20 @@ namespace Planner
             ComputeGlobalSpace();
         }
 
+        public virtual void MouseEvent(MouseEvent e)
+        {
+            for (int i = 0; i < childs.Count; i++)
+                childs[i].MouseEvent(e);
+        }
+
+        protected bool IsInsideSpace(float x, float y)
+        {
+            if (x > globalSpace.x && x < globalSpace.x + globalSpace.w
+                && y > globalSpace.y && y < globalSpace.y + globalSpace.h)
+                return true;
+            return false;
+        }
+
         private void ComputeGlobalSpace()
         {
             if (space.padded)
@@ -211,7 +232,7 @@ namespace Planner
                 float w = parent.globalSpace.w * space.w;
                 float h = parent.globalSpace.h * space.h;
                 globalSpace = new Space(x, y, w, h);
-            }            
+            }
             for (int i = 0; i < childs.Count; i++)
                 childs[i].ComputeGlobalSpace();
         }
@@ -314,11 +335,42 @@ namespace Planner
     {
         public Label(Space space, string colour)
             : base(space, colour) { }
-
+        
         public override void Draw(Graphics g)
         {
             base.Draw(g);
             Drawing.DrawRectangle(g, screenPart, colour);
+        }
+    }
+
+    public class Button : Label
+    {
+        protected string baseColour, hoverColour, pressColour;
+        protected Action action;
+
+        public Button(Space space, Action action, string baseColour, string hoverColour, string pressColour)
+            : base(space, baseColour)
+        {
+            this.baseColour = baseColour;
+            this.hoverColour = hoverColour;
+            this.pressColour = pressColour;
+            this.action = action;
+        }
+        
+        public override void MouseEvent(MouseEvent e)
+        {
+            bool hit = base.IsInsideSpace(e.x, e.y);
+            string oldColour = colour;
+            if (!hit)
+                colour = baseColour;
+            else if (hit && e.clicked && e.button == MouseButtons.Left)
+                action();
+            else if (hit && e.down && e.button == MouseButtons.Left)
+                colour = pressColour;
+            else if (hit) colour = hoverColour;
+
+            if (oldColour != colour)
+                Drawing.needRedraw = true;
         }
     }
 }
