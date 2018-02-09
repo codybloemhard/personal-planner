@@ -373,4 +373,27 @@ namespace Planner
                 Drawing.needRedraw = true;
         }
     }
+
+    public class TextLine : Drawable
+    {
+        public string text { get; protected set; }
+        public string font { get; protected set; }
+
+        public TextLine(string text, string font, string colour, Space space) 
+            : base(space, colour)
+        {
+            this.text = text;
+            this.font = font;
+        }
+
+        public override void Draw(Graphics g)
+        {
+            base.Draw(g);
+            TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
+            SchemeColour col = ColourSchemes.GetColour(colour);
+            Color c = col.colour;
+            Font f = Fonts.Get(font);
+            TextRenderer.DrawText(g, text, f, this.screenPart, c, flags);
+        }
+    }
 }

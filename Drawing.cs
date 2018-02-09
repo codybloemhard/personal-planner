@@ -90,6 +90,47 @@ namespace Planner
         }
     }
     
+    public static class Fonts
+    {
+        private static FontFamily family;
+        private static Dictionary<string, float> sizes;
+        private static Dictionary<string, Font> fonts;
+        private static List<string> keys;
+
+        static Fonts()
+        {
+            family = FontFamily.GenericMonospace;
+            sizes = new Dictionary<string, float>();
+            fonts = new Dictionary<string, Font>();
+            keys = new List<string>();
+        }
+
+        public static void Add(string name, float size)
+        {
+            if (sizes.ContainsKey(name)) return;
+            sizes.Add(name, size);
+            fonts.Add(name, null);
+            keys.Add(name);
+        }
+
+        public static Font Get(string name)
+        {
+            if (!fonts.ContainsKey(name)) return null;
+            return fonts[name];
+        }
+
+        public static void Recalculate()
+        {
+            for(int i = 0; i < keys.Count; i++)
+            {
+                string key = keys[i];
+                float size = Drawing.screenSize.Width * sizes[key];
+                Font f = new Font(family, size, FontStyle.Regular, GraphicsUnit.Pixel);
+                fonts[key] = f;
+            }
+        }
+    }
+
     public static class Drawing
     {
         public static Size screenSize;

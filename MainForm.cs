@@ -29,6 +29,10 @@ namespace Planner
             ColourSchemes.AddColour("std", "medium", Color.FromArgb(255, 64, 64, 64));
             ColourSchemes.AddColour("std", "light", Color.FromArgb(255, 128, 128, 128));
             ColourSchemes.AddColour("std", "green", Color.Green);
+            ColourSchemes.AddColour("std", "red", Color.Red);
+
+            Fonts.Add("medium", 0.05f);
+            Fonts.Recalculate();
 
             scene = new Scene();
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
@@ -43,9 +47,12 @@ namespace Planner
                 }
             menu.Add(grid);
             scene.Add(menu);
-
+            
             Button button = new Button(new Space(0.3f, 0.1f, 0.4f, 0.1f), () => { Console.WriteLine("hello"); }, "medium", "light", "green");
             scene.Add(button);
+            string msg = "Click me boi.";
+            TextLine line = new TextLine(msg, "medium", "red", new Space(0.3f, 0.1f, 0.4f, 0.1f));
+            scene.Add(line);
         }
         
         protected override void OnPaint(PaintEventArgs e)
@@ -62,6 +69,7 @@ namespace Planner
             float aspect = 16f / 9f;
             this.ClientSize = new Size(w, (int)(w / aspect));
             Drawing.SetScreen(ClientSize);
+            Fonts.Recalculate();
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
