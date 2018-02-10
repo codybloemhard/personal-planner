@@ -345,7 +345,7 @@ namespace Planner
 
     public class Button : Label
     {
-        protected string baseColour, hoverColour, pressColour;
+        protected string baseColour, hoverColour, pressColour, textColour;
         protected Action action;
 
         public Button(Space space, Action action, string baseColour, string hoverColour, string pressColour)
@@ -378,22 +378,23 @@ namespace Planner
     {
         public string text { get; protected set; }
         public string font { get; protected set; }
+        public TextFormatFlags format { get; set; }
 
-        public TextLine(string text, string font, string colour, Space space) 
+         public TextLine(Space space, string text, string font, string colour) 
             : base(space, colour)
         {
             this.text = text;
             this.font = font;
+            this.format = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
         }
 
         public override void Draw(Graphics g)
         {
             base.Draw(g);
-            TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
             SchemeColour col = ColourSchemes.GetColour(colour);
             Color c = col.colour;
             Font f = Fonts.Get(font);
-            TextRenderer.DrawText(g, text, f, this.screenPart, c, flags);
+            TextRenderer.DrawText(g, text, f, this.screenPart, c, format);
         }
     }
 }

@@ -13,8 +13,6 @@ namespace Planner
 {
     public partial class MainForm : Form
     {
-        private Scene scene;
-
         public MainForm()
         {
             InitializeComponent();
@@ -23,18 +21,21 @@ namespace Planner
             Drawing.SetScreen(drawableSize);
             this.ResizeRedraw = true;
 
-            ColourSchemes.AddScheme("std");
-            ColourSchemes.SetScheme("std");
-            ColourSchemes.AddColour("std", "dark", Color.FromArgb(255, 32, 32, 32));
-            ColourSchemes.AddColour("std", "medium", Color.FromArgb(255, 64, 64, 64));
-            ColourSchemes.AddColour("std", "light", Color.FromArgb(255, 128, 128, 128));
-            ColourSchemes.AddColour("std", "green", Color.Green);
-            ColourSchemes.AddColour("std", "red", Color.Red);
+            ColourSchemes.Add("std");
+            ColourSchemes.Set("std");
+            ColourSchemes.Add("std", "dark", Color.FromArgb(255, 32, 32, 32));
+            ColourSchemes.Add("std", "medium", Color.FromArgb(255, 64, 64, 64));
+            ColourSchemes.Add("std", "light", Color.FromArgb(255, 128, 128, 128));
+            ColourSchemes.Add("std", "green", Color.Green);
+            ColourSchemes.Add("std", "red", Color.Red);
 
             Fonts.Add("medium", 0.05f);
+            Fonts.Add("bold", 0.05f, FontStyle.Bold);
             Fonts.Recalculate();
 
-            scene = new Scene();
+            Scenes.Add("agenda");
+            Scenes.Set("agenda");
+            
             Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
             Label test = new Label(new Space(), "medium");
             uint w = 5, h = 3;
@@ -46,19 +47,19 @@ namespace Planner
                     grid.AddPaddedEven(l, 0.1f, true, (uint)x, (uint)y);
                 }
             menu.Add(grid);
-            scene.Add(menu);
+            Scenes.Add(menu);
             
             Button button = new Button(new Space(0.3f, 0.1f, 0.4f, 0.1f), () => { Console.WriteLine("hello"); }, "medium", "light", "green");
-            scene.Add(button);
-            string msg = "Click me boi.";
-            TextLine line = new TextLine(msg, "medium", "red", new Space(0.3f, 0.1f, 0.4f, 0.1f));
-            scene.Add(line);
+            Scenes.Add(button);
+            string msg = "click me boi";
+            TextLine line = new TextLine(new Space(0.3f, 0.1f, 0.4f, 0.1f), msg, "medium", "red");
+            Scenes.Add(line);
         }
         
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            scene.DrawAll(e.Graphics);
+            Scenes.DrawAll(e.Graphics);
             Drawing.needRedraw = false;
         }
 
@@ -81,7 +82,7 @@ namespace Planner
             ev.button = e.Button;
             ev.x = (float)e.X / ClientSize.Width;
             ev.y = (float)e.Y / ClientSize.Height;
-            scene.FeedMouseEvent(ev);
+            Scenes.FeedMouseEvent(ev);
             if (Drawing.needRedraw)
                 this.Refresh();
         }
@@ -95,7 +96,7 @@ namespace Planner
             ev.button = e.Button;
             ev.x = (float)e.X / ClientSize.Width;
             ev.y = (float)e.Y / ClientSize.Height;
-            scene.FeedMouseEvent(ev);
+            Scenes.FeedMouseEvent(ev);
             if (Drawing.needRedraw)
                 this.Refresh();
         }
@@ -108,7 +109,7 @@ namespace Planner
             ev.button = MouseButtons.None;
             ev.x = (float)e.X / ClientSize.Width;
             ev.y = (float)e.Y / ClientSize.Height;
-            scene.FeedMouseEvent(ev);
+            Scenes.FeedMouseEvent(ev);
             if (Drawing.needRedraw)
                 this.Refresh();
         }

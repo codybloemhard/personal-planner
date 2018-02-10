@@ -56,13 +56,13 @@ namespace Planner
             white = new SchemeColour(Color.White);
         }
 
-        public static void AddScheme(string name)
+        public static void Add(string name)
         {
             if (schemes.ContainsKey(name)) return;
             schemes.Add(name, new ColourScheme());
         }
 
-        public static void AddColour(string scheme, string colourname, Color colour)
+        public static void Add(string scheme, string colourname, Color colour)
         {
             if (!schemes.ContainsKey(scheme)) return;
             schemes[scheme].AddColour(colourname, colour);
@@ -84,31 +84,40 @@ namespace Planner
             return schemes[currentScheme].GetColour(colourname);
         }
 
-        public static void SetScheme(string scheme)
+        public static void Set(string scheme)
         {
             currentScheme = scheme;
         }
     }
     
+    public struct FontSetting
+    {
+        public float size;
+        public FontStyle style;
+    }
+
     public static class Fonts
     {
         private static FontFamily family;
-        private static Dictionary<string, float> sizes;
+        private static Dictionary<string, FontSetting> settings;
         private static Dictionary<string, Font> fonts;
         private static List<string> keys;
 
         static Fonts()
         {
             family = FontFamily.GenericMonospace;
-            sizes = new Dictionary<string, float>();
+            settings = new Dictionary<string, FontSetting>();
             fonts = new Dictionary<string, Font>();
             keys = new List<string>();
         }
 
-        public static void Add(string name, float size)
+        public static void Add(string name, float size, FontStyle style = FontStyle.Regular)
         {
-            if (sizes.ContainsKey(name)) return;
-            sizes.Add(name, size);
+            if (settings.ContainsKey(name)) return;
+            FontSetting setting = new FontSetting();
+            setting.size = size;
+            setting.style = style;
+            settings.Add(name, setting);
             fonts.Add(name, null);
             keys.Add(name);
         }
@@ -124,8 +133,8 @@ namespace Planner
             for(int i = 0; i < keys.Count; i++)
             {
                 string key = keys[i];
-                float size = Drawing.screenSize.Width * sizes[key];
-                Font f = new Font(family, size, FontStyle.Regular, GraphicsUnit.Pixel);
+                float size = Drawing.screenSize.Width * settings[key].size;
+                Font f = new Font(family, size, settings[key].style, GraphicsUnit.Pixel);
                 fonts[key] = f;
             }
         }
