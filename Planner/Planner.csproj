@@ -45,8 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App\Agenda.cs" />
-    <Compile Include="App\Init.cs" />
+    <Compile Include="App\CustomUI\WeekView.cs" />
+    <Compile Include="App\Scenes\Agenda.cs" />
+    <Compile Include="App\Scenes\Init.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trui\Drawing.cs" />

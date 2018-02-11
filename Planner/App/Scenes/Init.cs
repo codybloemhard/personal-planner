@@ -16,6 +16,7 @@ namespace Planner
             ColourSchemes.Add("std", "green", Color.Green);
             ColourSchemes.Add("std", "red", Color.Red);
 
+            Fonts.Add("daysInWeek", 0.025f, FontStyle.Bold | FontStyle.Italic);
             Fonts.Add("medium", 0.05f);
             Fonts.Add("bold", 0.05f, FontStyle.Bold);
             Fonts.Recalculate();
