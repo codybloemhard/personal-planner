@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Trui;
 
 namespace Planner
 {
@@ -20,7 +21,7 @@ namespace Planner
             this.ClientSize = drawableSize;
             Drawing.SetScreen(drawableSize);
             this.ResizeRedraw = true;
-
+			
             ColourSchemes.Add("std");
             ColourSchemes.Set("std");
             ColourSchemes.Add("std", "dark", Color.FromArgb(255, 32, 32, 32));
@@ -36,24 +37,22 @@ namespace Planner
             Scenes.Add("agenda");
             Scenes.Set("agenda");
             
-            Label menu = new Label(new Space(0f, 0f, 0.2f, 1f), "dark");
-            Label test = new Label(new Space(), "medium");
+            Trui.Label menu = new Trui.Label(new Space(0f, 0f, 0.2f, 1f), "dark");
+            Trui.Label test = new Trui.Label(new Space(), "medium");
             uint w = 5, h = 3;
             Grid grid = new Grid(new Space(true), w, h);
             for (int x = 0; x < w; x++)
                 for (int y = 0; y < h; y++)
                 {
-                    Label l = new Label(new Space(), "medium");
+                    Trui.Label l = new Trui.Label(new Space(), "medium");
                     grid.AddPaddedEven(l, 0.1f, true, (uint)x, (uint)y);
                 }
             menu.Add(grid);
             Scenes.Add(menu);
-            
-            Button button = new Button(new Space(0.3f, 0.1f, 0.4f, 0.1f), () => { Console.WriteLine("hello"); }, "medium", "light", "green");
+
+            Trui.Button button = new Trui.Button(new Space(0.3f, 0.1f, 0.4f, 0.1f), () => { Console.WriteLine("hello"); }, "medium", "light", "green",
+                "red", "click me boi", "medium");
             Scenes.Add(button);
-            string msg = "click me boi";
-            TextLine line = new TextLine(new Space(0.3f, 0.1f, 0.4f, 0.1f), msg, "medium", "red");
-            Scenes.Add(line);
         }
         
         protected override void OnPaint(PaintEventArgs e)

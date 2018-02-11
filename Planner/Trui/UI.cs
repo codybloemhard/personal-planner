@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Planner
+namespace Trui
 {
     public class Space
     {
@@ -345,18 +345,25 @@ namespace Planner
 
     public class Button : Label
     {
-        protected string baseColour, hoverColour, pressColour, textColour;
+        protected string baseColour, hoverColour, pressColour;
+        protected string textColour, font, text;
         protected Action action;
 
-        public Button(Space space, Action action, string baseColour, string hoverColour, string pressColour)
+        public Button(Space space, Action action, string baseColour, string hoverColour, string pressColour,
+            string textColour, string text, string font)
             : base(space, baseColour)
         {
             this.baseColour = baseColour;
             this.hoverColour = hoverColour;
             this.pressColour = pressColour;
+            this.textColour = textColour;
             this.action = action;
+            this.font = font;
+            this.text = text;
+            TextLine line = new TextLine(new Space(true), text, font, textColour);
+            this.Add(line);
         }
-        
+
         public override void MouseEvent(MouseEvent e)
         {
             bool hit = base.IsInsideSpace(e.x, e.y);

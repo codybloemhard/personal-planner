@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace Planner
+namespace Trui
 {
     public class SchemeColour
     {
@@ -50,7 +50,7 @@ namespace Planner
 
         static ColourSchemes()
         {
-            schemes = new Dictionary<string, Planner.ColourScheme>();
+            schemes = new Dictionary<string, ColourScheme>();
             currentScheme = "";
             black = new SchemeColour(Color.Black);
             white = new SchemeColour(Color.White);
