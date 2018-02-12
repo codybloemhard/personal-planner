@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\CustomUI\WeekView.cs" />
+    <Compile Include="App\Logic\Schedule.cs" />
     <Compile Include="App\Scenes\Agenda.cs" />
     <Compile Include="App\Scenes\Init.cs" />
     <Compile Include="Program.cs" />

@@ -24,7 +24,8 @@ namespace Planner
                 Space sp = new Space(step * i, 0f, step, 1f);
                 string colour = i % 2 == 0 ? "light" : "medium";
                 Label l = new Label(sp, colour);
-                TextLine line = new TextLine(new Space(true), dayz[i], "daysInWeek", "red");
+                string msg = dayz[i] + " - " + DateTime.Now.Day;
+                TextLine line = new TextLine(new Space(true), msg, "daysInWeek", "red");
                 l.Add(line);
                 daysSpace.Add(l);
             }
@@ -36,6 +37,7 @@ namespace Planner
                 Label l = new Label(sp, colour);
                 calendarSpace.Add(l);
             }
+            MyCalendar.Test();
         }
     }
 }
