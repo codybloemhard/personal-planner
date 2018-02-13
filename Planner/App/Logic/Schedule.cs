@@ -15,13 +15,30 @@ namespace Planner
         {
             DateTime time = DateTime.Now;
             Console.Write("Today: "); Print(time);
-            for(int i = 0; i < 100; i++)
-            {
-                time = time.AddDays(1);
-                Print(time);
-            }
-            Console.Write("Last: ");
-            Console.WriteLine(DayExists(32, 3, 2018));
+            Print(FirstDayOfTheWeek(time));
+        }
+
+        public static float MinutesToFloat(DateTime t)
+        {
+            float minutes = t.Hour * 60 + t.Minute;
+            return minutes / (60 * 24);
+        }
+
+        public static int DaySinceMonday(DateTime t)
+        {
+            DateTime monday = FirstDayOfTheWeek(t);
+            return (monday - t).Days;
+        }
+
+        public static DateTime FirstDayOfTheWeek(DateTime t)
+        {
+            int diff = (7 + (t.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return t.AddDays(-1 * diff).Date;
+        }
+
+        public static DateTime Today()
+        {
+            return DateTime.Now;
         }
 
         public static bool DayExists(int day, int month, int year)
@@ -45,6 +62,30 @@ namespace Planner
         public static void Print(DateTime t)
         {
             Console.WriteLine(t.Day + "/" + t.Month + "/" + t.Year);
+        }
+    }
+
+    public struct Card
+    {
+        public DateTime begin;
+        public DateTime end;
+        public string title;
+        public string content;
+        public string category;
+
+        public float Begin()
+        {
+            return MyCalendar.MinutesToFloat(begin);
+        }
+
+        public float End()
+        {
+            return MyCalendar.MinutesToFloat(end);
+        }
+
+        public float Length()
+        {
+            return End() - Begin();
         }
     }
 }

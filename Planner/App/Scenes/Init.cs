@@ -15,6 +15,7 @@ namespace Planner
             ColourSchemes.Add("std", "light", Color.FromArgb(255, 128, 128, 128));
             ColourSchemes.Add("std", "green", Color.Green);
             ColourSchemes.Add("std", "red", Color.Red);
+            ColourSchemes.Add("std", "darkblue", Color.DarkBlue);
 
             Fonts.Add("daysInWeek", 0.02f, FontStyle.Bold | FontStyle.Italic);
             Fonts.Add("medium", 0.05f);
