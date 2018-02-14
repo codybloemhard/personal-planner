@@ -49,7 +49,10 @@ namespace Planner
             Card example = new Card();
             example.begin = new DateTime(2018, 2, 13, 18, 0, 0);
             example.end = new DateTime(2018, 2, 13, 21, 30, 0);
+            example.title = "Databases homework";
             Label card = new Label(new Space(0f, example.Begin(), 1f, example.Length()),"darkblue");
+            TextLine cardLine = new TextLine(new Space(0f, 0f, 1f, 0.25f), example.title, "cardTitle", "red");
+            card.Add(cardLine);
             int index = MyCalendar.DaySinceMonday(example.begin);
             dayLabels[Math.Abs(index)].Add(card);
             //build timebar

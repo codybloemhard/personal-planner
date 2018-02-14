@@ -17,6 +17,7 @@ namespace Planner
             ColourSchemes.Add("std", "red", Color.Red);
             ColourSchemes.Add("std", "darkblue", Color.DarkBlue);
 
+            Fonts.Add("cardTitle", 0.01f);
             Fonts.Add("daysInWeek", 0.02f, FontStyle.Bold | FontStyle.Italic);
             Fonts.Add("medium", 0.05f);
             Fonts.Add("bold", 0.05f, FontStyle.Bold);

@@ -1,14 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 
 namespace Planner
 {
     public static class MyCalendar
     {
+        private static List<Card> cards;
+
         static MyCalendar()
         {
-            
+            cards = new List<Card>();
+            string file = "agendaData";
+            if (File.Exists(file))
+                LoadData(file);
+        }
+        
+        private static void LoadData(string file)
+        {
+            BinaryReader r = new BinaryReader(File.Open(file, FileMode.Open));
+            int count = r.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                Card c = new Card();
+                c.begin = ReadDateTime(r);
+                c.end = ReadDateTime(r);
+                c.title = r.ReadString();
+                c.content = r.ReadString();
+                c.category = r.ReadString();
+            }
+        }
+
+        private static void WriteData(string file)
+        {
+            BinaryWriter w = new BinaryWriter(File.Open(file, FileMode.OpenOrCreate));
+            for(int i = 0; i < cards.Count; i++)
+            {
+                WriteDateTime(w, cards[i].begin);
+                WriteDateTime(w, cards[i].end);
+                w.Write(cards[i].title);
+                w.Write(cards[i].content);
+                w.Write(cards[i].category);
+            }
+        }
+
+        private static DateTime ReadDateTime(BinaryReader r)
+        {
+            int[] datetime = new int[6];
+            for (int j = 0; j < 6; j++)
+                datetime[j] = r.ReadInt32();
+            DateTime dt = new DateTime(datetime[0], datetime[1], datetime[2], 
+                datetime[3], datetime[4], datetime[5]);
+            return dt;
+        }
+
+        private static void WriteDateTime(BinaryWriter w, DateTime t)
+        {
+            w.Write(t.Year);
+            w.Write(t.Month);
+            w.Write(t.Day);
+            w.Write(t.Hour);
+            w.Write(t.Minute);
+            w.Write(t.Second);
         }
 
         public static void Test()
@@ -86,6 +140,11 @@ namespace Planner
         public float Length()
         {
             return End() - Begin();
+        }
+
+        public string String()
+        {
+            
         }
     }
 }
