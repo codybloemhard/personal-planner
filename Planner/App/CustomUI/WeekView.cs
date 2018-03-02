@@ -47,20 +47,19 @@ namespace Planner
             }
             //build all cards(example cart)
             Card example = new Card();
-            example.begin = new DateTime(2018, 2, 13, 18, 0, 0);
+            example.start = new DateTime(2018, 2, 13, 18, 0, 0);
             example.end = new DateTime(2018, 2, 13, 21, 30, 0);
-            example.title = "Databases homework";
+            example.title = "Databases test";
             Label card = new Label(new Space(0f, example.Begin(), 1f, example.Length()),"darkblue");
             TextLine cardLine = new TextLine(new Space(0f, 0f, 1f, 0.25f), example.title, "cardTitle", "red");
             card.Add(cardLine);
-            int index = MyCalendar.DaySinceMonday(example.begin);
+            int index = MyCalendar.DaySinceMonday(example.start);
             dayLabels[Math.Abs(index)].Add(card);
             //build timebar
             float part = MyCalendar.MinutesToFloat(DateTime.Now);
             float height = 0.01f;
             Label timeLine = new Label(new Space(0f, part - height/2f, 1f, height),"red");
             dayLabels[currentDayNr].Add(timeLine);
-            MyCalendar.Test();
         }
     }
 }

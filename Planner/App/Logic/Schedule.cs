@@ -12,11 +12,33 @@ namespace Planner
         static MyCalendar()
         {
             cards = new List<Card>();
+        }
+
+        public static void InitSchedule()
+        {
             string file = "agendaData";
             if (File.Exists(file))
                 LoadData(file);
+            for (int i = 0; i < cards.Count; i++)
+                Console.WriteLine(cards[i].String());
+
+            /*Card c0 = new Card();
+            c0.start = new DateTime(2018, 2, 13, 18, 0, 0);
+            c0.end = new DateTime(2018, 2, 13, 21, 30, 0);
+            c0.title = "Databases homework";
+            c0.content = "do shit on blackboard ok";
+            c0.category = "uni";
+            Card c1 = new Card();
+            c1.start = new DateTime(2018, 2, 16, 12, 0, 0);
+            c1.end = new DateTime(2018, 2, 16, 13, 0, 0);
+            c1.title = "Eten";
+            c1.content = "hap hap hap";
+            c1.category = "misc";
+            cards.Add(c0);
+            cards.Add(c1);*/
+            WriteData(file);
         }
-        
+
         private static void LoadData(string file)
         {
             BinaryReader r = new BinaryReader(File.Open(file, FileMode.Open));
@@ -24,32 +46,39 @@ namespace Planner
             for (int i = 0; i < count; i++)
             {
                 Card c = new Card();
-                c.begin = ReadDateTime(r);
+                c.start = ReadDateTime(r);
                 c.end = ReadDateTime(r);
                 c.title = r.ReadString();
                 c.content = r.ReadString();
                 c.category = r.ReadString();
             }
+            r.Close();
         }
 
         private static void WriteData(string file)
         {
             BinaryWriter w = new BinaryWriter(File.Open(file, FileMode.OpenOrCreate));
-            for(int i = 0; i < cards.Count; i++)
+            w.Write(cards.Count);
+            for (int i = 0; i < cards.Count; i++)
             {
-                WriteDateTime(w, cards[i].begin);
+                WriteDateTime(w, cards[i].start);
                 WriteDateTime(w, cards[i].end);
                 w.Write(cards[i].title);
                 w.Write(cards[i].content);
                 w.Write(cards[i].category);
             }
+            w.Close();
         }
 
         private static DateTime ReadDateTime(BinaryReader r)
         {
             int[] datetime = new int[6];
             for (int j = 0; j < 6; j++)
+            {
                 datetime[j] = r.ReadInt32();
+                Console.Write(datetime[j] + " - ");
+            }
+            Console.WriteLine();
             DateTime dt = new DateTime(datetime[0], datetime[1], datetime[2], 
                 datetime[3], datetime[4], datetime[5]);
             return dt;
@@ -63,13 +92,6 @@ namespace Planner
             w.Write(t.Hour);
             w.Write(t.Minute);
             w.Write(t.Second);
-        }
-
-        public static void Test()
-        {
-            DateTime time = DateTime.Now;
-            Console.Write("Today: "); Print(time);
-            Print(FirstDayOfTheWeek(time));
         }
 
         public static float MinutesToFloat(DateTime t)
@@ -113,15 +135,40 @@ namespace Planner
             return t;
         }
 
-        public static void Print(DateTime t)
+        public static string StrDate(DateTime t)
         {
-            Console.WriteLine(t.Day + "/" + t.Month + "/" + t.Year);
+            return t.Day + "/" + t.Month + "/" + t.Year;
+        }
+
+        public static string StrTime(DateTime t)
+        {
+            return t.Hour + "/" + t.Minute + "/" + t.Second;
+        }
+
+        public static string StrDateTime(DateTime t)
+        {
+            return StrDate(t) + "::" + StrTime(t);
+        }
+
+        public static void PrintDate(DateTime t)
+        {
+            Console.WriteLine(StrDate(t));
+        }
+
+        public static void PrintTime(DateTime t)
+        {
+            Console.WriteLine(StrTime(t));
+        }
+
+        public static void PrintDateTime(DateTime t)
+        {
+            Console.WriteLine(StrDateTime(t));
         }
     }
 
     public struct Card
     {
-        public DateTime begin;
+        public DateTime start;
         public DateTime end;
         public string title;
         public string content;
@@ -129,7 +176,7 @@ namespace Planner
 
         public float Begin()
         {
-            return MyCalendar.MinutesToFloat(begin);
+            return MyCalendar.MinutesToFloat(start);
         }
 
         public float End()
@@ -144,7 +191,12 @@ namespace Planner
 
         public string String()
         {
-            
+            return
+                "Title: " + title + "\n" 
+                + "Start: " + MyCalendar.StrDateTime(start) + "\n"
+                + "End: " + MyCalendar.StrDateTime(end) + "\n"
+                + "Msg: " + content + "\n"
+                + "Cat: " + category;
         }
     }
 }
