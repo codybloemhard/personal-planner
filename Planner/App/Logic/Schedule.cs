@@ -8,10 +8,23 @@ namespace Planner
     public static class MyCalendar
     {
         private static List<Card> cards;
+        private static Card nullcard;
 
         static MyCalendar()
         {
             cards = new List<Card>();
+            nullcard = new Card();
+        }
+
+        public static int Cards()
+        {
+            return cards.Count;
+        }
+
+        public static Card GetCard(int i)
+        {
+            if (i < 0 || i > cards.Count - 1) return nullcard;
+            return cards[i];
         }
 
         public static void InitSchedule()
@@ -22,7 +35,19 @@ namespace Planner
             for (int i = 0; i < cards.Count; i++)
                 Console.WriteLine(cards[i].String());
 
-            /*Card c0 = new Card();
+            Console.WriteLine("==============");
+            DateTime t = DateTime.Now;
+            DateTime first = FirstDayOfTheWeek(t);
+            Console.WriteLine("Now: " + t);
+            Console.WriteLine("First: " + first);
+            DateTime temp = first;
+            for (int i = 0; i < 10; i++)
+            {
+                temp = PrevDay(temp, DayOfWeek.Monday);
+                Console.WriteLine("Next: " + temp);
+            }
+
+            Card c0 = new Card();
             c0.start = new DateTime(2018, 2, 13, 18, 0, 0);
             c0.end = new DateTime(2018, 2, 13, 21, 30, 0);
             c0.title = "Databases homework";
@@ -35,7 +60,7 @@ namespace Planner
             c1.content = "hap hap hap";
             c1.category = "misc";
             cards.Add(c0);
-            cards.Add(c1);*/
+            cards.Add(c1);
             WriteData(file);
         }
 
@@ -110,6 +135,35 @@ namespace Planner
         {
             int diff = (7 + (t.DayOfWeek - DayOfWeek.Monday)) % 7;
             return t.AddDays(-1 * diff).Date;
+        }
+
+        public static bool IsInThisWeek(DateTime t, DateTime monday)
+        {
+            return (t - monday).Days <= 7;
+        }
+
+        public static DateTime NextDay(DateTime t, DayOfWeek day)
+        {
+            int max = 20;//voor gekkigheden
+            while(max >= 0)
+            {
+                max--;
+                t = t.AddDays(1);
+                if (t.DayOfWeek == day) return t;
+            }
+            return DateTime.Now;
+        }
+
+        public static DateTime PrevDay(DateTime t, DayOfWeek day)
+        {
+            int max = 20;//voor gekkigheden
+            while (max >= 0)
+            {
+                max--;
+                t = t.AddDays(-1);
+                if (t.DayOfWeek == day) return t;
+            }
+            return DateTime.Now;
         }
 
         public static DateTime Today()
