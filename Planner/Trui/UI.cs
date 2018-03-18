@@ -157,6 +157,11 @@ namespace Trui
             SetSpace(space);
         }
 
+        public void Clear()
+        {
+            childs.Clear();
+        }
+
         public void Add(UINode node)
         {
             node.parent = this;

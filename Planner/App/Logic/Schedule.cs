@@ -35,18 +35,6 @@ namespace Planner
             for (int i = 0; i < cards.Count; i++)
                 Console.WriteLine(cards[i].String());
 
-            Console.WriteLine("==============");
-            DateTime t = DateTime.Now;
-            DateTime first = FirstDayOfTheWeek(t);
-            Console.WriteLine("Now: " + t);
-            Console.WriteLine("First: " + first);
-            DateTime temp = first;
-            for (int i = 0; i < 10; i++)
-            {
-                temp = PrevDay(temp, DayOfWeek.Monday);
-                Console.WriteLine("Next: " + temp);
-            }
-
             Card c0 = new Card();
             c0.start = new DateTime(2018, 2, 13, 18, 0, 0);
             c0.end = new DateTime(2018, 2, 13, 21, 30, 0);
@@ -63,7 +51,7 @@ namespace Planner
             cards.Add(c1);
             WriteData(file);
         }
-
+        
         private static void LoadData(string file)
         {
             BinaryReader r = new BinaryReader(File.Open(file, FileMode.Open));
@@ -139,7 +127,8 @@ namespace Planner
 
         public static bool IsInThisWeek(DateTime t, DateTime monday)
         {
-            return (t - monday).Days <= 7;
+            int diff = (t - monday).Days;
+            return diff < 7 && diff >= 0;
         }
 
         public static DateTime NextDay(DateTime t, DayOfWeek day)
