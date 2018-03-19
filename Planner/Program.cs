@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Trui;
 using Planner;
 
 namespace Planner
@@ -11,7 +10,7 @@ namespace Planner
         static void Main()
         {
             MyCalendar.InitSchedule();
-            TruiWindow trui = new TruiWindow(1600, 900, Init.init);
+            Interperter main = new Interperter();
         }
     }
 }
