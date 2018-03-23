@@ -5,18 +5,25 @@ using System.IO;
 
 namespace Planner
 {
-    public static class MyCalendar
+    public static class Schedule
     {
         private static List<Card> cards;
         private static Card nullcard;
+        private static List<Deadline> deadlines;
+        private static Deadline nulldeadline;
 
-        static MyCalendar()
+        private static string cardFile = "agendaData";
+        private static string deadlineFile = "deadlineData";
+
+        static Schedule()
         {
             cards = new List<Card>();
             nullcard = new Card();
+            deadlines = new List<Deadline>();
+            nulldeadline = new Deadline();
         }
 
-        public static int Cards()
+        public static int AmountCards()
         {
             return cards.Count;
         }
@@ -27,34 +34,27 @@ namespace Planner
             return cards[i];
         }
 
+        public static int AmountDeadlines()
+        {
+            return deadlines.Count;
+        }
+
+        public static Deadline GetDeadline(int i)
+        {
+            if (i < 0 || i > deadlines.Count - 1) return nulldeadline;
+            return deadlines[i];
+        }
+
         public static void InitSchedule()
         {
-            string file = "agendaData";
-            if (File.Exists(file))
-                LoadData(file);
-            for (int i = 0; i < cards.Count; i++)
-                Console.WriteLine(cards[i].String());
-
-            Card c0 = new Card();
-            c0.start = new DateTime(2018, 2, 13, 18, 0, 0);
-            c0.end = new DateTime(2018, 2, 13, 21, 30, 0);
-            c0.title = "Databases homework";
-            c0.content = "do shit on blackboard ok";
-            c0.category = "uni";
-            Card c1 = new Card();
-            c1.start = new DateTime(2018, 2, 16, 12, 0, 0);
-            c1.end = new DateTime(2018, 2, 16, 13, 0, 0);
-            c1.title = "Eten";
-            c1.content = "hap hap hap";
-            c1.category = "misc";
-            cards.Add(c0);
-            cards.Add(c1);
-            WriteData(file);
+            LoadCards();
+            LoadDeadlines();
         }
-        
-        private static void LoadData(string file)
+
+        public static void LoadCards()
         {
-            BinaryReader r = new BinaryReader(File.Open(file, FileMode.Open));
+            if (!File.Exists(cardFile)) return;
+            BinaryReader r = new BinaryReader(File.Open(cardFile, FileMode.Open));
             int count = r.ReadInt32();
             for (int i = 0; i < count; i++)
             {
@@ -64,13 +64,14 @@ namespace Planner
                 c.title = r.ReadString();
                 c.content = r.ReadString();
                 c.category = r.ReadString();
+                cards.Add(c);
             }
             r.Close();
         }
 
-        private static void WriteData(string file)
+        public static void WriteCards()
         {
-            BinaryWriter w = new BinaryWriter(File.Open(file, FileMode.OpenOrCreate));
+            BinaryWriter w = new BinaryWriter(File.Open(cardFile, FileMode.OpenOrCreate));
             w.Write(cards.Count);
             for (int i = 0; i < cards.Count; i++)
             {
@@ -83,15 +84,50 @@ namespace Planner
             w.Close();
         }
 
+        public static void LoadDeadlines()
+        {
+            if (!File.Exists(deadlineFile)) return;
+            BinaryReader r = new BinaryReader(File.Open(deadlineFile, FileMode.Open));
+            int count = r.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                Deadline d = new Deadline();
+                d.deadline = ReadDateTime(r);
+                d.title = r.ReadString();
+                d.category = r.ReadString();
+                deadlines.Add(d);
+            }
+            r.Close();
+        }
+
+        public static void WriteDeadlines()
+        {
+            BinaryWriter w = new BinaryWriter(File.Open(deadlineFile, FileMode.OpenOrCreate));
+            w.Write(deadlines.Count);
+            for (int i = 0; i < deadlines.Count; i++)
+            {
+                WriteDateTime(w, deadlines[i].deadline);
+                w.Write(deadlines[i].title);
+                w.Write(deadlines[i].category);
+            }
+            w.Close();
+        }
+
+        public static void AddDeadline(Deadline l)
+        {
+            deadlines.Add(l);
+        }
+
+        public static void DeleteDeadline(Deadline l)
+        {
+            deadlines.Remove(l);
+        }
+
         private static DateTime ReadDateTime(BinaryReader r)
         {
             int[] datetime = new int[6];
             for (int j = 0; j < 6; j++)
-            {
                 datetime[j] = r.ReadInt32();
-                Console.Write(datetime[j] + " - ");
-            }
-            Console.WriteLine();
             DateTime dt = new DateTime(datetime[0], datetime[1], datetime[2], 
                 datetime[3], datetime[4], datetime[5]);
             return dt;
@@ -185,12 +221,41 @@ namespace Planner
 
         public static string StrTime(DateTime t)
         {
-            return t.Hour + "/" + t.Minute + "/" + t.Second;
+            return t.Second + ":" + t.Minute + ":" + t.Hour;
         }
 
         public static string StrDateTime(DateTime t)
         {
-            return StrDate(t) + "::" + StrTime(t);
+            return StrTime(t) + "::" + StrDate(t);
+        }
+
+        public static bool DateTimeFromString(string datetime, out DateTime dt)
+        {
+            dt = DateTime.Now;
+            int[] data = new int[6];
+            int index = 0;
+            string temp = "";
+            for(int i = 0; i < datetime.Length; i++)
+            {
+                if(datetime[i] == '/' || datetime[i] == ':'
+                    || datetime[i] == '-')
+                {
+                    int.TryParse(temp, out data[index]);
+                    index++;
+                    temp = "";
+                    continue;
+                }
+                temp += datetime[i];
+            }
+            int.TryParse(temp, out data[index]);
+            if (index < 5) return false;
+            for (int i = 0; i < 6; i++)
+                if (data[i] < 0) return false;
+            int[] maxValues = new int[] { 59, 59, 23, 31, 12, dt.Year + 50};
+            for (int i = 0; i < 6; i++)
+                if (data[i] > maxValues[i]) return false;
+            dt = new DateTime(data[5], data[4], data[3], data[2], data[1], data[0]);
+            return true;
         }
 
         public static void PrintDate(DateTime t)
@@ -219,12 +284,12 @@ namespace Planner
 
         public float Begin()
         {
-            return MyCalendar.MinutesToFloat(start);
+            return Schedule.MinutesToFloat(start);
         }
 
         public float End()
         {
-            return MyCalendar.MinutesToFloat(end);
+            return Schedule.MinutesToFloat(end);
         }
 
         public float Length()
@@ -236,10 +301,22 @@ namespace Planner
         {
             return
                 "Title: " + title + "\n" 
-                + "Start: " + MyCalendar.StrDateTime(start) + "\n"
-                + "End: " + MyCalendar.StrDateTime(end) + "\n"
+                + "Start: " + Schedule.StrDateTime(start) + "\n"
+                + "End: " + Schedule.StrDateTime(end) + "\n"
                 + "Msg: " + content + "\n"
                 + "Cat: " + category;
+        }
+    }
+
+    public struct Deadline
+    {
+        public DateTime deadline;
+        public string title;
+        public string category;
+
+        public int SecondsUntil()
+        {
+            return (int)(deadline - DateTime.Now).TotalSeconds;
         }
     }
 }

@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App\Executes.cs" />
     <Compile Include="App\Interperter.cs" />
     <Compile Include="Console\Conzole.cs" />
     <Compile Include="Data\Schedule.cs" />

@@ -9,7 +9,7 @@ namespace Planner
         [STAThread]
         static void Main()
         {
-            MyCalendar.InitSchedule();
+            Schedule.InitSchedule();
             Interperter main = new Interperter();
         }
     }
