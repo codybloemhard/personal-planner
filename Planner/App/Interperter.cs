@@ -6,12 +6,12 @@ namespace Planner
     public class Interperter
     {
         private List<string> strings;
-        private List<Action<string[]>> executes;
+        private List<Func<string[], bool>> executes;
 
         public Interperter()
         {
             strings = new List<string>();
-            executes = new List<Action<string[]>>();
+            executes = new List<Func<string[], bool>>();
             executes.Add(Executes.Now);
             executes.Add(Executes.Today);
             executes.Add(Executes.Time);
@@ -19,12 +19,18 @@ namespace Planner
             executes.Add(Executes.ShowDeadlines);
             executes.Add(Executes.AddDeadline);
             executes.Add(Executes.DeleteDeadline);
+            executes.Add(Executes.EditDeadline);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
-            Conzole.PrintLine("Personal Planner");
-            Conzole.PrintLine("Made by Cody Bloemhard");
+            Introduce();
             AskCommand();
+        }
+
+        private void Introduce()
+        {
+            Conzole.PrintLine("Personal Planner", ConsoleColor.Cyan);
+            Conzole.PrintLine("Made by Cody Bloemhard", ConsoleColor.Cyan);
         }
 
         private void AskCommand()
@@ -33,10 +39,21 @@ namespace Planner
             string raw = Conzole.GetLine();
             raw = raw.ToLower();
             if (raw == "exit") return;
-            if (raw == "") AskCommand();
+            if(raw == "clear")
+            {
+                Console.Clear();
+                Introduce();
+                AskCommand();
+                return;
+            }
+            if (raw == "")
+            {
+                AskCommand();
+                return;
+            }
             string[] command = ExtractCommand(raw);
             for (int i = 0; i < executes.Count; i++)
-                executes[i](command);
+                if (executes[i](command)) break;
             AskCommand();
         }
         

@@ -113,14 +113,19 @@ namespace Planner
             w.Close();
         }
 
-        public static void AddDeadline(Deadline l)
+        public static void AddDeadline(Deadline d)
         {
-            deadlines.Add(l);
+            deadlines.Add(d);
         }
 
-        public static void DeleteDeadline(Deadline l)
+        public static void DeleteDeadline(Deadline d)
         {
-            deadlines.Remove(l);
+            deadlines.Remove(d);
+        }
+
+        public static void EditDeadline(int i, Deadline newd)
+        {
+            deadlines[i] = newd;
         }
 
         private static DateTime ReadDateTime(BinaryReader r)
@@ -249,8 +254,9 @@ namespace Planner
             }
             int.TryParse(temp, out data[index]);
             if (index < 5) return false;
+            int[] minValues = new int[] { 0, 0, 0, 1, 1, 1 };
             for (int i = 0; i < 6; i++)
-                if (data[i] < 0) return false;
+                if (data[i] < minValues[i]) return false;
             int[] maxValues = new int[] { 59, 59, 23, 31, 12, dt.Year + 50};
             for (int i = 0; i < 6; i++)
                 if (data[i] > maxValues[i]) return false;

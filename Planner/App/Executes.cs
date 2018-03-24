@@ -5,33 +5,36 @@ namespace Planner
 {
     public static class Executes
     {
-        public static void Now(string[] com)
+        public static bool Now(string[] com)
         {
-            if (com[0] != "now") return;
+            if (com[0] != "now") return false;
             Conzole.PrintLine(Schedule.StrDateTime(DateTime.Now));
+            return true;
         }
 
-        public static void Today(string[] com)
+        public static bool Today(string[] com)
         {
-            if (com[0] != "date") return;
+            if (com[0] != "date") return false;
             Conzole.PrintLine(Schedule.StrDate(DateTime.Now));
+            return true;
         }
 
-        public static void Time(string[] com)
+        public static bool Time(string[] com)
         {
-            if (com[0] != "time") return;
+            if (com[0] != "time") return false;
             Conzole.PrintLine(Schedule.StrTime(DateTime.Now));
+            return true;
         }
 
-        public static void ShowDeadlines(string[] com)
+        public static bool ShowDeadlines(string[] com)
         {
-            if (com.Length < 2) return;
-            if (com[0] != "show") return;
-            if (com[1] != "deadlines") return;
+            if (com.Length < 2) return false;
+            if (com[0] != "show") return false;
+            if (com[1] != "deadlines") return false;
             if(Schedule.AmountDeadlines() == 0)
             {
                 Conzole.PrintLine("No deadlines for you to work on!", ConsoleColor.Magenta);
-                return;
+                return false;
             }
             Conzole.PrintLine("Deadlines: ", ConsoleColor.Magenta);
             List<Deadline> dls = new List<Deadline>();
@@ -44,20 +47,21 @@ namespace Planner
                 Conzole.Print(Schedule.StrDateTime(l.deadline) + " - ", ConsoleColor.Yellow);
                 Conzole.Print(l.title + " - ", ConsoleColor.Green);
                 Conzole.Print(l.category + "\n", ConsoleColor.Green);
-            }         
+            }
+            return true;       
         }
 
-        public static void AddDeadline(string[] com)
+        public static bool AddDeadline(string[] com)
         {
-            if (com.Length < 6) return;
-            if (com[0] != "add") return;
-            if (com[1] != "deadline") return;
+            if (com.Length < 6) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "deadline") return false;
             DateTime dt;
             bool ok = Schedule.DateTimeFromString(com[2] + "-" + com[3], out dt);
             if (!ok)
             {
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
-                return;
+                return false;
             }
             Deadline dl = new Deadline();
             dl.deadline = dt;
@@ -66,19 +70,20 @@ namespace Planner
             Schedule.AddDeadline(dl);
             Schedule.WriteDeadlines();
             Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return true;
         }
 
-        public static void DeleteDeadline(string[] com)
+        public static bool DeleteDeadline(string[] com)
         {
-            if (com.Length < 4) return;
-            if (com[0] != "delete") return;
-            if (com[1] != "deadline") return;
+            if (com.Length < 4) return false;
+            if (com[0] != "delete") return false;
+            if (com[1] != "deadline") return false;
             DateTime dt;
             bool ok = Schedule.DateTimeFromString(com[2] + "-" + com[3], out dt);
             if (!ok)
             {
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
-                return;
+                return false;
             }
             for (int i = 0; i < Schedule.AmountDeadlines(); i++)
             {
@@ -88,17 +93,83 @@ namespace Planner
                     Schedule.DeleteDeadline(dl);
                     Schedule.WriteDeadlines();
                     Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
-                    return;
+                    return true;
                 }
             }
             Conzole.PrintLine("Could not find deadline!", ConsoleColor.Red);
+            return false;
+        }
+        //edit deadline oTime oDate atribute nVal/nTime null/nDate
+        public static bool EditDeadline(string[] com)
+        {
+            if (com.Length < 6) return false;
+            if (com[0] != "edit") return false;
+            if (com[1] != "deadline") return false;
+            DateTime origDt;
+            Deadline deadline = new Deadline();
+            int deadlineIndex = 0;
+            bool found = false;
+            bool ok = Schedule.DateTimeFromString(com[2] + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
+            {
+                Deadline dl = Schedule.GetDeadline(i);
+                if (dl.deadline == origDt)
+                {
+                    deadlineIndex = i;
+                    deadline = dl;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                Conzole.PrintLine("Deadline not found!", ConsoleColor.Red);
+                return false;
+            }
+
+            if (!(com[4] == "deadline" || com[4] == "title"
+                || com[4] == "category"))
+            {
+                Conzole.PrintLine("Atribute not found!", ConsoleColor.Red);
+                Conzole.PrintLine("Atributes: deadline, title, category.", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "deadline")
+            {
+                if (com.Length < 7)
+                {
+                    Conzole.PrintLine("Not enough arguments! Give a new time and date!", ConsoleColor.Red);
+                    return false;
+                }
+                DateTime dt;
+                ok = Schedule.DateTimeFromString(com[5] + "-" + com[6], out dt);
+                if (!ok)
+                {
+                    Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                    return false;
+                }
+                deadline.deadline = dt;
+            }
+            else if (com[4] == "title")
+                deadline.title = com[5];
+            else if (com[4] == "category")
+                deadline.category = com[5];
+            Schedule.EditDeadline(deadlineIndex, deadline);
+            Schedule.WriteDeadlines();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
         }
 
-        public static void ShowDay(string[] com)
+        public static bool ShowDay(string[] com)
         {
-            if (com.Length < 2) return;
-            if (com[0] != "show") return;
-            if (com[1] != "day") return;
+            if (com.Length < 2) return false;
+            if (com[0] != "show") return false;
+            if (com[1] != "day") return false;
             int w = 120, h = 50;
             char[,] view = new char[w, h];
             for (int i = 0; i < w; i++)
@@ -111,6 +182,7 @@ namespace Planner
                 view[w - 1, i] = '#';
 
             Conzole.PrintGrid(view);
+            return true;
         }
     }
 }
