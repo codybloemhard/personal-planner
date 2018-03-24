@@ -68,7 +68,7 @@ namespace Planner
                 Conzole.Print(Conzole.PadAfter(l.title, 50) + " - ", ConsoleColor.Green);
                 Conzole.Print(Conzole.PadAfter(l.category, 20) + "\n", ConsoleColor.Green);
             }
-            return true;       
+            return true;
         }
 
         public static bool AddDeadline(string[] com)
@@ -119,7 +119,7 @@ namespace Planner
             Conzole.PrintLine("Could not find deadline!", ConsoleColor.Red);
             return false;
         }
-        //edit deadline oTime oDate atribute nVal/nTime null/nDate
+        //edit deadline oTime oDate atribute nVal/nTime (nDate)
         public static bool EditDeadline(string[] com)
         {
             if (com.Length < 6) return false;
@@ -129,7 +129,11 @@ namespace Planner
             Deadline deadline = new Deadline();
             int deadlineIndex = 0;
             bool found = false;
-            bool ok = Schedule.DateTimeFromString(com[2] + "-" + com[3], out origDt);
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
             if (!ok)
             {
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
@@ -138,11 +142,15 @@ namespace Planner
             for (int i = 0; i < Schedule.AmountDeadlines(); i++)
             {
                 Deadline dl = Schedule.GetDeadline(i);
-                if (dl.deadline == origDt)
+                if (dl.deadline == origDt) found = true;
+                if (com[2] == "null" && dl.deadline.Day == origDt.Day
+                    && dl.deadline.Month == origDt.Month
+                    && dl.deadline.Year == origDt.Year)
+                    found = true;
+                if (found)
                 {
                     deadlineIndex = i;
                     deadline = dl;
-                    found = true;
                     break;
                 }
             }
@@ -151,7 +159,6 @@ namespace Planner
                 Conzole.PrintLine("Deadline not found!", ConsoleColor.Red);
                 return false;
             }
-
             if (!(com[4] == "deadline" || com[4] == "title"
                 || com[4] == "category"))
             {
