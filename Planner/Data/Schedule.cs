@@ -221,17 +221,27 @@ namespace Planner
 
         public static string StrDate(DateTime t)
         {
-            return t.Day + "/" + t.Month + "/" + t.Year;
+            string day = t.Day + "";
+            if (day.Length == 1) day = " " + day;
+            string month = t.Month + "";
+            if (month.Length == 1) month = " " + month;
+            return day + "/" + month + "/" + t.Year;
         }
 
         public static string StrTime(DateTime t)
         {
-            return t.Second + ":" + t.Minute + ":" + t.Hour;
+            string sec = "" + t.Second;
+            if (sec.Length == 1) sec = " " + sec;
+            string min = "" + t.Minute;
+            if (min.Length == 1) min = " " + min;
+            string hou = "" + t.Hour;
+            if (hou.Length == 1) hou = " " + hou;
+            return sec + ":" + min + ":" + hou;
         }
 
         public static string StrDateTime(DateTime t)
         {
-            return StrTime(t) + "::" + StrDate(t);
+            return StrTime(t) + " - " + StrDate(t);
         }
 
         public static bool DateTimeFromString(string datetime, out DateTime dt)
@@ -320,7 +330,7 @@ namespace Planner
         public string title;
         public string category;
 
-        public int SecondsUntil()
+        public int SecondsLeft()
         {
             return (int)(deadline - DateTime.Now).TotalSeconds;
         }

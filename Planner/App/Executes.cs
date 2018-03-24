@@ -40,13 +40,33 @@ namespace Planner
             List<Deadline> dls = new List<Deadline>();
             for (int i = 0; i < Schedule.AmountDeadlines(); i++)
                 dls.Add(Schedule.GetDeadline(i));
-            dls.Sort((p, q) => p.SecondsUntil().CompareTo(q.SecondsUntil()));
+            dls.Sort((p, q) => p.SecondsLeft().CompareTo(q.SecondsLeft()));
             for (int i = 0; i < dls.Count; i++)
             {
                 Deadline l = dls[i];
                 Conzole.Print(Schedule.StrDateTime(l.deadline) + " - ", ConsoleColor.Yellow);
-                Conzole.Print(l.title + " - ", ConsoleColor.Green);
-                Conzole.Print(l.category + "\n", ConsoleColor.Green);
+                string msg = "";
+                int left = l.SecondsLeft();
+                int abs = Math.Abs(left);
+                int min = 60;
+                int hour = min * 60;
+                int day = hour * 24;
+                if (abs < min * 5)
+                    msg = Conzole.PadBefore(abs + "", 4) + " seconds - ";
+                else if (abs < hour)
+                    msg = Conzole.PadBefore("" + (abs / min), 4) + " minutes - ";
+                else if (abs < day * 2)
+                    msg = Conzole.PadBefore("" + (abs / hour), 4) + " hours   - ";
+                else
+                    msg = Conzole.PadBefore("" + (abs / day), 4) + " days    - ";
+                if (left > 0) msg = "Left: " + msg;
+                else msg = "Past: " + msg;
+                ConsoleColor colour;
+                if (left > 0) colour = ConsoleColor.White;
+                else colour = ConsoleColor.Red;
+                Conzole.Print(msg, colour);
+                Conzole.Print(Conzole.PadAfter(l.title, 50) + " - ", ConsoleColor.Green);
+                Conzole.Print(Conzole.PadAfter(l.category, 20) + "\n", ConsoleColor.Green);
             }
             return true;       
         }

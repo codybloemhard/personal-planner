@@ -55,5 +55,47 @@ namespace Planner
         {
             return Console.ReadLine();
         }
+
+        public static string PadBefore(string s, int l)
+        {
+            int diff = l - s.Length;
+            if (diff == 0) return s;
+            string res = "";
+            if (diff < 0)
+            {
+                if (l > 10)
+                {
+                    res = s.Substring(0, l - 3);
+                    res += "...";
+                }
+                else res = s.Substring(0, l);
+                return res;
+            }
+            for (int i = 0; i < diff; i++)
+                res += " ";
+            res += s;
+            return res;
+        }
+
+        public static string PadAfter(string s, int l)
+        {
+            int diff = l - s.Length;
+            if (diff == 0) return s;
+            string res = "";
+            if (diff < 0)
+            {
+                if (l > 10)
+                {
+                    res = s.Substring(0, l - 3);
+                    res += "...";
+                }
+                else res = s.Substring(0, l);
+                return res;
+            }
+            for (int i = 0; i < diff; i++)
+                res += " ";
+            res = s + res;
+            return res;
+        }
     }
 }
