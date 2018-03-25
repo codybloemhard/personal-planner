@@ -98,36 +98,9 @@ namespace Planner
             if (com.Length < 4) return false;
             if (com[0] != "delete") return false;
             if (com[1] != "deadline") return false;
-            DateTime dt;
-            bool ok = Schedule.DateTimeFromString(com[2] + "-" + com[3], out dt);
-            if (!ok)
-            {
-                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
-                return false;
-            }
-            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
-            {
-                Deadline dl = Schedule.GetDeadline(i);
-                if(dl.deadline == dt)
-                {
-                    Schedule.DeleteDeadline(dl);
-                    Schedule.WriteDeadlines();
-                    Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
-                    return true;
-                }
-            }
-            Conzole.PrintLine("Could not find deadline!", ConsoleColor.Red);
-            return false;
-        }
-        //edit deadline oTime oDate atribute nVal/nTime (nDate)
-        public static bool EditDeadline(string[] com)
-        {
-            if (com.Length < 6) return false;
-            if (com[0] != "edit") return false;
-            if (com[1] != "deadline") return false;
             DateTime origDt;
-            Deadline deadline = new Deadline();
-            int deadlineIndex = 0;
+            Deadline deadline;
+            int deadlineIndex;
             bool found = false;
             string firstPart;
             if (com[2] == "null")
@@ -139,21 +112,38 @@ namespace Planner
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
                 return false;
             }
-            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
+            found = Schedule.GetDeadline(origDt, com[2] == "null", out deadline, out deadlineIndex);
+            if (found)
             {
-                Deadline dl = Schedule.GetDeadline(i);
-                if (dl.deadline == origDt) found = true;
-                if (com[2] == "null" && dl.deadline.Day == origDt.Day
-                    && dl.deadline.Month == origDt.Month
-                    && dl.deadline.Year == origDt.Year)
-                    found = true;
-                if (found)
-                {
-                    deadlineIndex = i;
-                    deadline = dl;
-                    break;
-                }
+                Schedule.DeleteDeadline(deadline);
+                Schedule.WriteDeadlines();
+                Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+                return true;
             }
+            Conzole.PrintLine("Could not find deadline!", ConsoleColor.Red);
+            return false;
+        }
+        //edit deadline oTime oDate atribute nVal/nTime (nDate)
+        public static bool EditDeadline(string[] com)
+        {
+            if (com.Length < 6) return false;
+            if (com[0] != "edit") return false;
+            if (com[1] != "deadline") return false;
+            DateTime origDt;
+            Deadline deadline;
+            int deadlineIndex;
+            bool found = false;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            found = Schedule.GetDeadline(origDt, com[2] == "null", out deadline, out deadlineIndex);
             if (!found)
             {
                 Conzole.PrintLine("Deadline not found!", ConsoleColor.Red);

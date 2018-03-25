@@ -128,6 +128,31 @@ namespace Planner
             deadlines[i] = newd;
         }
 
+        public static bool GetDeadline(DateTime origDt, bool onlyDate, out Deadline deadline, out int index)
+        {
+            deadline = new Deadline();
+            index = 0;
+            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
+            {
+                Deadline dl = Schedule.GetDeadline(i);
+                if (dl.deadline == origDt)
+                {
+                    index = i;
+                    deadline = dl;
+                    return true;
+                }
+                if (onlyDate && dl.deadline.Day == origDt.Day
+                    && dl.deadline.Month == origDt.Month
+                    && dl.deadline.Year == origDt.Year)
+                {
+                    index = i;
+                    deadline = dl;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static DateTime ReadDateTime(BinaryReader r)
         {
             int[] datetime = new int[6];
