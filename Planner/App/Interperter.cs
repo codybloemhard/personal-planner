@@ -20,6 +20,8 @@ namespace Planner
             executes.Add(Executes.AddDeadline);
             executes.Add(Executes.DeleteDeadline);
             executes.Add(Executes.EditDeadline);
+            executes.Add(Executes.ShowCards);
+            executes.Add(Executes.AddCard);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
@@ -32,7 +34,7 @@ namespace Planner
             Conzole.PrintLine("Personal Planner", ConsoleColor.Cyan);
             Conzole.PrintLine("Made by Cody Bloemhard", ConsoleColor.Cyan);
         }
-
+        
         private void AskCommand()
         {
             Conzole.Print("[CONSOLE]:: ", ConsoleColor.Cyan);

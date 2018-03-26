@@ -181,6 +181,75 @@ namespace Planner
             Conzole.PrintLine("Succes", ConsoleColor.Magenta);
             return true;
         }
+        
+        public static bool ShowCards(string[] com)
+        {
+            if (com.Length < 3) return false;
+            if (com[0] != "show") return false;
+            if (com[1] != "cards") return false;
+            uint count;
+            bool ok = uint.TryParse(com[2], out count);
+            if (!ok)
+            {
+                Conzole.PrintLine("Could not convert \"" + com[2] + "\" to a uint.");
+                return false;
+            }
+            int max = Schedule.AmountCards();
+            if (count == 0) count = (uint)max;
+            if (count > max) count = (uint)max;
+            Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);
+            List<Card> cards = new List<Card>();
+            for (int i = 0; i < Schedule.AmountCards(); i++)
+                cards.Add(Schedule.GetCard(i));
+            cards.Sort((p, q) => p.start.CompareTo(q.end));
+            for(int i = 0; i < count; i++)
+            {
+                Card c = cards[i];
+                Conzole.Print(Schedule.StrDateTime(c.start) + " [...] ", ConsoleColor.Yellow);
+                Conzole.Print(Schedule.StrDateTime(c.end) + " - ", ConsoleColor.Yellow);
+                Conzole.Print(Conzole.PadAfter(c.title, 30) + " - ");
+                Conzole.Print(Conzole.PadAfter(c.category, 20));
+                Conzole.Print("\n");
+            }
+            return true;
+        }
+        //add card startTime startDate endTime endDate title category
+        public static bool AddCard(string[] com)
+        {
+            if (com.Length < 8) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "card") return false;
+            DateTime startDt, endDt;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out startDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[4];
+            ok = Schedule.DateTimeFromString(firstPart + "-" + com[5], out endDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            Card card = new Card();
+            card.start = startDt;
+            card.end = endDt;
+            card.title = com[6];
+            card.content = "";
+            card.category = com[7];
+            Schedule.AddCard(card);
+            Schedule.WriteCards();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
+        }
 
         public static bool ShowDay(string[] com)
         {

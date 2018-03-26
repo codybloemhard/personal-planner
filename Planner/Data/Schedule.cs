@@ -23,6 +23,12 @@ namespace Planner
             nulldeadline = new Deadline();
         }
 
+        public static void InitSchedule()
+        {
+            LoadCards();
+            LoadDeadlines();
+        }
+
         public static int AmountCards()
         {
             return cards.Count;
@@ -45,10 +51,59 @@ namespace Planner
             return deadlines[i];
         }
 
-        public static void InitSchedule()
+        public static void AddCard(Card c)
         {
-            LoadCards();
-            LoadDeadlines();
+            cards.Add(c);
+        }
+
+        public static void DeleteCard(Card c)
+        {
+            cards.Remove(c);
+        }
+
+        public static void EditCard(int i, Card newc)
+        {
+            cards[i] = newc;
+        }
+
+        public static void AddDeadline(Deadline d)
+        {
+            deadlines.Add(d);
+        }
+
+        public static void DeleteDeadline(Deadline d)
+        {
+            deadlines.Remove(d);
+        }
+
+        public static void EditDeadline(int i, Deadline newd)
+        {
+            deadlines[i] = newd;
+        }
+
+        public static bool GetDeadline(DateTime origDt, bool onlyDate, out Deadline deadline, out int index)
+        {
+            deadline = new Deadline();
+            index = 0;
+            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
+            {
+                Deadline dl = Schedule.GetDeadline(i);
+                if (dl.deadline == origDt)
+                {
+                    index = i;
+                    deadline = dl;
+                    return true;
+                }
+                if (onlyDate && dl.deadline.Day == origDt.Day
+                    && dl.deadline.Month == origDt.Month
+                    && dl.deadline.Year == origDt.Year)
+                {
+                    index = i;
+                    deadline = dl;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static void LoadCards()
@@ -111,46 +166,6 @@ namespace Planner
                 w.Write(deadlines[i].category);
             }
             w.Close();
-        }
-
-        public static void AddDeadline(Deadline d)
-        {
-            deadlines.Add(d);
-        }
-
-        public static void DeleteDeadline(Deadline d)
-        {
-            deadlines.Remove(d);
-        }
-
-        public static void EditDeadline(int i, Deadline newd)
-        {
-            deadlines[i] = newd;
-        }
-
-        public static bool GetDeadline(DateTime origDt, bool onlyDate, out Deadline deadline, out int index)
-        {
-            deadline = new Deadline();
-            index = 0;
-            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
-            {
-                Deadline dl = Schedule.GetDeadline(i);
-                if (dl.deadline == origDt)
-                {
-                    index = i;
-                    deadline = dl;
-                    return true;
-                }
-                if (onlyDate && dl.deadline.Day == origDt.Day
-                    && dl.deadline.Month == origDt.Month
-                    && dl.deadline.Year == origDt.Year)
-                {
-                    index = i;
-                    deadline = dl;
-                    return true;
-                }
-            }
-            return false;
         }
 
         private static DateTime ReadDateTime(BinaryReader r)
