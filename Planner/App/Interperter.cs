@@ -12,6 +12,7 @@ namespace Planner
         {
             strings = new List<string>();
             executes = new List<Func<string[], bool>>();
+            executes.Add(Help.HelpMe);
             executes.Add(Executes.Now);
             executes.Add(Executes.Date);
             executes.Add(Executes.Time);
@@ -22,17 +23,21 @@ namespace Planner
             executes.Add(Executes.EditDeadline);
             executes.Add(Executes.ShowCards);
             executes.Add(Executes.AddCard);
+            executes.Add(Executes.DeleteCard);
+            executes.Add(Executes.EditCard);
+            executes.Add(Executes.InspectCard);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
             Introduce();
             AskCommand();
         }
-
+        
         private void Introduce()
         {
-            Conzole.PrintLine("Personal Planner", ConsoleColor.Cyan);
-            Conzole.PrintLine("Made by Cody Bloemhard", ConsoleColor.Cyan);
+            Conzole.PrintLine("Personal Planner.", ConsoleColor.Cyan);
+            Conzole.PrintLine("Made by Cody Bloemhard.", ConsoleColor.Cyan);
+            Conzole.PrintLine("type \"help\" and press enter for help.", ConsoleColor.Cyan);
         }
         
         private void AskCommand()

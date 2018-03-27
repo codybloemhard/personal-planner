@@ -8,11 +8,23 @@ namespace Planner
     {
         protected List<T> list;
         protected string fileName;
+        private bool loaded;
 
         public DataFile(string fileName)
         {
             this.fileName = fileName;
             list = new List<T>();
+            loaded = false;
+        }
+
+        protected void SetLoaded()
+        {
+            loaded = true;
+        }
+
+        protected bool IsLoaded()
+        {
+            return loaded;
         }
 
         public int Size()
@@ -22,6 +34,7 @@ namespace Planner
 
         public T Get(int i)
         {
+            if (!loaded) Load();
             if (i < 0 || i > list.Count - 1) return default(T);
             return list[i];
         }
@@ -63,6 +76,7 @@ namespace Planner
                 list.Add(d);
             }
             r.Close();
+            SetLoaded();
         }
 
         public override void Write()
@@ -75,13 +89,14 @@ namespace Planner
                 w.Write(list[i].title);
                 w.Write(list[i].category);
             }
-            w.Close();
+            w.Close();     
         }
 
         public bool Get(DateTime origDt, bool onlyDate, out Deadline result, out int index)
         {
             result = default(Deadline);
             index = 0;
+            if (!IsLoaded()) Load();
             for (int i = 0; i < list.Count; i++)
             {
                 bool same = Schedule.SameDateTime(origDt, onlyDate, list[i].deadline);
@@ -116,6 +131,7 @@ namespace Planner
                 list.Add(c);
             }
             r.Close();
+            SetLoaded();
         }
 
         public override void Write()
@@ -137,6 +153,7 @@ namespace Planner
         {
             result = default(Card);
             index = 0;
+            if (!IsLoaded()) Load();
             for (int i = 0; i < list.Count; i++)
             {
                 bool same = Schedule.SameDateTime(origDt, onlyDate, list[i].start);

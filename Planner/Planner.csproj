@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\Executes.cs" />
+    <Compile Include="App\Help.cs" />
     <Compile Include="App\Interperter.cs" />
     <Compile Include="Console\Conzole.cs" />
     <Compile Include="Data\Datafiles.cs" />
