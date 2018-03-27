@@ -7,168 +7,33 @@ namespace Planner
 {
     public static class Schedule
     {
-        private static List<Card> cards;
-        private static Card nullcard;
-        private static List<Deadline> deadlines;
-        private static Deadline nulldeadline;
-
-        private static string cardFile = "agendaData";
-        private static string deadlineFile = "deadlineData";
+        public static DeadlineFile deadlines;
+        public static CardFile cards;
 
         static Schedule()
         {
-            cards = new List<Card>();
-            nullcard = new Card();
-            deadlines = new List<Deadline>();
-            nulldeadline = new Deadline();
+            deadlines = new DeadlineFile("deadlineData");
+            cards = new CardFile("cardData");
         }
 
         public static void InitSchedule()
         {
-            LoadCards();
-            LoadDeadlines();
+            deadlines.Load();
+            cards.Load();
         }
 
-        public static int AmountCards()
+        public static bool SameDateTime(DateTime org, bool onlyDate, DateTime cmp)
         {
-            return cards.Count;
-        }
-
-        public static Card GetCard(int i)
-        {
-            if (i < 0 || i > cards.Count - 1) return nullcard;
-            return cards[i];
-        }
-
-        public static int AmountDeadlines()
-        {
-            return deadlines.Count;
-        }
-
-        public static Deadline GetDeadline(int i)
-        {
-            if (i < 0 || i > deadlines.Count - 1) return nulldeadline;
-            return deadlines[i];
-        }
-
-        public static void AddCard(Card c)
-        {
-            cards.Add(c);
-        }
-
-        public static void DeleteCard(Card c)
-        {
-            cards.Remove(c);
-        }
-
-        public static void EditCard(int i, Card newc)
-        {
-            cards[i] = newc;
-        }
-
-        public static void AddDeadline(Deadline d)
-        {
-            deadlines.Add(d);
-        }
-
-        public static void DeleteDeadline(Deadline d)
-        {
-            deadlines.Remove(d);
-        }
-
-        public static void EditDeadline(int i, Deadline newd)
-        {
-            deadlines[i] = newd;
-        }
-
-        public static bool GetDeadline(DateTime origDt, bool onlyDate, out Deadline deadline, out int index)
-        {
-            deadline = new Deadline();
-            index = 0;
-            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
-            {
-                Deadline dl = Schedule.GetDeadline(i);
-                if (dl.deadline == origDt)
-                {
-                    index = i;
-                    deadline = dl;
-                    return true;
-                }
-                if (onlyDate && dl.deadline.Day == origDt.Day
-                    && dl.deadline.Month == origDt.Month
-                    && dl.deadline.Year == origDt.Year)
-                {
-                    index = i;
-                    deadline = dl;
-                    return true;
-                }
-            }
+            if (org == cmp)
+                return true;
+            if (onlyDate && org.Day == cmp.Day
+                && org.Month == cmp.Month
+                && org.Year == cmp.Year)
+                return true;
             return false;
         }
 
-        public static void LoadCards()
-        {
-            if (!File.Exists(cardFile)) return;
-            BinaryReader r = new BinaryReader(File.Open(cardFile, FileMode.Open));
-            int count = r.ReadInt32();
-            for (int i = 0; i < count; i++)
-            {
-                Card c = new Card();
-                c.start = ReadDateTime(r);
-                c.end = ReadDateTime(r);
-                c.title = r.ReadString();
-                c.content = r.ReadString();
-                c.category = r.ReadString();
-                cards.Add(c);
-            }
-            r.Close();
-        }
-
-        public static void WriteCards()
-        {
-            BinaryWriter w = new BinaryWriter(File.Open(cardFile, FileMode.OpenOrCreate));
-            w.Write(cards.Count);
-            for (int i = 0; i < cards.Count; i++)
-            {
-                WriteDateTime(w, cards[i].start);
-                WriteDateTime(w, cards[i].end);
-                w.Write(cards[i].title);
-                w.Write(cards[i].content);
-                w.Write(cards[i].category);
-            }
-            w.Close();
-        }
-
-        public static void LoadDeadlines()
-        {
-            if (!File.Exists(deadlineFile)) return;
-            BinaryReader r = new BinaryReader(File.Open(deadlineFile, FileMode.Open));
-            int count = r.ReadInt32();
-            for (int i = 0; i < count; i++)
-            {
-                Deadline d = new Deadline();
-                d.deadline = ReadDateTime(r);
-                d.title = r.ReadString();
-                d.category = r.ReadString();
-                deadlines.Add(d);
-            }
-            r.Close();
-        }
-
-        public static void WriteDeadlines()
-        {
-            BinaryWriter w = new BinaryWriter(File.Open(deadlineFile, FileMode.OpenOrCreate));
-            w.Write(deadlines.Count);
-            for (int i = 0; i < deadlines.Count; i++)
-            {
-                WriteDateTime(w, deadlines[i].deadline);
-                w.Write(deadlines[i].title);
-                w.Write(deadlines[i].category);
-            }
-            w.Close();
-        }
-
-        private static DateTime ReadDateTime(BinaryReader r)
+        public static DateTime ReadDateTime(BinaryReader r)
         {
             int[] datetime = new int[6];
             for (int j = 0; j < 6; j++)
@@ -178,7 +43,7 @@ namespace Planner
             return dt;
         }
 
-        private static void WriteDateTime(BinaryWriter w, DateTime t)
+        public static void WriteDateTime(BinaryWriter w, DateTime t)
         {
             w.Write(t.Year);
             w.Write(t.Month);

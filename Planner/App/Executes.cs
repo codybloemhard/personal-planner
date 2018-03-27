@@ -9,10 +9,11 @@ namespace Planner
         {
             if (com[0] != "now") return false;
             Conzole.PrintLine(Schedule.StrDateTime(DateTime.Now));
+            Schedule.deadlines.Write();
             return true;
         }
 
-        public static bool Today(string[] com)
+        public static bool Date(string[] com)
         {
             if (com[0] != "date") return false;
             Conzole.PrintLine(Schedule.StrDate(DateTime.Now));
@@ -31,15 +32,15 @@ namespace Planner
             if (com.Length < 2) return false;
             if (com[0] != "show") return false;
             if (com[1] != "deadlines") return false;
-            if(Schedule.AmountDeadlines() == 0)
+            if(Schedule.deadlines.Size() == 0)
             {
                 Conzole.PrintLine("No deadlines for you to work on!", ConsoleColor.Magenta);
                 return false;
             }
             Conzole.PrintLine("Deadlines: ", ConsoleColor.Magenta);
             List<Deadline> dls = new List<Deadline>();
-            for (int i = 0; i < Schedule.AmountDeadlines(); i++)
-                dls.Add(Schedule.GetDeadline(i));
+            for (int i = 0; i < Schedule.deadlines.Size(); i++)
+                dls.Add(Schedule.deadlines.Get(i));
             dls.Sort((p, q) => p.SecondsLeft().CompareTo(q.SecondsLeft()));
             for (int i = 0; i < dls.Count; i++)
             {
@@ -87,8 +88,8 @@ namespace Planner
             dl.deadline = dt;
             dl.title = com[4];
             dl.category = com[5];
-            Schedule.AddDeadline(dl);
-            Schedule.WriteDeadlines();
+            Schedule.deadlines.Add(dl);
+            Schedule.deadlines.Write();
             Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return true;
         }
@@ -112,11 +113,11 @@ namespace Planner
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
                 return false;
             }
-            found = Schedule.GetDeadline(origDt, com[2] == "null", out deadline, out deadlineIndex);
+            found = Schedule.deadlines.Get(origDt, com[2] == "null", out deadline, out deadlineIndex);
             if (found)
             {
-                Schedule.DeleteDeadline(deadline);
-                Schedule.WriteDeadlines();
+                Schedule.deadlines.Delete(deadline);
+                Schedule.deadlines.Write();
                 Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
                 return true;
             }
@@ -143,7 +144,7 @@ namespace Planner
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
                 return false;
             }
-            found = Schedule.GetDeadline(origDt, com[2] == "null", out deadline, out deadlineIndex);
+            found = Schedule.deadlines.Get(origDt, com[2] == "null", out deadline, out deadlineIndex);
             if (!found)
             {
                 Conzole.PrintLine("Deadline not found!", ConsoleColor.Red);
@@ -176,8 +177,8 @@ namespace Planner
                 deadline.title = com[5];
             else if (com[4] == "category")
                 deadline.category = com[5];
-            Schedule.EditDeadline(deadlineIndex, deadline);
-            Schedule.WriteDeadlines();
+            Schedule.deadlines.Edit(deadlineIndex, deadline);
+            Schedule.deadlines.Write();
             Conzole.PrintLine("Succes", ConsoleColor.Magenta);
             return true;
         }
@@ -194,13 +195,13 @@ namespace Planner
                 Conzole.PrintLine("Could not convert \"" + com[2] + "\" to a uint.");
                 return false;
             }
-            int max = Schedule.AmountCards();
+            int max = Schedule.cards.Size();
             if (count == 0) count = (uint)max;
             if (count > max) count = (uint)max;
             Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);
             List<Card> cards = new List<Card>();
-            for (int i = 0; i < Schedule.AmountCards(); i++)
-                cards.Add(Schedule.GetCard(i));
+            for (int i = 0; i < Schedule.cards.Size(); i++)
+                cards.Add(Schedule.cards.Get(i));
             cards.Sort((p, q) => p.start.CompareTo(q.end));
             for(int i = 0; i < count; i++)
             {
@@ -245,8 +246,8 @@ namespace Planner
             card.title = com[6];
             card.content = "";
             card.category = com[7];
-            Schedule.AddCard(card);
-            Schedule.WriteCards();
+            Schedule.cards.Add(card);
+            Schedule.cards.Write();
             Conzole.PrintLine("Succes", ConsoleColor.Magenta);
             return true;
         }

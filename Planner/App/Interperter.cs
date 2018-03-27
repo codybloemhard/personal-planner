@@ -13,7 +13,7 @@ namespace Planner
             strings = new List<string>();
             executes = new List<Func<string[], bool>>();
             executes.Add(Executes.Now);
-            executes.Add(Executes.Today);
+            executes.Add(Executes.Date);
             executes.Add(Executes.Time);
             executes.Add(Executes.ShowDay);
             executes.Add(Executes.ShowDeadlines);
