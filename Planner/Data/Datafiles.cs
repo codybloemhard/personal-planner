@@ -29,6 +29,7 @@ namespace Planner
 
         public int Size()
         {
+            if (!loaded) Load();
             return list.Count;
         }
 
@@ -41,16 +42,19 @@ namespace Planner
 
         public void Add(T i)
         {
+            if (!loaded) Load();
             list.Add(i);
         }
 
         public void Delete(T i)
         {
+            if (!loaded) Load();
             list.Remove(i);
         }
 
         public void Edit(int i, T n)
         {
+            if (!loaded) Load();
             list[i] = n;
         }
 
@@ -65,6 +69,7 @@ namespace Planner
         public override void Load()
         {
             if (!File.Exists(fileName)) return;
+            list.Clear();
             BinaryReader r = new BinaryReader(File.Open(fileName, FileMode.Open));
             int count = r.ReadInt32();
             for (int i = 0; i < count; i++)
@@ -118,6 +123,7 @@ namespace Planner
         public override void Load()
         {
             if (!File.Exists(fileName)) return;
+            list.Clear();
             BinaryReader r = new BinaryReader(File.Open(fileName, FileMode.Open));
             int count = r.ReadInt32();
             for (int i = 0; i < count; i++)

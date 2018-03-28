@@ -32,15 +32,18 @@ namespace Planner
             if (com.Length < 2) return false;
             if (com[0] != "show") return false;
             if (com[1] != "deadlines") return false;
-            if(Schedule.deadlines.Size() == 0)
+            DeadlineFile df = Schedule.deadlines;
+            if (com.Length >= 3 && com[2] == "archive")
+                df = Schedule.deadlinesArchive;
+            if (df.Size() == 0)
             {
-                Conzole.PrintLine("No deadlines for you to work on!", ConsoleColor.Magenta);
+                Conzole.PrintLine("No deadlines to show!", ConsoleColor.Magenta);
                 return false;
             }
             Conzole.PrintLine("Deadlines: ", ConsoleColor.Magenta);
             List<Deadline> dls = new List<Deadline>();
-            for (int i = 0; i < Schedule.deadlines.Size(); i++)
-                dls.Add(Schedule.deadlines.Get(i));
+            for (int i = 0; i < df.Size(); i++)
+                dls.Add(df.Get(i));
             dls.Sort((p, q) => p.SecondsLeft().CompareTo(q.SecondsLeft()));
             for (int i = 0; i < dls.Count; i++)
             {
@@ -197,24 +200,31 @@ namespace Planner
             if (com.Length < 2) return false;
             if (com[0] != "show") return false;
             if (com[1] != "cards") return false;
-            uint count;
-            if (com.Length == 3)
+            CardFile cf = Schedule.cards;
+            int argIndex = 2;
+            if(com.Length >= 3 && com[2] == "archive")
             {
-                bool ok = uint.TryParse(com[2], out count);
+                argIndex = 3;
+                cf = Schedule.cardsArchive;
+            }
+            uint count;
+            if (com.Length == argIndex + 1)
+            {
+                bool ok = uint.TryParse(com[argIndex], out count);
                 if (!ok)
                 {
-                    Conzole.PrintLine("Could not convert \"" + com[2] + "\" to a uint.");
+                    Conzole.PrintLine("Could not convert \"" + com[argIndex] + "\" to a uint.", ConsoleColor.Red);
                     return false;
                 }
             }
             else count = 0;
-            int max = Schedule.cards.Size();
+            int max = cf.Size();
             if (count == 0) count = (uint)max;
             if (count > max) count = (uint)max;
             Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);
             List<Card> cards = new List<Card>();
-            for (int i = 0; i < Schedule.cards.Size(); i++)
-                cards.Add(Schedule.cards.Get(i));
+            for (int i = 0; i < cf.Size(); i++)
+                cards.Add(cf.Get(i));
             cards.Sort((p, q) => p.start.CompareTo(q.end));
             for(int i = 0; i < count; i++)
             {
@@ -308,7 +318,7 @@ namespace Planner
             Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return true;
         }
-
+        
         public static bool EditCard(string[] com)
         {
             if (com.Length < 6) return false;
