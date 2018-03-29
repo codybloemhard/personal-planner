@@ -97,5 +97,25 @@ namespace Planner
             res = s + res;
             return res;
         }
+
+        public static bool AreYouSure()
+        {
+            Print("Are you sure? type ", ConsoleColor.Magenta);
+            Print("Yes", ConsoleColor.Cyan);
+            Print(" or ", ConsoleColor.Magenta);
+            Print("No\n", ConsoleColor.Cyan);
+            string s = Console.ReadLine();
+            s = s.ToLower();
+            if (s == "yes") return true;
+            if (s == "no") return false;
+            PrintLine("Could not detect yes or no", ConsoleColor.Red);
+            return AreYouSure();
+        }
+
+        public static void Enlist(string[] list)
+        {
+            for (int i = 0; i < list.Length; i++)
+                PrintLine("  - " + list[i]);
+        }
     }
 }
