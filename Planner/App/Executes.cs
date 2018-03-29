@@ -349,7 +349,7 @@ namespace Planner
                 || com[4] == "content"))
             {
                 Conzole.PrintLine("Atribute not found!", ConsoleColor.Red);
-                Conzole.PrintLine("Atributes: start, end, title, category.", ConsoleColor.Red);
+                Conzole.PrintLine("Atributes: start, end, title, category, content.", ConsoleColor.Red);
                 return false;
             }
             if (com[4] == "start" || com[4] == "end")

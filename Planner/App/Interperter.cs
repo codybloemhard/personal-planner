@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Planner
 {
@@ -43,7 +44,10 @@ namespace Planner
         private void AskCommand()
         {
             Conzole.Print("[CONSOLE]:: ", ConsoleColor.Cyan);
-            string raw = Conzole.GetLine();
+            byte[] inputBuffer = new byte[2048];
+            Stream inputStream = Console.OpenStandardInput(inputBuffer.Length);
+            Console.SetIn(new StreamReader(inputStream, Console.InputEncoding, false, inputBuffer.Length));
+            string raw = Console.ReadLine();
             raw = raw.ToLower();
             if (raw == "exit") return;
             if(raw == "clear")

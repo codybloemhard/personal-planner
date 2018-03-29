@@ -181,7 +181,7 @@ namespace Planner
             for(int i = 0; i < datetime.Length; i++)
             {
                 if(datetime[i] == '/' || datetime[i] == ':'
-                    || datetime[i] == '-')
+                    || datetime[i] == '-' || datetime[i] == ';')
                 {
                     int.TryParse(temp, out data[index]);
                     index++;
