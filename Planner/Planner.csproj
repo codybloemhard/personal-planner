@@ -48,6 +48,7 @@
     <Compile Include="App\Executes.cs" />
     <Compile Include="App\Help.cs" />
     <Compile Include="App\Interperter.cs" />
+    <Compile Include="App\Logic.cs" />
     <Compile Include="Console\Conzole.cs" />
     <Compile Include="Data\Datafiles.cs" />
     <Compile Include="Data\Schedule.cs" />

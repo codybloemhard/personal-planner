@@ -18,11 +18,11 @@ namespace Planner
             executes.Add(Executes.Date);
             executes.Add(Executes.Time);
             executes.Add(Executes.ShowDay);
-            executes.Add(Executes.ShowDeadlines);
+            executes.Add(Executes.ListDeadlines);
             executes.Add(Executes.AddDeadline);
             executes.Add(Executes.DeleteDeadline);
             executes.Add(Executes.EditDeadline);
-            executes.Add(Executes.ShowCards);
+            executes.Add(Executes.ListCards);
             executes.Add(Executes.AddCard);
             executes.Add(Executes.DeleteCard);
             executes.Add(Executes.EditCard);

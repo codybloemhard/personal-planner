@@ -59,8 +59,8 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
         private static string[] commands = new string[] 
         {
             "now", "date", "time",
-            "show deadlines", "add deadline", "delete deadline",
-            "edit deadline", "show cards", "add card", "delete card",
+            "list deadlines", "add deadline", "delete deadline",
+            "edit deadline", "list cards", "add card", "delete card",
             "edit card", "inspect card"
         };
 
@@ -69,11 +69,11 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "now",
             "date",
             "time",
-            "show deadlines (archive)",
+            "list deadlines (archive)",
             "add deadline <t:time> <d:date> <s:title> <s:category>",
             "delete deadline [<t:time>, null] <d:date>",
             "edit deadline [<t:time>, null] <d:date> [title, category] <s:value>\nedit deadline [<t:time>, null] <d:date> deadline <t:time> <d:date> ",
-            "show cards (archive) (<n:amount>)",
+            "list cards (archive) (<n:amount>)",
             "add card <t:start> <d:start> <t:end> <d:end> <s:title> <s:category>",
             "delete card [<t:time>, null] <d:date>",
             "edit card [<t:time>, null] <d:date> [title, category, content] <s:string>\nedit card [<t:time>, null] <d:date> [start, end] <t:time> <d:date>",

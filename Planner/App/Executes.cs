@@ -27,14 +27,17 @@ namespace Planner
             return true;
         }
 
-        public static bool ShowDeadlines(string[] com)
+        public static bool ListDeadlines(string[] com)
         {
             if (com.Length < 2) return false;
-            if (com[0] != "show") return false;
+            if (com[0] != "list") return false;
             if (com[1] != "deadlines") return false;
             DeadlineFile df = Schedule.deadlines;
+            DateTime limit = DateTime.MaxValue;
             if (com.Length >= 3 && com[2] == "archive")
                 df = Schedule.deadlinesArchive;
+            else if (com.Length >= 3)
+                limit = Logic.Limit(com[2]);
             if (df.Size() == 0)
             {
                 Conzole.PrintLine("No deadlines to show!", ConsoleColor.Magenta);
@@ -43,7 +46,11 @@ namespace Planner
             Conzole.PrintLine("Deadlines: ", ConsoleColor.Magenta);
             List<Deadline> dls = new List<Deadline>();
             for (int i = 0; i < df.Size(); i++)
-                dls.Add(df.Get(i));
+            {
+                Deadline d = df.Get(i);
+                if(d.deadline <= limit)
+                    dls.Add(d);
+            }
             dls.Sort((p, q) => p.SecondsLeft().CompareTo(q.SecondsLeft()));
             for (int i = 0; i < dls.Count; i++)
             {
@@ -195,20 +202,25 @@ namespace Planner
             return true;
         }
         
-        public static bool ShowCards(string[] com)
+        public static bool ListCards(string[] com)
         {
             if (com.Length < 2) return false;
-            if (com[0] != "show") return false;
+            if (com[0] != "list") return false;
             if (com[1] != "cards") return false;
             CardFile cf = Schedule.cards;
+            DateTime limit = DateTime.MaxValue;
             int argIndex = 2;
-            if(com.Length >= 3 && com[2] == "archive")
+            if(com.Length >= 3)
             {
-                argIndex = 3;
-                cf = Schedule.cardsArchive;
+                if (com[2] == "archive")
+                {
+                    cf = Schedule.cardsArchive;
+                    argIndex = 3;
+                }
+                else limit = Logic.Limit(com[2]);
             }
             uint count;
-            if (com.Length == argIndex + 1)
+            if (com.Length == argIndex + 1 && limit == DateTime.MaxValue)
             {
                 bool ok = uint.TryParse(com[argIndex], out count);
                 if (!ok)
@@ -218,14 +230,17 @@ namespace Planner
                 }
             }
             else count = 0;
-            int max = cf.Size();
-            if (count == 0) count = (uint)max;
-            if (count > max) count = (uint)max;
-            Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);
             List<Card> cards = new List<Card>();
             for (int i = 0; i < cf.Size(); i++)
-                cards.Add(cf.Get(i));
+            {
+                Card c = cf.Get(i);
+                if (c.start <= limit) cards.Add(c);
+            }
             cards.Sort((p, q) => p.start.CompareTo(q.end));
+            int max = cards.Count;
+            if (count == 0) count = (uint)max;
+            if (count > max) count = (uint)max;
+            Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);   
             for(int i = 0; i < count; i++)
             {
                 Card c = cards[i];
