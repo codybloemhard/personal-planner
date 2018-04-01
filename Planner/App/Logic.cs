@@ -29,5 +29,26 @@ namespace Planner
             limit = new DateTime(limit.Year, limit.Month, limit.Day, 23, 59, 59);
             return limit;
         }
+
+        public static bool GetDayMessage(DateTime dt, out string msg)
+        {
+            DateTime now = DateTime.Now;
+            TimeSpan span = dt - now;
+            if (span.Seconds < 0)
+            {
+                if (dt.Date == now.Date)
+                    msg = "Past, today.";
+                else if ((now.Date - dt.Date).Days == 1)
+                    msg = "Yesterday.";
+                else msg = "Past: " + (now.Date - dt.Date).Days + " days.";
+                return false;
+            }
+            if (dt.Date == now.Date)
+                msg = "Today";
+            else if ((dt.Date - now.Date).Days == 1)
+                msg = "Tomorow";
+            else msg = "In " + (dt.Date - now.Date).Days + " days";
+            return true;
+        }
     }
 }

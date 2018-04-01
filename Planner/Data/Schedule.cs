@@ -24,27 +24,6 @@ namespace Planner
             cards.Load();
         }
 
-        public static bool GetDayMessage(DateTime dt, out string msg)
-        {
-            DateTime now = DateTime.Now;
-            TimeSpan span = dt - now;
-            if(span.Seconds < 0)
-            {
-                if (Math.Abs(span.Days) == 0)
-                    msg = "Past, today.";
-                else if (Math.Abs(span.Days) == 1)
-                    msg = "Yesterday.";
-                else msg = "Past: " + Math.Abs(span.Days) + " days.";
-                return false;
-            }
-            if (span.Days == 0)
-                msg = "Today";
-            else if (span.Days == 1)
-                msg = "Tomorow";
-            else msg = "In " + span.Days + " days";
-            return true;
-        }
-
         public static bool SameDateTime(DateTime org, bool onlyDate, DateTime cmp)
         {
             if (org == cmp)

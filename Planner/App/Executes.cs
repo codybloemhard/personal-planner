@@ -247,7 +247,7 @@ namespace Planner
                 Conzole.Print(Schedule.StrDateTime(c.start) + " >> ", ConsoleColor.Yellow);
                 Conzole.Print(Schedule.StrDateTime(c.end) + " - ", ConsoleColor.Yellow);
                 string msg;
-                bool notPast = Schedule.GetDayMessage(c.start, out msg);
+                bool notPast = Logic.GetDayMessage(c.start, out msg);
                 ConsoleColor col = notPast ? ConsoleColor.White : ConsoleColor.Red;
                 Conzole.Print(msg + " - ", col);
                 Conzole.Print(Conzole.PadAfter(c.title, 30) + " - ");
@@ -434,9 +434,11 @@ namespace Planner
             Conzole.PrintLine(Schedule.StrDateTime(card.start), ConsoleColor.Yellow);
             Conzole.Print("End: ", ConsoleColor.Magenta);
             Conzole.PrintLine(Schedule.StrDateTime(card.end), ConsoleColor.Yellow);
+            Conzole.Print("Day: ", ConsoleColor.Magenta);
+            Conzole.PrintLine(card.start.DayOfWeek.ToString());
             Conzole.Print("Relativeness: ", ConsoleColor.Magenta);
             string msg;
-            bool notPast = Schedule.GetDayMessage(card.start, out msg);
+            bool notPast = Logic.GetDayMessage(card.start, out msg);
             ConsoleColor col = notPast ? ConsoleColor.White : ConsoleColor.Red;
             Conzole.PrintLine(msg, col);
             TimeSpan res = card.end - card.start;
