@@ -29,7 +29,7 @@ namespace Planner
             limit = new DateTime(limit.Year, limit.Month, limit.Day, 23, 59, 59);
             return limit;
         }
-
+        
         public static bool GetDayMessage(DateTime dt, out string msg)
         {
             DateTime now = DateTime.Now;
@@ -37,9 +37,9 @@ namespace Planner
             if (span.Seconds < 0)
             {
                 if (dt.Date == now.Date)
-                    msg = "Past, today.";
+                    msg = "Past, today";
                 else if ((now.Date - dt.Date).Days == 1)
-                    msg = "Yesterday.";
+                    msg = "Yesterday";
                 else msg = "Past: " + (now.Date - dt.Date).Days + " days.";
                 return false;
             }

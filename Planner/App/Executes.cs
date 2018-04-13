@@ -36,6 +36,8 @@ namespace Planner
             DateTime limit = DateTime.MaxValue;
             if (com.Length >= 3 && com[2] == "archive")
                 df = Schedule.deadlinesArchive;
+            else if (com.Length >= 3 && com[2] == "past")
+                limit = DateTime.Now.AddSeconds(-1);
             else if (com.Length >= 3)
                 limit = Logic.Limit(com[2]);
             if (df.Size() == 0)
@@ -215,6 +217,11 @@ namespace Planner
                 if (com[2] == "archive")
                 {
                     cf = Schedule.cardsArchive;
+                    argIndex = 3;
+                }
+                else if(com[2] == "past")
+                {
+                    limit = DateTime.Now.AddSeconds(-1);
                     argIndex = 3;
                 }
                 else limit = Logic.Limit(com[2]);
