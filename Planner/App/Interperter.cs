@@ -18,15 +18,19 @@ namespace Planner
             executes.Add(Executes.Date);
             executes.Add(Executes.Time);
             executes.Add(Executes.ShowDay);
+
             executes.Add(Executes.ListDeadlines);
             executes.Add(Executes.AddDeadline);
             executes.Add(Executes.DeleteDeadline);
             executes.Add(Executes.EditDeadline);
+            executes.Add(Executes.CleanDeadlines);
+
             executes.Add(Executes.ListCards);
             executes.Add(Executes.AddCard);
             executes.Add(Executes.DeleteCard);
             executes.Add(Executes.EditCard);
             executes.Add(Executes.InspectCard);
+            executes.Add(Executes.CleanCards);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);

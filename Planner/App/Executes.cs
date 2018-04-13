@@ -200,8 +200,40 @@ namespace Planner
                 deadline.category = com[5];
             Schedule.deadlines.Edit(deadlineIndex, deadline);
             Schedule.deadlines.Write();
-            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return true;
+        }
+
+        public static bool CleanDeadlines(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "clean") return false;
+            if (com[1] != "deadlines") return false;
+            Conzole.PrintLine("Deleting all deadlines that are past.");
+            bool ok = Conzole.AreYouSure();
+            if (!ok)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return true;
+            }
+            DateTime limit = DateTime.Now.AddSeconds(-1);
+            DeadlineFile df = Schedule.deadlines;
+            List<Deadline> dls = new List<Deadline>();
+            for (int i = 0; i < df.Size(); i++)
+            {
+                Deadline d = df.Get(i);
+                if (d.deadline <= limit)
+                    dls.Add(d);
+            }
+            for (int i = 0; i < dls.Count; i++)
+            {
+                Schedule.deadlinesArchive.Add(dls[i]);
+                df.Delete(dls[i]);
+            }
+            Schedule.deadlinesArchive.Write();
+            df.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return false;
         }
         
         public static bool ListCards(string[] com)
@@ -454,6 +486,38 @@ namespace Planner
             Conzole.PrintLine("Content: ", ConsoleColor.Magenta);
             Conzole.PrintLine(card.content);
             return true;
+        }
+
+        public static bool CleanCards(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "clean") return false;
+            if (com[1] != "cards") return false;
+            Conzole.PrintLine("Deleting all cards that are past.");
+            bool ok = Conzole.AreYouSure();
+            if (!ok)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return true;
+            }
+            DateTime limit = DateTime.Now.AddSeconds(-1);
+            CardFile cf = Schedule.cards;
+            List<Card> dls = new List<Card>();
+            for (int i = 0; i < cf.Size(); i++)
+            {
+                Card c = cf.Get(i);
+                if (c.end <= limit)
+                    dls.Add(c);
+            }
+            for (int i = 0; i < dls.Count; i++)
+            {
+                Schedule.cardsArchive.Add(dls[i]);
+                cf.Delete(dls[i]);
+            }
+            Schedule.cardsArchive.Write();
+            cf.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return false;
         }
 
         public static bool ShowDay(string[] com)
