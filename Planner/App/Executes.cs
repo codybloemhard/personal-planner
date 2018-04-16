@@ -563,6 +563,53 @@ namespace Planner
             return true;
         }
 
+        public static bool DeleteDeadCard(string[] com)
+        {
+            if (com.Length < 4) return false;
+            if (com[0] != "delete") return false;
+            if (com[1] != "deadcard") return false;
+            DateTime origDt;
+            Card card;
+            Deadline deadline;
+            int cardIndex, deadlineIndex;
+            bool foundC = false, foundD;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            foundC = Schedule.cards.Get(origDt, com[2] == "null", out card, out cardIndex);
+            foundD = Schedule.deadlines.Get(origDt, com[2] == "null", out deadline, out deadlineIndex);
+            if (!(foundC && foundD))
+            {
+                Conzole.PrintLine("Could not find a deadline and a card that match!", ConsoleColor.Red);
+                return false;
+            }
+            Conzole.PrintLine("Deleting card " + card.title + ".", ConsoleColor.Magenta);
+            Conzole.PrintLine("Deleting deadline " + deadline.title + ".", ConsoleColor.Magenta);
+            bool sure = Conzole.AreYouSure();
+            if (!sure)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return false;
+            }
+            Schedule.cardsArchive.Add(card);
+            Schedule.cardsArchive.Write();
+            Schedule.cards.Delete(card);
+            Schedule.cards.Write();
+            Schedule.deadlinesArchive.Add(deadline);
+            Schedule.deadlinesArchive.Write();
+            Schedule.deadlines.Delete(deadline);
+            Schedule.deadlines.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return true;
+        }
+
         public static bool ShowDay(string[] com)
         {
             if (com.Length < 2) return false;

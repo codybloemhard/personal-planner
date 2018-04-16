@@ -33,6 +33,7 @@ namespace Planner
             executes.Add(Executes.CleanCards);
 
             executes.Add(Executes.AddDeadCard);
+            executes.Add(Executes.DeleteDeadCard);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
