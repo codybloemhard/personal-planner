@@ -487,7 +487,7 @@ namespace Planner
             Conzole.PrintLine(card.content);
             return true;
         }
-
+        
         public static bool CleanCards(string[] com)
         {
             if (com.Length < 2) return false;
@@ -518,6 +518,49 @@ namespace Planner
             cf.Write();
             Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return false;
+        }
+
+        public static bool AddDeadCard(string[] com)
+        {
+            if (com.Length < 8) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "deadcard") return false;
+            DateTime startDt, endDt;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out startDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[4];
+            ok = Schedule.DateTimeFromString(firstPart + "-" + com[5], out endDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            Card card = new Card();
+            card.start = startDt;
+            card.end = endDt;
+            card.title = com[6];
+            card.content = "";
+            card.category = com[7];
+            Schedule.cards.Add(card);
+            Schedule.cards.Write();
+            Deadline deadline = new Deadline();
+            deadline.deadline = startDt;
+            deadline.title = com[6];
+            deadline.category = com[7];
+            Schedule.deadlines.Add(deadline);
+            Schedule.deadlines.Write();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
         }
 
         public static bool ShowDay(string[] com)

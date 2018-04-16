@@ -80,7 +80,5 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "inspect card [<t:time>, null], <d:date>",
             "clean [deadlines, cards]"
         };
-
-
     }
 }

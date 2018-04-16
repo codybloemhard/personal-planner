@@ -37,7 +37,7 @@ namespace Planner
             if (span.Seconds < 0)
             {
                 if (dt.Date == now.Date)
-                    msg = "Past, today";
+                    msg = "Past: today";
                 else if ((now.Date - dt.Date).Days == 1)
                     msg = "Yesterday";
                 else msg = "Past: " + (now.Date - dt.Date).Days + " days";
