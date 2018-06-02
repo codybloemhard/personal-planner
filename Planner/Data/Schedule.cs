@@ -9,6 +9,7 @@ namespace Planner
     {
         public static DeadlineFile deadlines, deadlinesArchive;
         public static CardFile cards, cardsArchive;
+        public static TimeSlotFile timeslots, timeslotsArchive;
 
         static Schedule()
         {
@@ -16,6 +17,8 @@ namespace Planner
             cards = new CardFile("cardData");
             deadlinesArchive = new DeadlineFile("deadlineArchiveData");
             cardsArchive = new CardFile("cardsArchiveData");
+            timeslots = new TimeSlotFile("timerangeData");
+            timeslotsArchive = new TimeSlotFile("timerangeArchiveData");
         }
 
         public static void InitSchedule()
@@ -196,7 +199,7 @@ namespace Planner
             Console.WriteLine(StrDateTime(t));
         }
     }
-
+    
     public struct Card
     {
         public DateTime start;
@@ -240,6 +243,54 @@ namespace Planner
         public int SecondsLeft()
         {
             return (int)(deadline - DateTime.Now).TotalSeconds;
+        }
+    }
+
+    public struct TimeSlot
+    {
+        public string name;
+        public int startSec, startMin, startHou;
+        public int endSec, endMin, endHou;
+
+        public TimeSlot(string n, int ss, int sm, int sh, int es, int em, int eh)
+        {
+            name = n;
+            startSec = ss;
+            startMin = sm;
+            startHou = sh;
+            endSec = es;
+            endMin = em;
+            endHou = eh;
+        }
+        
+        public DateTime StartToDateTime(int day, int month, int year)
+        {
+            return new DateTime(startSec, startMin, startHou, day, month, year);
+        }
+
+        public DateTime EndToDateTime(int day, int month, int year)
+        {
+            return new DateTime(endSec, endMin, endHou, day, month, year);
+        }
+
+        public static TimeSlot Read(BinaryReader r)
+        {
+            string n = r.ReadString();
+            int[] res = new int[6];
+            for (int i = 0; i < 6; i++)
+                res[i] = r.ReadInt32();
+            return new TimeSlot(n, res[0], res[1], res[2], res[3], res[4], res[5]);
+        }
+
+        public void Write(BinaryWriter w)
+        {
+            w.Write(name);
+            w.Write(startSec);
+            w.Write(startMin);
+            w.Write(startHou);
+            w.Write(endSec);
+            w.Write(endMin);
+            w.Write(endHou);
         }
     }
 }

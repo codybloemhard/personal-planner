@@ -61,7 +61,7 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "now", "date", "time",
             "list deadlines", "add deadline", "delete deadline",
             "edit deadline", "list cards", "add card", "delete card",
-            "edit card", "inspect card", "clean"
+            "edit card", "inspect card", "clean", "list timeslots"
         };
 
         private static string[] syntax = new string[]
@@ -78,7 +78,8 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "delete card [<t:time>, null] <d:date>",
             "edit card [<t:time>, null] <d:date> [title, category, content] <s:string>\nedit card [<t:time>, null] <d:date> [start, end] <t:time> <d:date>",
             "inspect card [<t:time>, null], <d:date>",
-            "clean [deadlines, cards]"
+            "clean [deadlines, cards]",
+            "list timeslots (archive)"
         };
     }
 }

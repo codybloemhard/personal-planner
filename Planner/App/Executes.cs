@@ -610,6 +610,173 @@ namespace Planner
             return true;
         }
 
+        public static bool ListTimeSlots(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "list") return false;
+            if (com[1] != "timeslots") return false;
+            TimeSlotFile cf = Schedule.timeslots;
+            if(com.Length >= 3 && com[2] == "archive")
+                cf = Schedule.timeslotsArchive;    
+            Conzole.PrintLine("Found " + cf.Size() + " timeslots.", ConsoleColor.Magenta);   
+            for(int i = 0; i < cf.Size(); i++)
+            {
+                TimeSlot ts = cf.Get(i);
+                Conzole.Print(ts.startSec + ":" + ts.startMin + ":" + ts.startHou + " >> ", ConsoleColor.Yellow);
+                Conzole.Print(ts.endSec + ":" + ts.endMin + ":" + ts.endHou, ConsoleColor.Yellow);
+                Conzole.Print(Conzole.PadAfter(ts.name, 50));
+                Conzole.Print("\n");
+            }
+            return true;
+        }
+        /*
+        //add card startTime startDate endTime endDate title category
+        public static bool AddCard(string[] com)
+        {
+            if (com.Length < 8) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "card") return false;
+            DateTime startDt, endDt;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out startDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[4];
+            ok = Schedule.DateTimeFromString(firstPart + "-" + com[5], out endDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            Card card = new Card();
+            card.start = startDt;
+            card.end = endDt;
+            card.title = com[6];
+            card.content = "";
+            card.category = com[7];
+            Schedule.cards.Add(card);
+            Schedule.cards.Write();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
+        }
+
+        public static bool DeleteCard(string[] com)
+        {
+            if (com.Length < 4) return false;
+            if (com[0] != "delete") return false;
+            if (com[1] != "card") return false;
+            DateTime origDt;
+            Card card;
+            int deadlineIndex;
+            bool found = false;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            found = Schedule.cards.Get(origDt, com[2] == "null", out card, out deadlineIndex);
+            if (!found)
+            {
+                Conzole.PrintLine("Could not find card!", ConsoleColor.Red);
+                return false;
+            }
+            Conzole.PrintLine("Deleting card " + card.title + ".", ConsoleColor.Magenta);
+            bool sure = Conzole.AreYouSure();
+            if (!sure)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return false;
+            }
+            Schedule.cardsArchive.Add(card);
+            Schedule.cardsArchive.Write();
+            Schedule.cards.Delete(card);
+            Schedule.cards.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return true;
+        }
+        
+        public static bool EditCard(string[] com)
+        {
+            if (com.Length < 6) return false;
+            if (com[0] != "edit") return false;
+            if (com[1] != "card") return false;
+            DateTime origDt;
+            Card card;
+            int deadlineIndex;
+            bool found = false;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            found = Schedule.cards.Get(origDt, com[2] == "null", out card, out deadlineIndex);
+            if (!found)
+            {
+                Conzole.PrintLine("Card not found!", ConsoleColor.Red);
+                return false;
+            }
+            if (!(com[4] == "start" || com[4] == "end"
+                || com[4] == "title" || com[4] == "category"
+                || com[4] == "content"))
+            {
+                Conzole.PrintLine("Atribute not found!", ConsoleColor.Red);
+                Conzole.PrintLine("Atributes: start, end, title, category, content.", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "start" || com[4] == "end")
+            {
+                if (com.Length < 7)
+                {
+                    Conzole.PrintLine("Not enough arguments! Give a new time and date!", ConsoleColor.Red);
+                    return false;
+                }
+                DateTime dt;
+                ok = Schedule.DateTimeFromString(com[5] + "-" + com[6], out dt);
+                if (!ok)
+                {
+                    Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                    return false;
+                }
+                if (com[4] == "start") card.start = dt;
+                else card.end = dt;
+            }
+            else if (com[4] == "title")
+                card.title = com[5];
+            else if (com[4] == "category")
+                card.category = com[5];
+            else if (com[4] == "content")
+            {
+                card.content = "";
+                card.content += com[5];
+                if(com.Length >= 7)
+                    for (int i = 6; i < com.Length; i++)
+                        card.content += " " + com[i];
+            }
+            Schedule.cards.Edit(deadlineIndex, card);
+            Schedule.cards.Write();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
+        } 
+        */
+
         public static bool ShowDay(string[] com)
         {
             if (com.Length < 2) return false;

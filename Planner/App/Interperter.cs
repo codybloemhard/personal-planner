@@ -34,6 +34,8 @@ namespace Planner
 
             executes.Add(Executes.AddDeadCard);
             executes.Add(Executes.DeleteDeadCard);
+
+            executes.Add(Executes.ListTimeSlots);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
