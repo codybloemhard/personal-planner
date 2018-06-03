@@ -37,6 +37,7 @@ namespace Planner
 
             executes.Add(Executes.ListTimeSlots);
             executes.Add(Executes.AddTimeSlot);
+            executes.Add(Executes.DeleteTimeSlot);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);

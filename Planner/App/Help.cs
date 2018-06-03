@@ -79,7 +79,9 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "edit card [<t:time>, null] <d:date> [title, category, content] <s:string>\nedit card [<t:time>, null] <d:date> [start, end] <t:time> <d:date>",
             "inspect card [<t:time>, null], <d:date>",
             "clean [deadlines, cards]",
-            "list timeslots (archive)"
+            "list timeslots (archive)",
+            "add timeslot <t:start> <e:start> <s:name>",
+            "delete timeslot <s:name>"
         };
     }
 }
