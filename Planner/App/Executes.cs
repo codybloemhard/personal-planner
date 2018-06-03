@@ -622,8 +622,8 @@ namespace Planner
             for(int i = 0; i < cf.Size(); i++)
             {
                 TimeSlot ts = cf.Get(i);
-                Conzole.Print(ts.startSec + ":" + ts.startMin + ":" + ts.startHou + " >> ", ConsoleColor.Yellow);
-                Conzole.Print(ts.endSec + ":" + ts.endMin + ":" + ts.endHou, ConsoleColor.Yellow);
+                Conzole.Print(Conzole.PadBefore(ts.startSec + ":" + ts.startMin + ":" + ts.startHou + " >> ", 12), ConsoleColor.Yellow);
+                Conzole.Print(Conzole.PadBefore(ts.endSec + ":" + ts.endMin + ":" + ts.endHou, 8), ConsoleColor.Yellow);
                 Conzole.Print(" - " + Conzole.PadAfter(ts.name, 50));
                 Conzole.Print("\n");
             }
