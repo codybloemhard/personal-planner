@@ -184,6 +184,68 @@ namespace Planner
             return true;
         }
 
+        public static bool DateFromString(string date, out DateTime dt)
+        {
+            dt = DateTime.Now;
+            int[] data = new int[3];
+            int index = 0;
+            string temp = "";
+            for (int i = 0; i < date.Length; i++)
+            {
+                if (date[i] == '/' || date[i] == ':'
+                    || date[i] == '-' || date[i] == ';')
+                {
+                    int.TryParse(temp, out data[index]);
+                    index++;
+                    temp = "";
+                    if (index > 2) return false;
+                    continue;
+                }
+                temp += date[i];
+            }
+            int.TryParse(temp, out data[index]);
+            if (index < 2) return false;
+            int[] minValues = new int[] { 1, 1, 1 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] < minValues[i]) return false;
+            int[] maxValues = new int[] { 31, 12, dt.Year + 50 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] > maxValues[i]) return false;
+            dt = new DateTime(data[2], data[1], data[0], 0, 0, 0);
+            return true;
+        }
+
+        public static bool TimeFromString(string time, out DateTime dt)
+        {
+            dt = DateTime.Now;
+            int[] data = new int[3];
+            int index = 0;
+            string temp = "";
+            for (int i = 0; i < time.Length; i++)
+            {
+                if (time[i] == '/' || time[i] == ':'
+                    || time[i] == '-' || time[i] == ';')
+                {
+                    int.TryParse(temp, out data[index]);
+                    index++;
+                    temp = "";
+                    if (index > 2) return false;
+                    continue;
+                }
+                temp += time[i];
+            }
+            int.TryParse(temp, out data[index]);
+            if (index < 2) return false;
+            int[] minValues = new int[] { 0, 0, 0 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] < minValues[i]) return false;
+            int[] maxValues = new int[] { 59, 59, 23 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] > maxValues[i]) return false;
+            dt = new DateTime(1, 1, 1, data[2], data[1], data[0]);
+            return true;
+        }
+
         public static void PrintDate(DateTime t)
         {
             Console.WriteLine(StrDate(t));

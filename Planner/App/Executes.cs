@@ -624,50 +624,44 @@ namespace Planner
                 TimeSlot ts = cf.Get(i);
                 Conzole.Print(ts.startSec + ":" + ts.startMin + ":" + ts.startHou + " >> ", ConsoleColor.Yellow);
                 Conzole.Print(ts.endSec + ":" + ts.endMin + ":" + ts.endHou, ConsoleColor.Yellow);
-                Conzole.Print(Conzole.PadAfter(ts.name, 50));
+                Conzole.Print(" - " + Conzole.PadAfter(ts.name, 50));
                 Conzole.Print("\n");
             }
             return true;
         }
-        /*
-        //add card startTime startDate endTime endDate title category
-        public static bool AddCard(string[] com)
+
+        public static bool AddTimeSlot(string[] com)
         {
-            if (com.Length < 8) return false;
+            if (com.Length < 5) return false;
             if (com[0] != "add") return false;
-            if (com[1] != "card") return false;
+            if (com[1] != "timeslot") return false;
             DateTime startDt, endDt;
-            string firstPart;
-            if (com[2] == "null")
-                firstPart = "0:0:0";
-            else firstPart = com[2];
-            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out startDt);
+            bool ok = Schedule.TimeFromString(com[2], out startDt);
             if (!ok)
             {
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
                 return false;
             }
-            if (com[4] == "null")
-                firstPart = "0:0:0";
-            else firstPart = com[4];
-            ok = Schedule.DateTimeFromString(firstPart + "-" + com[5], out endDt);
+            ok = Schedule.TimeFromString(com[3], out endDt);
             if (!ok)
             {
                 Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
                 return false;
             }
-            Card card = new Card();
-            card.start = startDt;
-            card.end = endDt;
-            card.title = com[6];
-            card.content = "";
-            card.category = com[7];
-            Schedule.cards.Add(card);
-            Schedule.cards.Write();
+            TimeSlot slot = new TimeSlot();
+            slot.startSec = startDt.Second;
+            slot.startMin = startDt.Minute;
+            slot.startHou = startDt.Hour;
+            slot.endSec = endDt.Second;
+            slot.endMin = endDt.Minute;
+            slot.endHou = endDt.Hour;
+            slot.name = com[4];
+            Schedule.timeslots.Add(slot);
+            Schedule.timeslots.Write();
             Conzole.PrintLine("Succes", ConsoleColor.Magenta);
             return true;
         }
-
+        /*
         public static bool DeleteCard(string[] com)
         {
             if (com.Length < 4) return false;
