@@ -325,14 +325,14 @@ namespace Planner
             endHou = eh;
         }
         
-        public DateTime StartToDateTime(int day, int month, int year)
+        public DateTime StartToDateTime(DateTime dt)
         {
-            return new DateTime(startSec, startMin, startHou, day, month, year);
+            return new DateTime(dt.Year, dt.Month, dt.Day, startHou, startMin, startSec);
         }
 
-        public DateTime EndToDateTime(int day, int month, int year)
+        public DateTime EndToDateTime(DateTime dt)
         {
-            return new DateTime(endSec, endMin, endHou, day, month, year);
+            return new DateTime(dt.Year, dt.Month, dt.Day, endHou, endMin, endSec);
         }
 
         public static TimeSlot Read(BinaryReader r)

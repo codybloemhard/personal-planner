@@ -6,12 +6,10 @@ namespace Planner
 {
     public class Interperter
     {
-        private List<string> strings;
         private List<Func<string[], bool>> executes;
 
         public Interperter()
         {
-            strings = new List<string>();
             executes = new List<Func<string[], bool>>();
             executes.Add(Help.HelpMe);
             executes.Add(Executes.Now);
@@ -38,6 +36,8 @@ namespace Planner
             executes.Add(Executes.ListTimeSlots);
             executes.Add(Executes.AddTimeSlot);
             executes.Add(Executes.DeleteTimeSlot);
+
+            executes.Add(SequentialPlannerWizard.Run);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
@@ -79,8 +79,9 @@ namespace Planner
             AskCommand();
         }
         
-        private string[] ExtractCommand(string s)
+        public static string[] ExtractCommand(string s)
         {
+            List<string> strings = new List<string>();
             strings.Clear();
             string temp = "";
             for(int i = 0; i < s.Length; i++)

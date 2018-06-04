@@ -58,6 +58,11 @@ namespace Planner
             list[i] = n;
         }
 
+        public void Clear()
+        {
+            list.Clear();
+        }
+
         public abstract void Load();
         public abstract void Write();
     }
@@ -173,7 +178,7 @@ namespace Planner
             return false;
         }
     }
-
+    
     public class TimeSlotFile : DataFile<TimeSlot>
     {
         public TimeSlotFile(string fileName) : base(fileName) { }
