@@ -9,6 +9,7 @@ namespace Planner
     {
         public static DeadlineFile deadlines, deadlinesArchive;
         public static CardFile cards, cardsArchive;
+        public static TimeSlotFile timeslots, timeslotsArchive;
 
         static Schedule()
         {
@@ -16,33 +17,14 @@ namespace Planner
             cards = new CardFile("cardData");
             deadlinesArchive = new DeadlineFile("deadlineArchiveData");
             cardsArchive = new CardFile("cardsArchiveData");
+            timeslots = new TimeSlotFile("timerangeData");
+            timeslotsArchive = new TimeSlotFile("timerangeArchiveData");
         }
 
         public static void InitSchedule()
         {
             deadlines.Load();
             cards.Load();
-        }
-
-        public static bool GetDayMessage(DateTime dt, out string msg)
-        {
-            DateTime now = DateTime.Now;
-            TimeSpan span = dt - now;
-            if(span.Seconds < 0)
-            {
-                if (Math.Abs(span.Days) == 0)
-                    msg = "Past, today.";
-                else if (Math.Abs(span.Days) == 1)
-                    msg = "Yesterday.";
-                else msg = "Past: " + Math.Abs(span.Days) + " days.";
-                return false;
-            }
-            if (span.Days == 0)
-                msg = "Today";
-            else if (span.Days == 1)
-                msg = "Tomorow";
-            else msg = "In " + span.Days + " days";
-            return true;
         }
 
         public static bool SameDateTime(DateTime org, bool onlyDate, DateTime cmp)
@@ -202,6 +184,68 @@ namespace Planner
             return true;
         }
 
+        public static bool DateFromString(string date, out DateTime dt)
+        {
+            dt = DateTime.Now;
+            int[] data = new int[3];
+            int index = 0;
+            string temp = "";
+            for (int i = 0; i < date.Length; i++)
+            {
+                if (date[i] == '/' || date[i] == ':'
+                    || date[i] == '-' || date[i] == ';')
+                {
+                    int.TryParse(temp, out data[index]);
+                    index++;
+                    temp = "";
+                    if (index > 2) return false;
+                    continue;
+                }
+                temp += date[i];
+            }
+            int.TryParse(temp, out data[index]);
+            if (index < 2) return false;
+            int[] minValues = new int[] { 1, 1, 1 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] < minValues[i]) return false;
+            int[] maxValues = new int[] { 31, 12, dt.Year + 50 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] > maxValues[i]) return false;
+            dt = new DateTime(data[2], data[1], data[0], 0, 0, 0);
+            return true;
+        }
+
+        public static bool TimeFromString(string time, out DateTime dt)
+        {
+            dt = DateTime.Now;
+            int[] data = new int[3];
+            int index = 0;
+            string temp = "";
+            for (int i = 0; i < time.Length; i++)
+            {
+                if (time[i] == '/' || time[i] == ':'
+                    || time[i] == '-' || time[i] == ';')
+                {
+                    int.TryParse(temp, out data[index]);
+                    index++;
+                    temp = "";
+                    if (index > 2) return false;
+                    continue;
+                }
+                temp += time[i];
+            }
+            int.TryParse(temp, out data[index]);
+            if (index < 2) return false;
+            int[] minValues = new int[] { 0, 0, 0 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] < minValues[i]) return false;
+            int[] maxValues = new int[] { 59, 59, 23 };
+            for (int i = 0; i < 3; i++)
+                if (data[i] > maxValues[i]) return false;
+            dt = new DateTime(1, 1, 1, data[2], data[1], data[0]);
+            return true;
+        }
+
         public static void PrintDate(DateTime t)
         {
             Console.WriteLine(StrDate(t));
@@ -217,7 +261,7 @@ namespace Planner
             Console.WriteLine(StrDateTime(t));
         }
     }
-
+    
     public struct Card
     {
         public DateTime start;
@@ -261,6 +305,54 @@ namespace Planner
         public int SecondsLeft()
         {
             return (int)(deadline - DateTime.Now).TotalSeconds;
+        }
+    }
+
+    public struct TimeSlot
+    {
+        public string name;
+        public int startSec, startMin, startHou;
+        public int endSec, endMin, endHou;
+
+        public TimeSlot(string n, int ss, int sm, int sh, int es, int em, int eh)
+        {
+            name = n;
+            startSec = ss;
+            startMin = sm;
+            startHou = sh;
+            endSec = es;
+            endMin = em;
+            endHou = eh;
+        }
+        
+        public DateTime StartToDateTime(DateTime dt)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, startHou, startMin, startSec);
+        }
+
+        public DateTime EndToDateTime(DateTime dt)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, endHou, endMin, endSec);
+        }
+
+        public static TimeSlot Read(BinaryReader r)
+        {
+            string n = r.ReadString();
+            int[] res = new int[6];
+            for (int i = 0; i < 6; i++)
+                res[i] = r.ReadInt32();
+            return new TimeSlot(n, res[0], res[1], res[2], res[3], res[4], res[5]);
+        }
+
+        public void Write(BinaryWriter w)
+        {
+            w.Write(name);
+            w.Write(startSec);
+            w.Write(startMin);
+            w.Write(startHou);
+            w.Write(endSec);
+            w.Write(endMin);
+            w.Write(endHou);
         }
     }
 }

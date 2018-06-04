@@ -27,14 +27,19 @@ namespace Planner
             return true;
         }
 
-        public static bool ShowDeadlines(string[] com)
+        public static bool ListDeadlines(string[] com)
         {
             if (com.Length < 2) return false;
-            if (com[0] != "show") return false;
+            if (com[0] != "list") return false;
             if (com[1] != "deadlines") return false;
             DeadlineFile df = Schedule.deadlines;
+            DateTime limit = DateTime.MaxValue;
             if (com.Length >= 3 && com[2] == "archive")
                 df = Schedule.deadlinesArchive;
+            else if (com.Length >= 3 && com[2] == "past")
+                limit = DateTime.Now.AddSeconds(-1);
+            else if (com.Length >= 3)
+                limit = Logic.Limit(com[2]);
             if (df.Size() == 0)
             {
                 Conzole.PrintLine("No deadlines to show!", ConsoleColor.Magenta);
@@ -43,7 +48,11 @@ namespace Planner
             Conzole.PrintLine("Deadlines: ", ConsoleColor.Magenta);
             List<Deadline> dls = new List<Deadline>();
             for (int i = 0; i < df.Size(); i++)
-                dls.Add(df.Get(i));
+            {
+                Deadline d = df.Get(i);
+                if(d.deadline <= limit)
+                    dls.Add(d);
+            }
             dls.Sort((p, q) => p.SecondsLeft().CompareTo(q.SecondsLeft()));
             for (int i = 0; i < dls.Count; i++)
             {
@@ -191,24 +200,66 @@ namespace Planner
                 deadline.category = com[5];
             Schedule.deadlines.Edit(deadlineIndex, deadline);
             Schedule.deadlines.Write();
-            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return true;
         }
-        
-        public static bool ShowCards(string[] com)
+
+        public static bool CleanDeadlines(string[] com)
         {
             if (com.Length < 2) return false;
-            if (com[0] != "show") return false;
+            if (com[0] != "clean") return false;
+            if (com[1] != "deadlines") return false;
+            Conzole.PrintLine("Deleting all deadlines that are past.");
+            bool ok = Conzole.AreYouSure();
+            if (!ok)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return true;
+            }
+            DateTime limit = DateTime.Now.AddSeconds(-1);
+            DeadlineFile df = Schedule.deadlines;
+            List<Deadline> dls = new List<Deadline>();
+            for (int i = 0; i < df.Size(); i++)
+            {
+                Deadline d = df.Get(i);
+                if (d.deadline <= limit)
+                    dls.Add(d);
+            }
+            for (int i = 0; i < dls.Count; i++)
+            {
+                Schedule.deadlinesArchive.Add(dls[i]);
+                df.Delete(dls[i]);
+            }
+            Schedule.deadlinesArchive.Write();
+            df.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return false;
+        }
+        
+        public static bool ListCards(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "list") return false;
             if (com[1] != "cards") return false;
             CardFile cf = Schedule.cards;
+            DateTime limit = DateTime.MaxValue;
             int argIndex = 2;
-            if(com.Length >= 3 && com[2] == "archive")
+            if(com.Length >= 3)
             {
-                argIndex = 3;
-                cf = Schedule.cardsArchive;
+                if (com[2] == "archive")
+                {
+                    cf = Schedule.cardsArchive;
+                    argIndex = 3;
+                }
+                else if(com[2] == "past")
+                {
+                    limit = DateTime.Now.AddSeconds(-1);
+                    argIndex = 3;
+                }
+                else limit = Logic.Limit(com[2]);
             }
             uint count;
-            if (com.Length == argIndex + 1)
+            if (com.Length == argIndex + 1 && limit == DateTime.MaxValue)
             {
                 bool ok = uint.TryParse(com[argIndex], out count);
                 if (!ok)
@@ -218,21 +269,24 @@ namespace Planner
                 }
             }
             else count = 0;
-            int max = cf.Size();
-            if (count == 0) count = (uint)max;
-            if (count > max) count = (uint)max;
-            Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);
             List<Card> cards = new List<Card>();
             for (int i = 0; i < cf.Size(); i++)
-                cards.Add(cf.Get(i));
+            {
+                Card c = cf.Get(i);
+                if (c.start <= limit) cards.Add(c);
+            }
             cards.Sort((p, q) => p.start.CompareTo(q.end));
+            int max = cards.Count;
+            if (count == 0) count = (uint)max;
+            if (count > max) count = (uint)max;
+            Conzole.PrintLine("Found " + count + " cards.", ConsoleColor.Magenta);   
             for(int i = 0; i < count; i++)
             {
                 Card c = cards[i];
                 Conzole.Print(Schedule.StrDateTime(c.start) + " >> ", ConsoleColor.Yellow);
                 Conzole.Print(Schedule.StrDateTime(c.end) + " - ", ConsoleColor.Yellow);
                 string msg;
-                bool notPast = Schedule.GetDayMessage(c.start, out msg);
+                bool notPast = Logic.GetDayMessage(c.start, out msg);
                 ConsoleColor col = notPast ? ConsoleColor.White : ConsoleColor.Red;
                 Conzole.Print(msg + " - ", col);
                 Conzole.Print(Conzole.PadAfter(c.title, 30) + " - ");
@@ -419,9 +473,11 @@ namespace Planner
             Conzole.PrintLine(Schedule.StrDateTime(card.start), ConsoleColor.Yellow);
             Conzole.Print("End: ", ConsoleColor.Magenta);
             Conzole.PrintLine(Schedule.StrDateTime(card.end), ConsoleColor.Yellow);
+            Conzole.Print("Day: ", ConsoleColor.Magenta);
+            Conzole.PrintLine(card.start.DayOfWeek.ToString());
             Conzole.Print("Relativeness: ", ConsoleColor.Magenta);
             string msg;
-            bool notPast = Schedule.GetDayMessage(card.start, out msg);
+            bool notPast = Logic.GetDayMessage(card.start, out msg);
             ConsoleColor col = notPast ? ConsoleColor.White : ConsoleColor.Red;
             Conzole.PrintLine(msg, col);
             TimeSpan res = card.end - card.start;
@@ -429,6 +485,207 @@ namespace Planner
             Conzole.PrintLine(res.Hours + " hours, " + res.Minutes + " minutes and " + res.Seconds + " seconds." , ConsoleColor.Yellow);
             Conzole.PrintLine("Content: ", ConsoleColor.Magenta);
             Conzole.PrintLine(card.content);
+            return true;
+        }
+        
+        public static bool CleanCards(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "clean") return false;
+            if (com[1] != "cards") return false;
+            Conzole.PrintLine("Deleting all cards that are past.");
+            bool ok = Conzole.AreYouSure();
+            if (!ok)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return true;
+            }
+            DateTime limit = DateTime.Now.AddSeconds(-1);
+            CardFile cf = Schedule.cards;
+            List<Card> dls = new List<Card>();
+            for (int i = 0; i < cf.Size(); i++)
+            {
+                Card c = cf.Get(i);
+                if (c.end <= limit)
+                    dls.Add(c);
+            }
+            for (int i = 0; i < dls.Count; i++)
+            {
+                Schedule.cardsArchive.Add(dls[i]);
+                cf.Delete(dls[i]);
+            }
+            Schedule.cardsArchive.Write();
+            cf.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return false;
+        }
+
+        public static bool AddDeadCard(string[] com)
+        {
+            if (com.Length < 8) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "deadcard") return false;
+            DateTime startDt, endDt;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out startDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            if (com[4] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[4];
+            ok = Schedule.DateTimeFromString(firstPart + "-" + com[5], out endDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            Card card = new Card();
+            card.start = startDt;
+            card.end = endDt;
+            card.title = com[6];
+            card.content = "";
+            card.category = com[7];
+            Schedule.cards.Add(card);
+            Schedule.cards.Write();
+            Deadline deadline = new Deadline();
+            deadline.deadline = startDt;
+            deadline.title = com[6];
+            deadline.category = com[7];
+            Schedule.deadlines.Add(deadline);
+            Schedule.deadlines.Write();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
+        }
+
+        public static bool DeleteDeadCard(string[] com)
+        {
+            if (com.Length < 4) return false;
+            if (com[0] != "delete") return false;
+            if (com[1] != "deadcard") return false;
+            DateTime origDt;
+            Card card;
+            Deadline deadline;
+            int cardIndex, deadlineIndex;
+            bool foundC = false, foundD;
+            string firstPart;
+            if (com[2] == "null")
+                firstPart = "0:0:0";
+            else firstPart = com[2];
+            bool ok = Schedule.DateTimeFromString(firstPart + "-" + com[3], out origDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            foundC = Schedule.cards.Get(origDt, com[2] == "null", out card, out cardIndex);
+            foundD = Schedule.deadlines.Get(origDt, com[2] == "null", out deadline, out deadlineIndex);
+            if (!(foundC && foundD))
+            {
+                Conzole.PrintLine("Could not find a deadline and a card that match!", ConsoleColor.Red);
+                return false;
+            }
+            Conzole.PrintLine("Deleting card " + card.title + ".", ConsoleColor.Magenta);
+            Conzole.PrintLine("Deleting deadline " + deadline.title + ".", ConsoleColor.Magenta);
+            bool sure = Conzole.AreYouSure();
+            if (!sure)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return false;
+            }
+            Schedule.cardsArchive.Add(card);
+            Schedule.cardsArchive.Write();
+            Schedule.cards.Delete(card);
+            Schedule.cards.Write();
+            Schedule.deadlinesArchive.Add(deadline);
+            Schedule.deadlinesArchive.Write();
+            Schedule.deadlines.Delete(deadline);
+            Schedule.deadlines.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
+            return true;
+        }
+
+        public static bool ListTimeSlots(string[] com)
+        {
+            if (com.Length < 2) return false;
+            if (com[0] != "list") return false;
+            if (com[1] != "timeslots") return false;
+            TimeSlotFile cf = Schedule.timeslots;
+            if(com.Length >= 3 && com[2] == "archive")
+                cf = Schedule.timeslotsArchive;    
+            Conzole.PrintLine("Found " + cf.Size() + " timeslots.", ConsoleColor.Magenta);   
+            for(int i = 0; i < cf.Size(); i++)
+            {
+                TimeSlot ts = cf.Get(i);
+                Conzole.Print(Conzole.PadBefore(ts.startSec + ":" + ts.startMin + ":" + ts.startHou + " >> ", 12), ConsoleColor.Yellow);
+                Conzole.Print(Conzole.PadBefore(ts.endSec + ":" + ts.endMin + ":" + ts.endHou, 8), ConsoleColor.Yellow);
+                Conzole.Print(" - " + Conzole.PadAfter(ts.name, 50));
+                Conzole.Print("\n");
+            }
+            return true;
+        }
+
+        public static bool AddTimeSlot(string[] com)
+        {
+            if (com.Length < 5) return false;
+            if (com[0] != "add") return false;
+            if (com[1] != "timeslot") return false;
+            DateTime startDt, endDt;
+            bool ok = Schedule.TimeFromString(com[2], out startDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            ok = Schedule.TimeFromString(com[3], out endDt);
+            if (!ok)
+            {
+                Conzole.PrintLine("Your date/time is incorrect!", ConsoleColor.Red);
+                return false;
+            }
+            TimeSlot slot = new TimeSlot();
+            slot.startSec = startDt.Second;
+            slot.startMin = startDt.Minute;
+            slot.startHou = startDt.Hour;
+            slot.endSec = endDt.Second;
+            slot.endMin = endDt.Minute;
+            slot.endHou = endDt.Hour;
+            slot.name = com[4];
+            Schedule.timeslots.Add(slot);
+            Schedule.timeslots.Write();
+            Conzole.PrintLine("Succes", ConsoleColor.Magenta);
+            return true;
+        }
+        
+        public static bool DeleteTimeSlot(string[] com)
+        {
+            if (com.Length < 3) return false;
+            if (com[0] != "delete") return false;
+            if (com[1] != "timeslot") return false;
+            TimeSlot slot;
+            bool found = Schedule.timeslots.Get(com[2], out slot);
+            if (!found)
+            {
+                Conzole.PrintLine("Could not find timeslot!", ConsoleColor.Red);
+                return false;
+            }
+            Conzole.PrintLine("Deleting timeslot " + slot.name + ".", ConsoleColor.Magenta);
+            bool sure = Conzole.AreYouSure();
+            if (!sure)
+            {
+                Conzole.PrintLine("Did not delete anything.", ConsoleColor.Magenta);
+                return false;
+            }
+            Schedule.timeslotsArchive.Add(slot);
+            Schedule.timeslotsArchive.Write();
+            Schedule.timeslots.Delete(slot);
+            Schedule.timeslots.Write();
+            Conzole.PrintLine("Succes!", ConsoleColor.Magenta);
             return true;
         }
 

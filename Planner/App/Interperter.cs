@@ -6,27 +6,38 @@ namespace Planner
 {
     public class Interperter
     {
-        private List<string> strings;
         private List<Func<string[], bool>> executes;
 
         public Interperter()
         {
-            strings = new List<string>();
             executes = new List<Func<string[], bool>>();
             executes.Add(Help.HelpMe);
             executes.Add(Executes.Now);
             executes.Add(Executes.Date);
             executes.Add(Executes.Time);
             executes.Add(Executes.ShowDay);
-            executes.Add(Executes.ShowDeadlines);
+
+            executes.Add(Executes.ListDeadlines);
             executes.Add(Executes.AddDeadline);
             executes.Add(Executes.DeleteDeadline);
             executes.Add(Executes.EditDeadline);
-            executes.Add(Executes.ShowCards);
+            executes.Add(Executes.CleanDeadlines);
+
+            executes.Add(Executes.ListCards);
             executes.Add(Executes.AddCard);
             executes.Add(Executes.DeleteCard);
             executes.Add(Executes.EditCard);
             executes.Add(Executes.InspectCard);
+            executes.Add(Executes.CleanCards);
+
+            executes.Add(Executes.AddDeadCard);
+            executes.Add(Executes.DeleteDeadCard);
+
+            executes.Add(Executes.ListTimeSlots);
+            executes.Add(Executes.AddTimeSlot);
+            executes.Add(Executes.DeleteTimeSlot);
+
+            executes.Add(SequentialPlannerWizard.Run);
             //run the app
             Conzole.SetDimensions(120, 2000);
             Conzole.SetColour(ConsoleColor.Green);
@@ -68,8 +79,9 @@ namespace Planner
             AskCommand();
         }
         
-        private string[] ExtractCommand(string s)
+        public static string[] ExtractCommand(string s)
         {
+            List<string> strings = new List<string>();
             strings.Clear();
             string temp = "";
             for(int i = 0; i < s.Length; i++)

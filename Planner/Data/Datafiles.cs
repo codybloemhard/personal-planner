@@ -58,6 +58,11 @@ namespace Planner
             list[i] = n;
         }
 
+        public void Clear()
+        {
+            list.Clear();
+        }
+
         public abstract void Load();
         public abstract void Write();
     }
@@ -166,6 +171,49 @@ namespace Planner
                 if (same)
                 {
                     index = i;
+                    result = list[i];
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
+    public class TimeSlotFile : DataFile<TimeSlot>
+    {
+        public TimeSlotFile(string fileName) : base(fileName) { }
+
+        public override void Load()
+        {
+            if (!File.Exists(fileName)) return;
+            list.Clear();
+            BinaryReader r = new BinaryReader(File.Open(fileName, FileMode.Open));
+            int count = r.ReadInt32();
+            for (int i = 0; i < count; i++)
+                list.Add(TimeSlot.Read(r));
+            r.Close();
+            SetLoaded();
+        }
+
+        public override void Write()
+        {
+            BinaryWriter w = new BinaryWriter(File.Open(fileName, FileMode.OpenOrCreate));
+            w.Write(list.Count);
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i].Write(w);
+            }
+            w.Close();
+        }
+
+        public bool Get(string name, out TimeSlot result)
+        {
+            result = default(TimeSlot);
+            if (!IsLoaded()) Load();
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (name == list[i].name)
+                {
                     result = list[i];
                     return true;
                 }

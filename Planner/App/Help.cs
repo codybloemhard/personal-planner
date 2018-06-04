@@ -50,18 +50,20 @@ namespace Planner
 @"Any word found in the syntax, ex ""edit"" or ""deadline"" is a constant you literally type in.
 [x, y, z, ...] means that you can choose one of those constants listed.
 <Q:name> is a variable, where Q is the type and name is the name of the variable.
-The types are: s(string), n(number), t(time), d(date).
+The types are: s(string), n(number), t(time), d(date), w(wizard).
 A string is just a bunch of letters, no spaces allowed.
 A number must be larger or equal to zero.
 A time or date is written as ?:?:? where ? are numbers. You can split the ? by "";"" and "":"" and ""-"" and ""/"".
-For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, seconds go from 0 to 59.";
+For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, seconds go from 0 to 59.
+A wizard is a program that guides you through a proces step by step.";
 
         private static string[] commands = new string[] 
         {
             "now", "date", "time",
-            "show deadlines", "add deadline", "delete deadline",
-            "edit deadline", "show cards", "add card", "delete card",
-            "edit card", "inspect card"
+            "list deadlines", "add deadline", "delete deadline",
+            "edit deadline", "list cards", "add card", "delete card",
+            "edit card", "inspect card", "clean", "list timeslots",
+            "add timeslot", "delete timeslot", "run"
         };
 
         private static string[] syntax = new string[]
@@ -69,17 +71,20 @@ For time and date, the numbers must be correct, ex. time 74:3:5 is not correct, 
             "now",
             "date",
             "time",
-            "show deadlines (archive)",
+            "list deadlines ([archive, past])",
             "add deadline <t:time> <d:date> <s:title> <s:category>",
             "delete deadline [<t:time>, null] <d:date>",
             "edit deadline [<t:time>, null] <d:date> [title, category] <s:value>\nedit deadline [<t:time>, null] <d:date> deadline <t:time> <d:date> ",
-            "show cards (archive) (<n:amount>)",
+            "list cards ([archive, past]) (<n:amount>)",
             "add card <t:start> <d:start> <t:end> <d:end> <s:title> <s:category>",
             "delete card [<t:time>, null] <d:date>",
             "edit card [<t:time>, null] <d:date> [title, category, content] <s:string>\nedit card [<t:time>, null] <d:date> [start, end] <t:time> <d:date>",
-            "inspect card [<t:time>, null], <d:date>"
+            "inspect card [<t:time>, null], <d:date>",
+            "clean [deadlines, cards]",
+            "list timeslots (archive)",
+            "add timeslot <t:start> <e:start> <s:name>",
+            "delete timeslot <s:name>",
+            "run <w:wizardprogram>"
         };
-
-
     }
 }
