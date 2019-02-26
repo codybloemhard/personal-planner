@@ -41,15 +41,15 @@ fn read_inp() -> String {
     return inp.trim().to_string();
 }
 
-fn prompt(mut printer: &Printer, msg : String) -> String {
-    printer.println_color(msg, Color::Cyan);
-    io::stdout().flush().ok().expect("Error: stdout().flush() in fn prompt");
+fn prompt(printer: &mut Printer, msg : String) -> String {
+    printer.print_color(msg, Color::Cyan);
+    printer.stream.flush();
     return read_inp();
 }
 
-fn receive_command(mut printer: &Printer) {
+fn receive_command(printer: &mut Printer) {
     loop{
-        let x = prompt(&mut printer, "cmd > ".to_string());
+        let x = prompt(printer, "cmd > ".to_string());
         match x.as_ref() {
             "q" => {break;},
             "quit " => {break;},
@@ -60,7 +60,7 @@ fn receive_command(mut printer: &Printer) {
 
 fn main() {
     let mut printer = Printer {
-        stream: StandardStream::stdout(ColorChoice::Always),
+        stream: StandardStream::stdout(ColorChoice::Auto),
         col: Color::White,
     };
     receive_command(&mut printer);
