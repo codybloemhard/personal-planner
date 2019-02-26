@@ -1,0 +1,7 @@
+[package]
+name = "pplanner"
+version = "0.1.0"
+authors = ["Cody Bloemhard <cblmhrd@live.nl>"]
+edition = "2018"
+
+[dependencies]
