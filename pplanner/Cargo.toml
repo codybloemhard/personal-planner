@@ -5,3 +5,4 @@ authors = ["Cody Bloemhard <cblmhrd@live.nl>"]
 edition = "2018"
 
 [dependencies]
+termcolor = "1"
