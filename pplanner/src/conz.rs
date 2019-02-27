@@ -9,6 +9,13 @@ pub struct Printer{
 }
 
 impl Printer {
+    pub fn new() -> Printer {
+        return Printer {
+            stream: StandardStream::stdout(ColorChoice::Always),
+            col: Color::White,
+        }
+    }
+
     pub fn set_color(&mut self, color: Color){
         self.col = color;
         self.stream.set_color(ColorSpec::new().set_fg(Some(color)))
@@ -41,13 +48,6 @@ impl Printer {
             .expect("Error: Printer > print_color > 1");
         self.stream.set_color(ColorSpec::new().set_fg(Some(self.col)))
             .expect("Error: Printer > print_color > 2");
-    }
-}
-
-pub fn create_printer() -> Printer {
-    return Printer {
-        stream: StandardStream::stdout(ColorChoice::Always),
-        col: Color::White,
     }
 }
 

@@ -24,7 +24,7 @@ fn receive_command(printer: &mut conz::Printer) {
 }
 
 fn main() {
-    let mut printer = conz::create_printer();
+    let mut printer = conz::Printer::new();
     printer.set_color(Color::Green);
     receive_command(&mut printer);
 }
