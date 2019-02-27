@@ -22,17 +22,17 @@ impl Printer {
             .expect("Error: Printer > set_color > 0");
     }
 
-    pub fn println(&mut self, msg: String){
+    pub fn println(&mut self, msg: &str){
         writeln!(&mut self.stream, "{}", msg)
             .expect("Error: Printer > println > 0");
     }
 
-    pub fn print(&mut self, msg: String){
+    pub fn print(&mut self, msg: &str){
         write!(&mut self.stream, "{}", msg)
             .expect("Error: Printer > print > 0");
     }
 
-    pub fn println_color(&mut self, msg: String, color: Color){
+    pub fn println_color(&mut self, msg: &str, color: Color){
         self.stream.set_color(ColorSpec::new().set_fg(Some(color)))
             .expect("Error: Printer > println_color > 0");
         writeln!(&mut self.stream, "{}", msg)
@@ -41,7 +41,7 @@ impl Printer {
             .expect("Error: Printer > println_color > 2");
     }
 
-    pub fn print_color(&mut self, msg: String, color: Color){
+    pub fn print_color(&mut self, msg: &str, color: Color){
         self.stream.set_color(ColorSpec::new().set_fg(Some(color)))
             .expect("Error: Printer > print_color > 0");
         write!(&mut self.stream, "{}", msg)
@@ -57,7 +57,7 @@ pub fn read_inp() -> String {
     return inp.trim().to_string();
 }
 
-pub fn prompt(printer: &mut Printer, msg : String) -> String {
+pub fn prompt(printer: &mut Printer, msg : &str) -> String {
     printer.print_color(msg, Color::Cyan);
     printer.stream.flush()
         .expect("Error: Printer > println_color > 0");
