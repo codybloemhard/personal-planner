@@ -7,8 +7,7 @@ mod conz;
 mod parser;
 
 fn main() {
-    let mut printer = conz::Printer::new();
-    printer.set_color(Color::Green);
+    let printer = conz::Printer::new();
     let mut parser = parser::Parser::new(printer);
     parser.start_loop();
 }

@@ -28,9 +28,7 @@ impl Parser {
                 _ => {
                     let found_cmd = self.parse_and_run(y);
                     if found_cmd { continue; }
-                    self.printer.print_color("Error: Command not found: \"", Color::Red);
-                    self.printer.print_color(y, Color::Green);
-                    self.printer.println_color("\"!", Color::Red);
+                    self.printer.println_error("Error: Command not found: \"", y, "\"!");
                 }
             }
         }
@@ -53,8 +51,7 @@ mod commands {
     use super::conz;
 
     pub fn now(printer : &mut conz::Printer) {
-        printer.set_color(Color::Magenta);
         let dt = Local::now();
-        println!("{}", dt);
+        printer.println_type(format!("{}", dt).as_ref(), conz::MsgType::Value);
     }
 }
