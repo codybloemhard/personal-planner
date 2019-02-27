@@ -1,13 +1,16 @@
 extern crate termcolor;
+extern crate chrono;
 
 use termcolor::{ Color };
 
 mod conz;
+mod cmds;
 
 fn receive_command(printer: &mut conz::Printer) {
     loop{
         let x = conz::prompt(printer, String::from("cmd > "));
         match x.as_ref() {
+            "now" => cmds::now(printer),
             "q" => break,
             "quit" => break,
             _ => {
