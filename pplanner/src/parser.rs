@@ -46,12 +46,12 @@ impl Parser {
 }
 
 mod commands {
-    use chrono::prelude::*;
-    use termcolor::{ Color };
-    use super::conz;
+    use super::super::conz;
+    use super::super::data;
 
     pub fn now(printer : &mut conz::Printer) {
-        let dt = Local::now();
-        printer.println_type(format!("{}", dt).as_ref(), conz::MsgType::Value);
+        let mut dt = data::DT::new();
+        dt.add(0, 0, 2);
+        printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
     }
 }

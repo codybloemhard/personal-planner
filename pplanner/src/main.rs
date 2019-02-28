@@ -1,10 +1,9 @@
 extern crate termcolor;
 extern crate chrono;
 
-use termcolor::{ Color };
-
 mod conz;
 mod parser;
+mod data;
 
 fn main() {
     let printer = conz::Printer::new();
