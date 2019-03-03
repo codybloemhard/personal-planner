@@ -51,7 +51,8 @@ mod commands {
 
     pub fn now(printer : &mut conz::Printer) {
         let mut dt = data::DT::new();
-        dt.add(0, 0, 2);
-        printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+        let deadline = data::DT::make_date(24, 3, 2019);
+        
+        printer.println_type(dt.diff(&deadline).as_ref(), conz::MsgType::Value);
     }
 }
