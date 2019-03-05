@@ -36,6 +36,7 @@ impl Parser {
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{
+        String::from(line).split_whitespace();
         let search_res = self.funcs.get(line);
         match search_res {
             None => return false,
@@ -50,9 +51,7 @@ mod commands {
     use super::super::data;
 
     pub fn now(printer : &mut conz::Printer) {
-        let mut dt = data::DT::new();
-        let deadline = data::DT::make_date(24, 3, 2019);
-        
-        printer.println_type(dt.diff(&deadline).as_ref(), conz::MsgType::Value);
+        let dt = data::DT::new();
+        printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
     }
 }
