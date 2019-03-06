@@ -50,6 +50,12 @@ impl DT {
         }
     }
 
+    pub fn make_datetime(day: u32, month: u32, year: i32, hours: u32, mins: u32, secs: u32) -> DT{
+        DT{
+            dt: Local.ymd(year, month, day).and_hms(hours, mins, secs),
+        }
+    }
+
     pub fn str_datetime(self) -> String{    
         return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y"));
     }
