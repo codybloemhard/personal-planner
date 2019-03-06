@@ -8,8 +8,8 @@ mod astr;
 
 fn main() {
     let st = String::from("henlo ❤ world❤");
-    let mut test = astr::Astr::from(st);
-    println!("{}", test.to_string());
+    let mut test = astr::from(st);
+    println!("{}", astr::to_string(test));
     
     let printer = conz::Printer::new();
     let mut parser = parser::Parser::new(printer);
