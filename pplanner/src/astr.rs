@@ -4,9 +4,19 @@ pub fn new() -> Astr{
     return Vec::new();
 }
 
-pub fn from(s: String) -> Astr{
+pub fn from_string(s: String) -> Astr{
     let mut buffer: Vec<u8> = Vec::new();
     for ch in s.chars() {
+        if !ch.is_ascii() { continue; }
+        let val: u8 = ch as u8;
+        buffer.push(val);
+    }
+    return buffer;
+}
+
+pub fn from_str(s: &str) -> Astr{
+    let mut buffer: Vec<u8> = Vec::new();
+    for ch in s.chars(){
         if !ch.is_ascii() { continue; }
         let val: u8 = ch as u8;
         buffer.push(val);

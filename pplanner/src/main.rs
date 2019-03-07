@@ -7,11 +7,9 @@ mod data;
 mod astr;
 
 fn main() {
-    let st = String::from("henlo ❤ world❤ test some more ❤ \t \n ai \t sir");
-    println!("{}", st);
-    let mut test = astr::from(st);
+    let mut test = astr::from_str("henlo ❤ world❤ test some more ❤ \t \n ai \t sir");
     println!("{}", astr::to_string(&test));
-    let splitted = astr::split(&test, &astr::from(String::from(" \n\t")));
+    let splitted = astr::split(&test, &astr::from_str(" \n\t"));
     for line in splitted{
         println!("{}", astr::to_string(&line));
     }
