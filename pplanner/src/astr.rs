@@ -14,10 +14,47 @@ pub fn from(s: String) -> Astr{
     return buffer;
 }
 
-pub fn to_string(astr: Astr) -> String{
+pub fn clear(astr: &mut Astr){
+    astr.clear();
+}
+
+pub fn to_string(astr: &Astr) -> String{
     let mut s: String = String::new();
-    for ch in &astr{
+    for ch in astr{
         s.push(*ch as char);
     }
     return s;
+}
+
+pub fn split(astr: &Astr, splitchars: &Astr) -> Vec<Astr>{
+    fn splitnow(splits: &mut Vec<Astr>, current: &mut Astr, counter: &mut u32){
+        splits.push(current.clone());
+        current.clear();
+        *counter = 0;
+    }
+    let mut splits: Vec<Astr> = Vec::new();
+    let mut current: Astr = Vec::new();
+    let mut counter: u32 = 0;
+    for ch in astr{
+        let mut hit: bool = false;
+        for sp in splitchars{
+            if *ch == *sp{
+                hit = true;
+                break;
+            }
+        }
+        if hit{
+            if counter == 0{
+                continue;
+            }
+            splitnow(&mut splits, &mut current, &mut counter);
+            continue;
+        }
+        counter += 1;
+        current.push(*ch);
+    }
+    if counter > 0{
+        splitnow(&mut splits, &mut current, &mut counter);
+    }
+    return splits;
 }
