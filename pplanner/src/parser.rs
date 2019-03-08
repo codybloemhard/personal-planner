@@ -60,10 +60,12 @@ mod commands {
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
 
-        let triplet = data::parse_dmy_or_hms(&_command[1]);
-        match triplet{
-            Ok(x) => printer.println_type(format!("{}!{}!{}", x.0, x.1, x.2).as_ref(), conz::MsgType::Highlight),
-            _ => return,
-        }
+        let tri0 = data::parse_dmy_or_hms(&_command[1]);
+        let tri1 = data::parse_dmy_or_hms(&_command[2]);
+        if tri0.is_err() { return; }
+        if tri1.is_err() { return; }
+        let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
+        if dt1.is_err() { return; }
+        printer.println_type(format!("{}", dt1.unwrap().str_datetime()).as_ref(), conz::MsgType::Highlight);
     }
 }
