@@ -1,17 +1,19 @@
 use std::collections::HashMap;
+
 use termcolor::{ Color };
 
 use super::conz;
+use super::astr;
 
 pub struct Parser {
-    funcs: HashMap<&'static str, fn(&mut conz::Printer)>,
+    funcs: HashMap<astr::Astr, fn(&mut conz::Printer, astr::AstrVec)>,
     printer: conz::Printer,
 }
 
 impl Parser {
     pub fn new(printer: conz::Printer) -> Parser {
-        let mut funcs: HashMap<&str, fn(&mut conz::Printer)> = HashMap::new();
-        funcs.insert("now", commands::now);
+        let mut funcs: HashMap<astr::Astr, fn(&mut conz::Printer, astr::AstrVec)> = HashMap::new();
+        funcs.insert(astr::from_str("now"), commands::now);
         return Parser {
             funcs,
             printer,
@@ -19,6 +21,9 @@ impl Parser {
     }
 
     pub fn start_loop(&mut self) {
+        self.printer.println_type("Henlo Fren!", conz::MsgType::Prompt);
+        self.printer.println_type("pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
+        self.printer.println_type("Made by Cody Bloemhard.", conz::MsgType::Prompt);
         loop{
             let x = conz::prompt(&mut self.printer, "cmd > ");
             let y = x.as_ref();
@@ -36,11 +41,11 @@ impl Parser {
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{
-        String::from(line).split_whitespace();
-        let search_res = self.funcs.get(line);
+        let command = astr::split(&astr::from_str(line), &astr::from_str(" \n\t"));
+        let search_res = self.funcs.get(&command[0]);
         match search_res {
             None => return false,
-            Some(x) => x(& mut self.printer),
+            Some(x) => x(& mut self.printer, command),
         }
         return true;
     }
@@ -49,9 +54,16 @@ impl Parser {
 mod commands {
     use super::super::conz;
     use super::super::data;
+    use super::super::astr;
 
-    pub fn now(printer : &mut conz::Printer) {
+    pub fn now(printer: &mut conz::Printer, _command: astr::AstrVec){
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+
+        let triplet = data::parse_dmy_or_hms(&_command[1]);
+        match triplet{
+            Ok(x) => printer.println_type(format!("{}!{}!{}", x.0, x.1, x.2).as_ref(), conz::MsgType::Highlight),
+            _ => return,
+        }
     }
 }

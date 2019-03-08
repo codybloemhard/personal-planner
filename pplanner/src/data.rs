@@ -1,5 +1,10 @@
 use chrono::prelude::*;
 
+use super::astr;
+
+type DMY = (u32,u32,i32);
+type HMS = (u32,u32,u32);
+
 pub struct Span {
     total_hours: u64,
     total_mins: u64,
@@ -11,9 +16,9 @@ pub struct Span {
 }
 
 impl Span {
-    const SECS_MIN: u64 = 60;
-    const SECS_HOUR: u64 = 3600;
-    const SECS_DAY: u64 = 86400;
+    pub const SECS_MIN: u64 = 60;
+    pub const SECS_HOUR: u64 = 3600;
+    pub const SECS_DAY: u64 = 86400;
 
     pub fn string_normal(&mut self) -> String{
         return format!("{}s:{}m:{}h-{}d", self.secs, self.mins, self.hours, self.days);
@@ -44,15 +49,15 @@ impl DT {
         }
     }
 
-    pub fn make_date(day: u32, month: u32, year: i32) -> DT{
+    pub fn make_date(dmy: DMY) -> DT{
         DT{
-            dt: Local.ymd(year, month, day).and_hms(0, 0, 0),
+            dt: Local.ymd(dmy.2, dmy.1, dmy.0).and_hms(0, 0, 0),
         }
     }
 
-    pub fn make_datetime(day: u32, month: u32, year: i32, hours: u32, mins: u32, secs: u32) -> DT{
+    pub fn make_datetime(dmy: DMY, hms: HMS) -> DT{
         DT{
-            dt: Local.ymd(year, month, day).and_hms(hours, mins, secs),
+            dt: Local.ymd(dmy.2, dmy.1, dmy.0).and_hms(hms.0, hms.1, hms.2),
         }
     }
 
@@ -91,4 +96,11 @@ impl DT {
             secs: left,
         };
     }
+}
+
+pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, u8>{
+    let splitted = astr::split(&string, &astr::from_str(":;-_.,/\\"));
+    if splitted.len() != 3 { return Err(0); }
+    let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
+    return Ok((triplet[0],triplet[1],triplet[2] as i32));
 }
