@@ -11,6 +11,7 @@ fn main() {
     let mut saved: Vec<u8> = Vec::new();
     save::buffer_append_u32(&mut saved, 7282);
     save::buffer_append_u32(&mut saved, 25);
+    save::buffer_append_string(&mut saved, &astr::from_str("henlo frens!"));
     save::buffer_append_u32(&mut saved, 27827);
 
     save::buffer_write_file("test.save", &saved);
@@ -19,8 +20,10 @@ fn main() {
     let mut iter: u32 = 0;
     let a = save::buffer_read_u32(&opened, &mut iter).1;
     let b = save::buffer_read_u32(&opened, &mut iter).1;
-    let c = save::buffer_read_u32(&opened, &mut iter).1;
-    println!("{},{},{}",a , b, c);
+    let c = save::buffer_read_string(&opened, &mut iter).1;
+    let d = save::buffer_read_u32(&opened, &mut iter).1;
+    println!("{},{},{},{}", a, b, astr::to_string(&c), d);
+    println!("{}", save::buffer_read_string(&opened, &mut iter).0);
 
     let printer = conz::Printer::new();
     let mut parser = parser::Parser::new(printer);
