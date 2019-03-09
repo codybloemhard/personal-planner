@@ -6,25 +6,25 @@ mod parser;
 mod data;
 mod astr;
 mod save;
-use save::Binairizable;
+use save::Bufferable;
 
 fn main() {
     let mut saved: Vec<u8> = Vec::new();
-    save::buffer_append_u32(&mut saved, 7282);
-    save::buffer_append_u32(&mut saved, 25);
+    u32::into_buffer(&7282, &mut saved);
+    u32::into_buffer(&25, &mut saved);
     save::buffer_append_string(&mut saved, &astr::from_str("henlo frens!"),);
-    save::buffer_append_u32(&mut saved, 27827);
+    u32::into_buffer(&6666, &mut saved);
     let dt0 = data::DT::new();
-    save::buffer_append_buffer(&mut saved, &dt0.to_binairy());
+    dt0.into_buffer(&mut saved);
 
     save::buffer_write_file("test.save", &saved);
     let opened = save::buffer_read_file("test.save").unwrap();
     let mut iter: u32 = 0;
-    let a = save::buffer_read_u32(&opened, &mut iter).unwrap();
-    let b = save::buffer_read_u32(&opened, &mut iter).unwrap();
+    let a = u32::from_buffer(&opened, &mut iter).unwrap();
+    let b = u32::from_buffer(&opened, &mut iter).unwrap();
     let c = save::buffer_read_string(&opened, &mut iter).unwrap();
-    let d = save::buffer_read_u32(&opened, &mut iter).unwrap();
-    let e = data::DT::from_binairy(&opened, &mut iter).unwrap();
+    let d = u32::from_buffer(&opened, &mut iter).unwrap();
+    let e = data::DT::from_buffer(&opened, &mut iter).unwrap();
     println!("{},{},{},{},{}", a, b, astr::to_string(&c), d, e.str_datetime());
     println!("{}", save::buffer_read_string(&opened, &mut iter).is_ok());
 

@@ -99,29 +99,27 @@ impl DT {
     }
 }
 
-impl save::Binairizable for DT{
+impl save::Bufferable for DT{
     type Return = DT;
-    fn to_binairy(&self) -> Vec<u8>{
-        let mut vec: Vec<u8> = Vec::new();
-        save::buffer_append_u32(&mut vec, self.dt.hour());
-        save::buffer_append_u32(&mut vec, self.dt.minute());
-        save::buffer_append_u32(&mut vec, self.dt.second());
-        save::buffer_append_u32(&mut vec, self.dt.day());
-        save::buffer_append_u32(&mut vec, self.dt.month());
-        save::buffer_append_u32(&mut vec, self.dt.year() as u32);
-        return vec;
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        u32::into_buffer(&self.dt.hour(), vec);
+        u32::into_buffer(&self.dt.minute(), vec);
+        u32::into_buffer(&self.dt.second(), vec);
+        u32::into_buffer(&self.dt.day(), vec);
+        u32::into_buffer(&self.dt.month(), vec);
+        u32::into_buffer(&(self.dt.year() as u32), vec);
     }
 
-    fn from_binairy(vec: &Vec<u8>, iter: &mut u32) -> Result<DT,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<DT,()>{
         if (vec.len() as i32) - (*iter as i32) < 24 { return Err(()); }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
-        let ho = save::buffer_read_u32(vec, iter).unwrap();
-        let mi = save::buffer_read_u32(vec, iter).unwrap();
-        let se = save::buffer_read_u32(vec, iter).unwrap();
-        let da = save::buffer_read_u32(vec, iter).unwrap();
-        let mo = save::buffer_read_u32(vec, iter).unwrap();
-        let ye = save::buffer_read_u32(vec, iter).unwrap();
+        let ho = u32::from_buffer(vec, iter).unwrap();
+        let mi = u32::from_buffer(vec, iter).unwrap();
+        let se = u32::from_buffer(vec, iter).unwrap();
+        let da = u32::from_buffer(vec, iter).unwrap();
+        let mo = u32::from_buffer(vec, iter).unwrap();
+        let ye = u32::from_buffer(vec, iter).unwrap();
         return DT::make_datetime((da,mo,ye), (ho,mi,se));
     }
 }
