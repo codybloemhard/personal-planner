@@ -1,9 +1,10 @@
-use std::fs::File;
 use std::io::prelude::*;
 use std::fs::OpenOptions;
 
 pub trait Binairizable{
-    fn biniarize(&self) -> Vec<u8>;
+    type Return;
+    fn to_binairy(&self) -> Vec<u8>;
+    fn from_binairy(vec: &Vec<u8>, iter: &mut u32) -> Result<Self::Return,()>;
 }
 
 pub fn buffer_append_u32(vec: &mut Vec<u8>, val: u32){
@@ -24,6 +25,12 @@ pub fn buffer_read_u32(vec: &Vec<u8>, iter: &mut u32) -> Result<u32, ()>{
     return Ok(val);
 }
 
+pub fn buffer_append_buffer(vec: &mut Vec<u8>, string: &Vec<u8>){
+    for byte in string{
+        vec.push(*byte);
+    }
+}
+
 pub fn buffer_append_string(vec: &mut Vec<u8>, string: &Vec<u8>){
     let len = string.len() as u32;
     buffer_append_u32(vec, len);
@@ -41,6 +48,7 @@ pub fn buffer_read_string(vec: &Vec<u8>, iter: &mut u32) -> Result<Vec<u8>, ()>{
     for i in *iter..(*iter+len){
         string.push(vec[i as usize]);
     }
+    *iter += len;
     return Ok(string);
 }
 

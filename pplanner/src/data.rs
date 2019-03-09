@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 
 use super::astr;
+use super::save;
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -61,7 +62,7 @@ impl DT {
         return Ok(DT{ dt: datetime.unwrap(), });
     }
 
-    pub fn str_datetime(self) -> String{    
+    pub fn str_datetime(&self) -> String{    
         return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y"));
     }
 
@@ -95,6 +96,33 @@ impl DT {
             mins: mins,
             secs: left,
         };
+    }
+}
+
+impl save::Binairizable for DT{
+    type Return = DT;
+    fn to_binairy(&self) -> Vec<u8>{
+        let mut vec: Vec<u8> = Vec::new();
+        save::buffer_append_u32(&mut vec, self.dt.hour());
+        save::buffer_append_u32(&mut vec, self.dt.minute());
+        save::buffer_append_u32(&mut vec, self.dt.second());
+        save::buffer_append_u32(&mut vec, self.dt.day());
+        save::buffer_append_u32(&mut vec, self.dt.month());
+        save::buffer_append_u32(&mut vec, self.dt.year() as u32);
+        return vec;
+    }
+
+    fn from_binairy(vec: &Vec<u8>, iter: &mut u32) -> Result<DT,()>{
+        if (vec.len() as i32) - (*iter as i32) < 24 { return Err(()); }
+        //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
+        //we have checked there are enough bytes
+        let ho = save::buffer_read_u32(vec, iter).unwrap();
+        let mi = save::buffer_read_u32(vec, iter).unwrap();
+        let se = save::buffer_read_u32(vec, iter).unwrap();
+        let da = save::buffer_read_u32(vec, iter).unwrap();
+        let mo = save::buffer_read_u32(vec, iter).unwrap();
+        let ye = save::buffer_read_u32(vec, iter).unwrap();
+        return DT::make_datetime((da,mo,ye), (ho,mi,se));
     }
 }
 
