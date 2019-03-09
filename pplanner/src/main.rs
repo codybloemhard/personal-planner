@@ -12,11 +12,14 @@ fn main() {
     save::buffer_append_u32(&mut saved, 7282);
     save::buffer_append_u32(&mut saved, 25);
     save::buffer_append_u32(&mut saved, 27827);
-    println!("{:#?}", saved);
+
+    save::buffer_write_file("test.save", &saved);
+    let opened = save::buffer_read_file("test.save").unwrap();
+
     let mut iter: u32 = 0;
-    let a = save::buffer_read_u32(&saved, &mut iter).1;
-    let b = save::buffer_read_u32(&saved, &mut iter).1;
-    let c = save::buffer_read_u32(&saved, &mut iter).1;
+    let a = save::buffer_read_u32(&opened, &mut iter).1;
+    let b = save::buffer_read_u32(&opened, &mut iter).1;
+    let c = save::buffer_read_u32(&opened, &mut iter).1;
     println!("{},{},{}",a , b, c);
 
     let printer = conz::Printer::new();
