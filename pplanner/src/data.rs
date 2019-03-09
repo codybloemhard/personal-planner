@@ -2,6 +2,7 @@ use chrono::prelude::*;
 
 use super::astr;
 use super::save;
+use super::astr::AStr;
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -125,7 +126,7 @@ impl save::Bufferable for DT{
 }
 
 pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
-    let splitted = astr::split(&string, &astr::from_str(":;-_.,/\\"));
+    let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 { return Err(()); }
     let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
     return Ok((triplet[0],triplet[1],triplet[2]));

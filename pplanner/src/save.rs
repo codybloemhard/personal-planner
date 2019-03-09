@@ -34,27 +34,6 @@ pub fn buffer_append_buffer(vec: &mut Vec<u8>, string: &Vec<u8>){
     }
 }
 
-pub fn buffer_append_string(vec: &mut Vec<u8>, string: &Vec<u8>){
-    let len = string.len() as u32;
-    u32::into_buffer(&len, vec);
-    for byte in string{
-        vec.push(*byte);
-    }
-}
-
-pub fn buffer_read_string(vec: &Vec<u8>, iter: &mut u32) -> Result<Vec<u8>, ()>{
-    let res_len = u32::from_buffer(vec, iter);
-    if res_len.is_err() { return Err(()); }
-    let len = res_len.unwrap();
-    if (vec.len() as i32) - (*iter as i32) < (len as i32) { return Err(()); }
-    let mut string: Vec<u8> = Vec::new();
-    for i in *iter..(*iter+len){
-        string.push(vec[i as usize]);
-    }
-    *iter += len;
-    return Ok(string);
-}
-
 pub fn buffer_write_file(path: &str, vec: &Vec<u8>) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
     if file.is_err() { return false; }

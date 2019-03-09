@@ -1,3 +1,5 @@
+use super::save;
+
 pub type Astr = Vec<u8>;
 pub type AstrVec = Vec<Vec<u8>>;
 
@@ -25,49 +27,81 @@ pub fn from_str(s: &str) -> Astr{
     return buffer;
 }
 
-pub fn clear(astr: &mut Astr){
-    astr.clear();
+pub trait AStr{
+    fn clear(&mut self);
+    fn to_string(&self) -> String;
+    fn split_str(&self, splitchars: &Astr) -> AstrVec;
 }
 
-pub fn to_string(astr: &Astr) -> String{
-    let mut s: String = String::new();
-    for ch in astr{
-        s.push(*ch as char);
+impl AStr for Astr{
+    fn clear(&mut self){
+        self.clear();
     }
-    return s;
-}
 
-pub fn split(astr: &Astr, splitchars: &Astr) -> AstrVec{
-    fn splitnow(splits: &mut AstrVec, current: &mut Astr, counter: &mut u32){
-        splits.push(current.clone());
-        current.clear();
-        *counter = 0;
-    }
-    let mut splits: AstrVec = Vec::new();
-    let mut current: Astr = Vec::new();
-    let mut counter: u32 = 0;
-    for ch in astr{
-        let mut hit: bool = false;
-        for sp in splitchars{
-            if *ch == *sp{
-                hit = true;
-                break;
-            }
+    fn to_string(&self) -> String{
+        let mut s: String = String::new();
+        for ch in self{
+            s.push(*ch as char);
         }
-        if hit{
-            if counter == 0{
+        return s;
+    }
+
+    fn split_str(&self, splitchars: &Astr) -> AstrVec{
+        fn splitnow(splits: &mut AstrVec, current: &mut Astr, counter: &mut u32){
+            splits.push(current.clone());
+            current.clear();
+            *counter = 0;
+        }
+        let mut splits: AstrVec = Vec::new();
+        let mut current: Astr = Vec::new();
+        let mut counter: u32 = 0;
+        for ch in self{
+            let mut hit: bool = false;
+            for sp in splitchars{
+                if *ch == *sp{
+                    hit = true;
+                    break;
+                }
+            }
+            if hit{
+                if counter == 0{
+                    continue;
+                }
+                splitnow(&mut splits, &mut current, &mut counter);
                 continue;
             }
-            splitnow(&mut splits, &mut current, &mut counter);
-            continue;
+            counter += 1;
+            current.push(*ch);
         }
-        counter += 1;
-        current.push(*ch);
+        if counter > 0{
+            splitnow(&mut splits, &mut current, &mut counter);
+        }
+        return splits;
     }
-    if counter > 0{
-        splitnow(&mut splits, &mut current, &mut counter);
+}
+
+impl save::Bufferable for Astr{
+    type Return = Astr;
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        let len = self.len() as u32;
+        u32::into_buffer(&len, vec);
+        for byte in self{
+            vec.push(*byte);
+        }
     }
-    return splits;
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Astr,()>{
+        let res_len = u32::from_buffer(vec, iter);
+        if res_len.is_err() { return Err(()); }
+        let len = res_len.unwrap();
+        if (vec.len() as i32) - (*iter as i32) < (len as i32) { return Err(()); }
+        let mut string: Vec<u8> = Vec::new();
+        for i in *iter..(*iter+len){
+            string.push(vec[i as usize]);
+        }
+        *iter += len;
+        return Ok(string);
+    }
 }
 
 pub const CHAR_START_NUM: u8 = 48;

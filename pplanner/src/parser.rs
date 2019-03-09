@@ -4,6 +4,7 @@ use termcolor::{ Color };
 
 use super::conz;
 use super::astr;
+use super::astr::AStr;
 
 pub struct Parser {
     funcs: HashMap<astr::Astr, fn(&mut conz::Printer, astr::AstrVec)>,
@@ -41,7 +42,7 @@ impl Parser {
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{
-        let command = astr::split(&astr::from_str(line), &astr::from_str(" \n\t"));
+        let command = astr::from_str(line).split_str(&astr::from_str(" \n\t"));
         let search_res = self.funcs.get(&command[0]);
         match search_res {
             None => return false,
