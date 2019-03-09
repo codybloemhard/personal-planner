@@ -49,15 +49,15 @@ impl DT {
         }
     }
 
-    pub fn make_date(dmy: DMY) -> Result<DT, u8>{
+    pub fn make_date(dmy: DMY) -> Result<DT, ()>{
         let date = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(0, 0, 0);
-        if date == chrono::LocalResult::None { return Err(0); }
+        if date == chrono::LocalResult::None { return Err(()); }
         return Ok(DT{ dt: date.unwrap(), });
     }
 
-    pub fn make_datetime(dmy: DMY, hms: HMS) -> Result<DT, u8>{
+    pub fn make_datetime(dmy: DMY, hms: HMS) -> Result<DT, ()>{
         let datetime = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(hms.0, hms.1, hms.2);
-        if datetime == chrono::LocalResult::None { return Err(0); }
+        if datetime == chrono::LocalResult::None { return Err(()); }
         return Ok(DT{ dt: datetime.unwrap(), });
     }
 
@@ -98,9 +98,9 @@ impl DT {
     }
 }
 
-pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, u8>{
+pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     let splitted = astr::split(&string, &astr::from_str(":;-_.,/\\"));
-    if splitted.len() != 3 { return Err(0); }
+    if splitted.len() != 3 { return Err(()); }
     let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
     return Ok((triplet[0],triplet[1],triplet[2]));
 }

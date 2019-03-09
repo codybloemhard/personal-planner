@@ -18,12 +18,12 @@ fn main() {
     let opened = save::buffer_read_file("test.save").unwrap();
 
     let mut iter: u32 = 0;
-    let a = save::buffer_read_u32(&opened, &mut iter).1;
-    let b = save::buffer_read_u32(&opened, &mut iter).1;
-    let c = save::buffer_read_string(&opened, &mut iter).1;
-    let d = save::buffer_read_u32(&opened, &mut iter).1;
+    let a = save::buffer_read_u32(&opened, &mut iter).unwrap();
+    let b = save::buffer_read_u32(&opened, &mut iter).unwrap();
+    let c = save::buffer_read_string(&opened, &mut iter).unwrap();
+    let d = save::buffer_read_u32(&opened, &mut iter).unwrap();
     println!("{},{},{},{}", a, b, astr::to_string(&c), d);
-    println!("{}", save::buffer_read_string(&opened, &mut iter).0);
+    println!("{}", save::buffer_read_string(&opened, &mut iter).is_ok());
 
     let printer = conz::Printer::new();
     let mut parser = parser::Parser::new(printer);
