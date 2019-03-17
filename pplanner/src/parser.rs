@@ -42,11 +42,11 @@ impl Parser {
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{
-        let command = astr::from_str(line).split_str(&astr::from_str(" \n\t"));
+        let command = astr::from_str(line).split_str(&astr::astr_whitespace());
         let search_res = self.funcs.get(&command[0]);
         match search_res {
             None => return false,
-            Some(x) => x(& mut self.printer, command),
+            Some(x) => x(&mut self.printer, command),
         }
         return true;
     }

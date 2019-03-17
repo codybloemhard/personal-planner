@@ -27,6 +27,16 @@ pub fn from_str(s: &str) -> Astr{
     return buffer;
 }
 
+pub trait ToAstr{
+    fn to_astr(self) -> Astr;
+}
+
+impl ToAstr for String{
+    fn to_astr(self) -> Astr{
+        return from_string(self);
+    }
+}
+
 pub trait AStr{
     fn clear(&mut self);
     fn to_string(&self) -> String;
@@ -134,4 +144,8 @@ pub fn to_u32_unchecked(string: &Astr) -> u32{
         u = u * 10 + ((ch - 48) as u32);
     }
     return u;
+}
+
+pub fn astr_whitespace() -> Astr{
+    return from_str(" \n\t");
 }

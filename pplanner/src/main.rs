@@ -6,6 +6,7 @@ mod parser;
 mod data;
 mod astr;
 mod save;
+mod wizard;
 
 use save::Bufferable;
 use astr::AStr;
