@@ -15,6 +15,7 @@ impl Parser {
     pub fn new(printer: conz::Printer) -> Parser {
         let mut funcs: HashMap<astr::Astr, fn(&mut conz::Printer, astr::AstrVec)> = HashMap::new();
         funcs.insert(astr::from_str("now"), commands::now);
+        funcs.insert(astr::from_str("add"), commands::add_deadline);
         return Parser {
             funcs,
             printer,
@@ -56,17 +57,19 @@ mod commands {
     use super::super::conz;
     use super::super::data;
     use super::super::astr;
+    use super::super::wizard;
 
     pub fn now(printer: &mut conz::Printer, _command: astr::AstrVec){
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+    }
 
-        let tri0 = data::parse_dmy_or_hms(&_command[1]);
-        let tri1 = data::parse_dmy_or_hms(&_command[2]);
-        if tri0.is_err() { return; }
-        if tri1.is_err() { return; }
-        let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
-        if dt1.is_err() { return; }
-        printer.println_type(format!("{}", dt1.unwrap().str_datetime()).as_ref(), conz::MsgType::Highlight);
+    pub fn add_deadline(printer: &mut conz::Printer, _command: astr::AstrVec){
+        let mut fields: Vec<wizard::Field> = Vec::new();
+        fields.push(wizard::make_field(wizard::InputType::Text, astr::from_str("title: "), true));
+        fields.push(wizard::make_field(wizard::InputType::DateTime, astr::from_str("deadline: "), true));
+        let res = wizard::execute(&fields, printer);
+        if res.is_err() { return; }
+        let res = res.unwrap();
     }
 }
