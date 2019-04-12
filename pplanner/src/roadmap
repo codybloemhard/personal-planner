@@ -1,11 +1,12 @@
 short:
-files
-deadline and card types
+read types(deadline etc) from WizardRes lik you can read from buffer(extract).
+files and folders
 mk deadline
 ls deadline
 rm deadline
-help
 edit deadline
+help
+card type
 mk card
 ls card
 rm card

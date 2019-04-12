@@ -1,6 +1,8 @@
 use std::io::prelude::*;
 use std::fs::OpenOptions;
 
+use super::data;
+
 pub const DATA_DIR: &'static str = "~/.config/pplanner";
 pub const DEADLINE_DIR: &'static str = "~/.config/pplanner/deadlines";
 
@@ -56,6 +58,7 @@ pub fn buffer_read_file(path: &str) -> Result<Buffer, ()>{
     return Ok(vec);
 }
 
+#[derive(PartialEq)]
 pub enum BufferFileType {
     Deadlines,
     Cards,
@@ -114,9 +117,11 @@ impl BufferFile{
         }
     }
 
-    pub fn add_deadline(){
-        //if not self.bftype is Deadline return
-        //write deadline
-        //set dirty true
+    pub fn add_deadline(&mut self, deadline: data::Deadline) -> bool{
+        if self.bftype != BufferFileType::Deadlines {return false;}
+        if self.buffer.is_none() {return false;}
+        deadline.into_buffer(self.buffer.as_mut().unwrap());
+        self.dirty = true;
+        return true;
     }
 }

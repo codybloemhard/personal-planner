@@ -111,7 +111,7 @@ impl save::Bufferable for DT{
         u32::into_buffer(&(self.dt.year() as u32), vec);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<DT,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self::Return,()>{
         if (vec.len() as i32) - (*iter as i32) < 24 { return Err(()); }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
@@ -130,4 +130,29 @@ pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     if splitted.len() != 3 { return Err(()); }
     let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
     return Ok((triplet[0],triplet[1],triplet[2]));
+}
+
+pub struct Deadline{
+    pub dt: DT,
+    pub title: astr::Astr,
+}
+
+impl save::Bufferable for Deadline{
+    type Return = Deadline;
+
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        self.title.into_buffer(vec);
+        self.dt.into_buffer(vec);
+    }
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self::Return,()>{
+        let res_title = astr::Astr::from_buffer(vec, iter);
+        if res_title.is_err() {return Err(());}
+        let res_dt = DT::from_buffer(vec, iter);
+        if res_dt.is_err() {return Err(());}
+        return Ok(Deadline{
+            title: res_title.unwrap(),
+            dt: res_dt.unwrap(),
+        }); 
+    }
 }
