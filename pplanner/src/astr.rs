@@ -41,6 +41,7 @@ pub trait AStr{
     fn clear(&mut self);
     fn to_string(&self) -> String;
     fn split_str(&self, splitchars: &Astr) -> AstrVec;
+    fn copy_from_ref(&self) -> Astr;
 }
 
 impl AStr for Astr{
@@ -87,6 +88,14 @@ impl AStr for Astr{
             splitnow(&mut splits, &mut current, &mut counter);
         }
         return splits;
+    }
+
+    fn copy_from_ref(&self) -> Astr{
+        let mut newstr = Vec::new();
+        for ch in self{
+            newstr.push(*ch);
+        }
+        return newstr;
     }
 }
 

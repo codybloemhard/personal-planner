@@ -1,6 +1,9 @@
 use std::io::prelude::*;
 use std::fs::OpenOptions;
 
+pub const DATA_DIR: &'static str = "~/.config/pplanner";
+pub const DEADLINE_DIR: &'static str = "~/.config/pplanner/deadlines";
+
 pub trait Bufferable{
     type Return;
     fn into_buffer(&self, vec: &mut Vec<u8>);
