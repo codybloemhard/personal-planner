@@ -1,7 +1,4 @@
 use std::collections::HashMap;
-use std::mem;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 use termcolor::{ Color };
 
@@ -11,83 +8,87 @@ use super::astr::AStr;
 
 type Func = fn(&mut conz::Printer, astr::AstrVec);
 
-struct Node{
-    tree: HashMap<astr::Astr, Box<Node>>,
+struct FuncTree{
+    tree: HashMap<astr::Astr, Box<FuncTree>>,
     leaf: Option<Func>,
 }
 
-fn new_node() -> Node{
-    Node{
-        tree: HashMap::new(),
-        leaf: Option::None,
-    }
-}
-
-fn new_node_value(f: Func) -> Box<Node>{
-    Box::new(Node{
-        tree: HashMap::new(),
-        leaf: Option::Some(f),
-    })
-}
-
-fn push(root: &mut Node, key: &astr::AstrVec, f: Func){
-    fn _push(root: &mut Node, key: &astr::AstrVec, index: usize, f: Func){
-        if index >= key.len() {return;}
-        let last = index == key.len() - 1;
-        let res = root.tree.get_mut(&key[index]);
-        if res.is_none(){
-            if last{
-                root.tree.insert(key[index].copy_from_ref(), new_node_value(f));
-            }else{
-                let mut subtree = Box::new(new_node());
-                _push(&mut subtree, key, index + 1, f);
-                root.tree.insert(key[index].copy_from_ref(), subtree);
+impl FuncTree{
+    fn new() -> Box<FuncTree>{
+        Box::new(
+            FuncTree{
+                tree: HashMap::new(),
+                leaf: Option::None,
             }
-        }else{
-            let x = res.unwrap();
-            if last{
-                if x.leaf.is_none(){
-                    x.leaf.get_or_insert(f);
-                }else{
-                    panic!("oh no");
+        )
+    }
+
+    fn new_value(f: Func) -> Box<FuncTree>{
+        Box::new(FuncTree{
+            tree: HashMap::new(),
+            leaf: Option::Some(f),
+        })
+    }
+
+    fn push(&mut self, key: &astr::AstrVec, f: Func){
+        fn _push(root: &mut FuncTree, key: &astr::AstrVec, index: usize, f: Func){
+            if index >= key.len() {return;}
+            let last = index == key.len() - 1;
+            let res = root.tree.get_mut(&key[index]);
+            match res{
+                Option::None =>{
+                    if last{
+                        root.tree.insert(key[index].copy_from_ref(), FuncTree::new_value(f));
+                    }else{
+                        let mut subtree = FuncTree::new();
+                        _push(&mut subtree, key, index + 1, f);
+                        root.tree.insert(key[index].copy_from_ref(), subtree);
+                    }
                 }
-            }else{
-                _push(x, key, index, f);
+                Option::Some(x) =>{
+                    if last{
+                        if x.leaf.is_none(){
+                            x.leaf.get_or_insert(f);
+                        }else{
+                            panic!("FuncTree: double element");
+                        }
+                    }else{
+                        _push(x, key, index, f);
+                    }
+                }
             }
         }
+        _push(self, key, 0, f);
     }
-    _push(root, key, 0, f);
-}
 
-fn find(root: &mut Node, key: &astr::AstrVec) -> Result<Func,()>{
-    fn _find(root: &mut Node, key: &astr::AstrVec, index: usize) -> Option<Func>{
-        if index >= key.len() {return Option::None;}
-        let last = index == key.len() - 1;
-        let res = root.tree.get_mut(&key[index]);
-        if res.is_none(){return Option::None;}
-        else{
+    fn find(&mut self, key: &astr::AstrVec) -> Result<Func,()>{
+        fn _find(root: &mut FuncTree, key: &astr::AstrVec, index: usize) -> Option<Func>{
+            if index >= key.len() {return Option::None;}
+            let last = index == key.len() - 1;
+            let res = root.tree.get_mut(&key[index]);
+            if res.is_none(){return Option::None;}
             if last{
                 return res.unwrap().leaf;
             }else{
                 return _find(&mut res.unwrap(), key, index + 1);
             }
         }
+        let opt = _find(self, key, 0);
+        if opt.is_none() {return Err(());}
+        else {return Ok(opt.unwrap());}
     }
-    let opt = _find(root, key, 0);
-    if opt.is_none() {return Err(());}
-    else {return Ok(opt.unwrap());}
 }
 
 pub struct Parser{
-    ftree: Box<Node>,
+    ftree: Box<FuncTree>,
     printer: conz::Printer,
 }
 
 impl Parser {
     pub fn new(printer: conz::Printer) -> Parser {
-        let mut ftree = Box::new(new_node());
-        push(&mut ftree, &astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
-        push(&mut ftree, &astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
+        let mut ftree = FuncTree::new();
+        ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
+        ftree.push(&astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
 
         return Parser {
             ftree,
@@ -117,7 +118,7 @@ impl Parser {
 
     fn parse_and_run(&mut self, line: &str) -> bool{
         let command = astr::from_str(line).split_str(&astr::astr_whitespace());
-        let search = find(&mut self.ftree, &command);
+        let search = self.ftree.find(&command);
         match search {
             Err(_) => return false,
             Ok(x) => x(&mut self.printer, command),
@@ -132,8 +133,6 @@ mod commands {
     use super::super::astr;
     use super::super::wizard;
 
-    pub fn dummy(_printer: &mut conz::Printer, _command: astr::AstrVec){ }
-
     pub fn now(printer: &mut conz::Printer, _command: astr::AstrVec){
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
@@ -146,6 +145,5 @@ mod commands {
         let res = wizard::execute(&fields, printer);
         if res.is_err() { return; }
         let res = res.unwrap();
-        
     }
 }
