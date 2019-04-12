@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use termcolor::{ Color };
 
+use super::state;
 use super::conz;
 use super::astr;
 use super::astr::AStr;
@@ -82,10 +83,11 @@ impl FuncTree{
 pub struct Parser{
     ftree: Box<FuncTree>,
     printer: conz::Printer,
+    state: state::State,
 }
 
 impl Parser {
-    pub fn new(printer: conz::Printer) -> Parser {
+    pub fn new(printer: conz::Printer, state: state::State) -> Parser {
         let mut ftree = FuncTree::new();
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
         ftree.push(&astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
@@ -93,6 +95,7 @@ impl Parser {
         return Parser {
             ftree,
             printer,
+            state,
         }
     }
 
@@ -139,7 +142,7 @@ mod commands {
     }
 
     pub fn add_deadline(printer: &mut conz::Printer, _command: astr::AstrVec){
-        let mut fields: Vec<wizard::Field> = Vec::new();
+        let mut fields = wizard::make_fieldvec();
         fields.push(wizard::make_field(wizard::InputType::Text, astr::from_str("title: "), true));
         fields.push(wizard::make_field(wizard::InputType::DateTime, astr::from_str("deadline: "), true));
         let res = wizard::execute(&fields, printer);

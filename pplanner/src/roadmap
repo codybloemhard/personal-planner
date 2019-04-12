@@ -1,0 +1,18 @@
+short:
+files
+deadline and card types
+mk deadline
+ls deadline
+rm deadline
+help
+edit deadline
+mk card
+ls card
+rm card
+edit card
+inspect card
+long:
+deadlines and cards
+todos
+timeslots and sequential planner
+scriptableness

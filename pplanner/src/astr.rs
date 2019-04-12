@@ -104,9 +104,7 @@ impl save::Bufferable for Astr{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         let len = self.len() as u32;
         u32::into_buffer(&len, vec);
-        for byte in self{
-            vec.push(*byte);
-        }
+        save::buffer_append_buffer(vec, self);
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Astr,()>{

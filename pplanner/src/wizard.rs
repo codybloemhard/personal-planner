@@ -19,6 +19,12 @@ pub struct WizardRes{
     all_datetime: Vec<data::DT>,
 }
 
+pub type FieldVec = Vec<Field>;
+//seems stupid but it shortens initialization that comes for every wizard
+pub fn make_fieldvec() -> FieldVec{
+    return Vec::new();
+}
+
 pub fn make_field(field_type: InputType, prompt_msg: astr::Astr, reprompt: bool) -> Field{
     return Field{
         field_type: field_type,
@@ -27,7 +33,7 @@ pub fn make_field(field_type: InputType, prompt_msg: astr::Astr, reprompt: bool)
     }
 }
 
-pub fn execute(instructions: &Vec<Field>, printer: &mut conz::Printer) -> Result<WizardRes,()>{
+pub fn execute(instructions: &FieldVec, printer: &mut conz::Printer) -> Result<WizardRes,()>{
     let mut texts: Vec<astr::Astr> = Vec::new();
     let mut datetimes: Vec<data::DT> = Vec::new();
     for instr in instructions{

@@ -7,9 +7,11 @@ mod data;
 mod astr;
 mod save;
 mod wizard;
+mod state;
 
 use save::Bufferable;
 use astr::AStr;
+use state::State;
 
 fn main() {
     let mut saved: Vec<u8> = Vec::new();
@@ -18,8 +20,8 @@ fn main() {
     astr::from_str("henlo frens!").into_buffer(&mut saved);
     u32::into_buffer(&6666, &mut saved);
     data::DT::new().into_buffer(&mut saved);
-
     save::buffer_write_file("test.save", &saved);
+
     let opened = save::buffer_read_file("test.save").unwrap();
     let mut iter: u32 = 0;
     let a = u32::from_buffer(&opened, &mut iter).unwrap();
@@ -31,6 +33,9 @@ fn main() {
     println!("{}", astr::Astr::from_buffer(&opened, &mut iter).is_ok());
 
     let printer = conz::Printer::new();
-    let mut parser = parser::Parser::new(printer);
+    let state = State{
+        test: 0,
+    };
+    let mut parser = parser::Parser::new(printer, state);
     parser.start_loop();
 }
