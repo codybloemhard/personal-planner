@@ -59,19 +59,38 @@ fn push(root: &mut Node, key: &astr::AstrVec, f: Func){
     _push(root, key, 0, f);
 }
 
+fn find(root: &mut Node, key: &astr::AstrVec) -> Result<Func,()>{
+    fn _find(root: &mut Node, key: &astr::AstrVec, index: usize) -> Option<Func>{
+        if index >= key.len() {return Option::None;}
+        let last = index == key.len() - 1;
+        let res = root.tree.get_mut(&key[index]);
+        if res.is_none(){return Option::None;}
+        else{
+            if last{
+                return res.unwrap().leaf;
+            }else{
+                return _find(&mut res.unwrap(), key, index + 1);
+            }
+        }
+    }
+    let opt = _find(root, key, 0);
+    if opt.is_none() {return Err(());}
+    else {return Ok(opt.unwrap());}
+}
+
 pub struct Parser{
-    //ftree: Rc<RefCell<FuncTree>>,
+    ftree: Box<Node>,
     printer: conz::Printer,
 }
 
 impl Parser {
     pub fn new(printer: conz::Printer) -> Parser {
-        let mut test = new_node();
-        push(&mut test, &astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
-        push(&mut test, &astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
-        
+        let mut ftree = Box::new(new_node());
+        push(&mut ftree, &astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
+        push(&mut ftree, &astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
+
         return Parser {
-            //ftree,
+            ftree,
             printer,
         }
     }
@@ -98,8 +117,7 @@ impl Parser {
 
     fn parse_and_run(&mut self, line: &str) -> bool{
         let command = astr::from_str(line).split_str(&astr::astr_whitespace());
-        //let search = find(&self.ftree, &command, 0);
-        let search: Result<Func,()> = Ok(commands::now);
+        let search = find(&mut self.ftree, &command);
         match search {
             Err(_) => return false,
             Ok(x) => x(&mut self.printer, command),
