@@ -1,5 +1,6 @@
 extern crate termcolor;
 extern crate chrono;
+extern crate dirs;
 
 mod conz;
 mod parser;
@@ -11,7 +12,6 @@ mod state;
 
 use save::Bufferable;
 use astr::AStr;
-use state::State;
 
 fn main() {
     let mut saved: Vec<u8> = Vec::new();
@@ -32,10 +32,9 @@ fn main() {
     println!("{},{},{},{},{}", a, b, c.to_string(), d, e.str_datetime());
     println!("{}", astr::Astr::from_buffer(&opened, &mut iter).is_ok());
 
-    let printer = conz::Printer::new();
-    let state = State{
-        test: 0,
-    };
-    let mut parser = parser::Parser::new(printer, state);
+    let mut printer = conz::Printer::new();
+    let ok = save::setup_config_dir(&mut printer);
+    if !ok {return;}
+    let mut parser = parser::Parser::new(printer, state::State::new());
     parser.start_loop();
 }

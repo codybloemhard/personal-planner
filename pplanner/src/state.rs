@@ -1,4 +1,16 @@
+use super::save;
 
 pub struct State{
-    pub test: i32,
+    pub deadlines: save::BufferFile,
+}
+
+impl State{
+    pub fn new() -> Self{
+        State{
+            deadlines: 
+                save::BufferFile::new(
+                save::DEADLINE_DIR, 
+                save::BufferFileType::Deadlines),
+        }
+    }
 }

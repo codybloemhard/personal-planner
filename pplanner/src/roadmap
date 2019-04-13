@@ -1,6 +1,5 @@
 short:
-read types(deadline etc) from WizardRes like you can read from buffer(extract).
-files and folders
+files
 mk deadline
 ls deadline
 rm deadline

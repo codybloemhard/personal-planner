@@ -136,12 +136,12 @@ mod commands {
     use super::super::astr;
     use super::super::wizard;
 
-    pub fn now(printer: &mut conz::Printer, _command: astr::AstrVec){
+    pub fn now(printer: &mut conz::Printer, _: astr::AstrVec){
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
     }
 
-    pub fn add_deadline(printer: &mut conz::Printer, _command: astr::AstrVec){
+    pub fn add_deadline(printer: &mut conz::Printer, _: astr::AstrVec){
         let mut fields = wizard::FieldVec::new();
         fields.add(wizard::InputType::Text, astr::from_str("title: "), true);
         fields.add(wizard::InputType::DateTime, astr::from_str("deadline: "), true);

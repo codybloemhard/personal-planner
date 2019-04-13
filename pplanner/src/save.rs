@@ -1,10 +1,48 @@
 use std::io::prelude::*;
 use std::fs::OpenOptions;
 
+use super::conz;
 use super::data;
 
-pub const DATA_DIR: &'static str = "~/.config/pplanner";
-pub const DEADLINE_DIR: &'static str = "~/.config/pplanner/deadlines";
+pub const DATA_DIR: &'static str = ".config/pplanner";
+pub const DEADLINE_DIR: &'static str = "deadlines";
+
+pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
+    let hd = dirs::home_dir();
+    if hd.is_none() {return Option::None;}
+    let mut hd = hd.unwrap();
+    hd.push(DATA_DIR);
+    hd.push(relative);
+    return Option::Some(hd);
+}
+
+pub fn setup_config_dir(printer: &mut conz::Printer) -> bool{
+    let home = get_data_dir_path("");
+    if home.is_none() {
+        printer.print_type("Error: could not get home directory.", conz::MsgType::Error);
+        return false;
+    }
+    let path = home.unwrap();
+    let path = path.as_path();
+    let metatdata = std::fs::metadata(path);
+    if metatdata.is_ok() {return true;}
+    let res = std::fs::create_dir_all(path);
+    let pathstr = path.to_str();
+    if pathstr.is_none() {
+        printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
+        return false;
+    }
+    let pathstr = pathstr.unwrap();
+    if res.is_ok() {
+        printer.print_type("First time use: created path: ", conz::MsgType::Normal);
+        printer.println_type(pathstr, conz::MsgType::Highlight);
+        return true;
+    }else{
+        printer.print_type("Error: Could not create path: ", conz::MsgType::Error);
+        printer.println_type(pathstr, conz::MsgType::Highlight);
+        return false;
+    }
+}
 
 pub type Buffer = Vec<u8>;
 
