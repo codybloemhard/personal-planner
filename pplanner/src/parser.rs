@@ -142,11 +142,15 @@ mod commands {
     }
 
     pub fn add_deadline(printer: &mut conz::Printer, _command: astr::AstrVec){
-        let mut fields = wizard::make_fieldvec();
-        fields.push(wizard::make_field(wizard::InputType::Text, astr::from_str("title: "), true));
-        fields.push(wizard::make_field(wizard::InputType::DateTime, astr::from_str("deadline: "), true));
-        let res = wizard::execute(&fields, printer);
+        let mut fields = wizard::FieldVec::new();
+        fields.add(wizard::InputType::Text, astr::from_str("title: "), true);
+        fields.add(wizard::InputType::DateTime, astr::from_str("deadline: "), true);
+        let res = fields.execute(printer);
         if res.is_err() { return; }
-        let res = res.unwrap();
+        let mut res = res.unwrap();
+        let deadline = res.extract_deadline();
+        let testcrash0 = res.extract_deadline();
+        let testcrash1 = res.extract_deadline();
+        println!("{} {} {}", deadline.is_ok(), testcrash0.is_ok(), testcrash1.is_ok());
     }
 }

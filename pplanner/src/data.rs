@@ -137,6 +137,15 @@ pub struct Deadline{
     pub title: astr::Astr,
 }
 
+impl Deadline{
+    pub fn new(dt: DT, title: astr::Astr) -> Self{
+        Deadline{
+            dt: dt,
+            title: title,
+        }
+    }
+}
+
 impl save::Bufferable for Deadline{
     type Return = Deadline;
 
