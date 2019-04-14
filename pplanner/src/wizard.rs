@@ -35,18 +35,18 @@ impl FieldVec{
         });
     }
 
-    pub fn execute(&self, printer: &mut conz::Printer) -> Result<WizardRes,()>{
+    pub fn execute(&self) -> Result<WizardRes,()>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         for instr in &self.vec{
             loop {
                 let is_ok = match instr.field_type{
-                    InputType::Text => Self::handle_text(&mut texts, &instr, printer),
-                    InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr, printer),
+                    InputType::Text => Self::handle_text(&mut texts, &instr),
+                    InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
                 };
                 if is_ok { break; }
                 if !instr.reprompt { return Err(()); }
-                let redo = conz::prompt(printer, "Could not parse, try again? */n: ");
+                let redo = conz::prompt("Could not parse, try again? */n: ");
                 if redo == "n" { return Err(()); }
             }
         }
@@ -54,14 +54,14 @@ impl FieldVec{
         return Ok(res);
     }
 
-    fn handle_text(texts: &mut VecDeque<astr::Astr>, field: &Field, printer: &mut conz::Printer) -> bool{
-        let line = conz::prompt(printer, &field.prompt_msg.to_string()).to_astr();
+    fn handle_text(texts: &mut VecDeque<astr::Astr>, field: &Field) -> bool{
+        let line = conz::prompt(&field.prompt_msg.to_string()).to_astr();
         texts.push_back(line);
         return true;
     }
 
-    fn handle_datetime(datetimes: &mut VecDeque<data::DT>, field: &Field, printer: &mut conz::Printer) -> bool{
-        let lines = astr::from_str(&conz::prompt(printer, &field.prompt_msg.to_string())).split_str(&astr::astr_whitespace());
+    fn handle_datetime(datetimes: &mut VecDeque<data::DT>, field: &Field) -> bool{
+        let lines = astr::from_str(&conz::prompt(&field.prompt_msg.to_string())).split_str(&astr::astr_whitespace());
         if lines.len() != 2 { return false; }
         let tri0 = data::parse_dmy_or_hms(&lines[0]);
         let tri1 = data::parse_dmy_or_hms(&lines[1]);

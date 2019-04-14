@@ -16,7 +16,8 @@ pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     return Option::Some(hd);
 }
 
-pub fn setup_config_dir(printer: &mut conz::Printer) -> bool{
+pub fn setup_config_dir() -> bool{
+    let mut printer = conz::printer();
     let home = get_data_dir_path("");
     if home.is_none() {
         printer.print_type("Error: could not get home directory.", conz::MsgType::Error);

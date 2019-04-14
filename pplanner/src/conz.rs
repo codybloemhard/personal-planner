@@ -107,7 +107,8 @@ pub fn read_inp() -> String {
     return inp.trim().to_string();
 }
 
-pub fn prompt(printer: &mut Printer, msg : &str) -> String {
+pub fn prompt(msg : &str) -> String {
+    let mut printer = printer();
     printer.print_color(msg, Color::Cyan);
     printer.stream.flush()
         .expect("Error: Printer > println_color > 0");

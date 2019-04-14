@@ -13,14 +13,13 @@ mod wizard;
 mod state;
 
 fn main() {
-    let mut printer = conz::Printer::new();
-    let ok = save::setup_config_dir(&mut printer);
+    let ok = save::setup_config_dir();
     if !ok {return;}
     let state = state::State::new();
     if state.is_none() {
-        printer.println_type("Error: Could not create state.", conz::MsgType::Error);
+        conz::printer().println_type("Error: Could not create state.", conz::MsgType::Error);
         return;
     }
-    let mut parser = parser::Parser::new(printer, state.unwrap());
+    let mut parser = parser::Parser::new(state.unwrap());
     parser.start_loop();
 }
