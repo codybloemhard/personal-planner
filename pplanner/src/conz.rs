@@ -3,6 +3,7 @@ use std::io::Write; //flush stdout
 use std::collections::HashMap;
 
 use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
+use std::sync::Mutex;
 
 pub enum MsgType {
     Normal,
@@ -10,6 +11,14 @@ pub enum MsgType {
     Prompt,
     Highlight,
     Value,
+}
+
+lazy_static! {
+    static ref PRINTER: Mutex<Printer> = Mutex::new(Printer::new());
+}
+
+pub fn printer() -> std::sync::MutexGuard<'static, Printer>{
+    return PRINTER.lock().unwrap();
 }
 
 pub struct Printer{

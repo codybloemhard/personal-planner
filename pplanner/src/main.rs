@@ -1,6 +1,8 @@
 extern crate termcolor;
 extern crate chrono;
 extern crate dirs;
+#[macro_use]
+extern crate lazy_static;
 
 mod conz;
 mod parser;
