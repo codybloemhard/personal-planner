@@ -148,17 +148,9 @@ mod commands {
         if res.is_err() { return; }
         let mut res = res.unwrap();
         let deadline = res.extract_deadline();
-        if deadline.is_err() {
-            conz::printer().println_type("Error: could build deadline.", conz::MsgType::Error);
-            return;
-        }
-        if !state.deadlines.add_deadline(deadline.unwrap()) {
-            conz::printer().println_type("Error: Could not add deadline.", conz::MsgType::Error);
-            return;
-        }
-        if !state.deadlines.write() {
-            conz::printer().println_type("Error: Could not write deadline.", conz::MsgType::Error);
-        }
+        if deadline.is_err() {return;}
+        if !state.deadlines.add_deadline(deadline.unwrap()) {return;}
+        if !state.deadlines.write() {return;}
         conz::printer().println_type("Success: deadline saved", conz::MsgType::Highlight);
     }
 }

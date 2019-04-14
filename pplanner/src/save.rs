@@ -145,16 +145,20 @@ impl BufferFile{
     }
     
     pub fn write(&mut self) -> bool{
-        match self.buffer.as_mut(){
-            Option::None =>{return false;}
-            Option::Some(x) =>{
-                if self.dirty{
-                    self.dirty = !buffer_write_file(self.path.as_path(), &x);
-                    return !self.dirty;
+        loop{
+            match self.buffer.as_mut(){
+                Option::None =>{break;}
+                Option::Some(x) =>{
+                    if self.dirty{
+                        self.dirty = !buffer_write_file(self.path.as_path(), &x);
+                        if self.dirty {break;}
+                    }
+                    return true;
                 }
-                return true;
             }
         }
+        conz::printer().println_type("Error: Could not write deadline.", conz::MsgType::Error);
+        return false;
     }
 
     pub fn read(&mut self, force: bool) -> bool{
@@ -181,13 +185,17 @@ impl BufferFile{
     }
 
     pub fn add_deadline(&mut self, deadline: data::Deadline) -> bool{
-        if self.bftype != BufferFileType::Deadlines {return false;}
-        if self.buffer.is_none() {
-            let ok = self.read(false);
-            if !ok {return false;}
+        loop{
+            if self.bftype != BufferFileType::Deadlines {break;}
+            if self.buffer.is_none() {
+                let ok = self.read(false);
+                if !ok {break;}
+            }
+            deadline.into_buffer(self.buffer.as_mut().unwrap());
+            self.dirty = true;
+            return true;
         }
-        deadline.into_buffer(self.buffer.as_mut().unwrap());
-        self.dirty = true;
-        return true;
+        conz::printer().println_type("Error: Could not add deadline.", conz::MsgType::Error);
+        return false;
     }
 }

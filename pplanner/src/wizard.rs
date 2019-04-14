@@ -88,13 +88,17 @@ impl WizardRes{
     }
 
     pub fn extract_deadline(&mut self) -> Result<data::Deadline,()>{
-        if self.all_text.len() < 1 {return Err(());}
-        if self.all_datetime.len() < 1 {return Err(());}
-        let dt_res = self.all_datetime.pop_front();
-        if dt_res.is_none() {return Err(());}
-        let title_res = self.all_text.pop_front();
-        if title_res.is_none() {return Err(());}
-        let ret = data::Deadline::new(dt_res.unwrap(), title_res.unwrap());
-        return Ok(ret);
+        loop{
+            if self.all_text.len() < 1 {break;}
+            if self.all_datetime.len() < 1 {break;}
+            let dt_res = self.all_datetime.pop_front();
+            if dt_res.is_none() {break;}
+            let title_res = self.all_text.pop_front();
+            if title_res.is_none() {break;}
+            let ret = data::Deadline::new(dt_res.unwrap(), title_res.unwrap());
+            return Ok(ret);
+        }
+        conz::printer().println_type("Error: could build deadline.", conz::MsgType::Error);
+        return Err(());
     }
 }
