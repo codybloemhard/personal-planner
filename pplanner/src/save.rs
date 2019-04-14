@@ -25,23 +25,47 @@ pub fn setup_config_dir(printer: &mut conz::Printer) -> bool{
     let path = home.unwrap();
     let path = path.as_path();
     let metatdata = std::fs::metadata(path);
-    if metatdata.is_ok() {return true;}
-    let res = std::fs::create_dir_all(path);
     let pathstr = path.to_str();
     if pathstr.is_none() {
         printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
         return false;
     }
     let pathstr = pathstr.unwrap();
-    if res.is_ok() {
-        printer.print_type("First time use: created path: ", conz::MsgType::Normal);
-        printer.println_type(pathstr, conz::MsgType::Highlight);
-        return true;
-    }else{
-        printer.print_type("Error: Could not create path: ", conz::MsgType::Error);
-        printer.println_type(pathstr, conz::MsgType::Highlight);
-        return false;
+    if !metatdata.is_ok() {
+        let res = std::fs::create_dir_all(path);
+        if !res.is_ok() {
+            printer.print_type("Error: Could not create path: ", conz::MsgType::Error);
+            printer.println_type(pathstr, conz::MsgType::Highlight);
+            return false;
+        }else{
+            printer.print_type("First time use: created path: ", conz::MsgType::Normal);
+            printer.println_type(pathstr, conz::MsgType::Highlight);
+        }
     }
+    let dummy: Vec<u8> = Vec::new();
+    {
+        let deadlinepath = get_data_dir_path(DEADLINE_DIR).unwrap();
+        let deadlinepath = deadlinepath.as_path();
+        let metatdata = std::fs::metadata(deadlinepath);
+        if metatdata.is_err() {
+            let ok = buffer_write_file(deadlinepath, &dummy);
+            let pathstr = path.to_str();
+            if pathstr.is_none() {
+                printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
+                return false;
+            }
+            let pathstr = pathstr.unwrap();
+            if ok{
+                printer.print_type("First time use: created file: ", conz::MsgType::Normal);
+                printer.println_type(pathstr, conz::MsgType::Highlight);
+            }
+            else{
+                printer.print_type("Error: Could not create file: ", conz::MsgType::Error);
+                printer.println_type(pathstr, conz::MsgType::Highlight);
+            }
+        }
+    }
+    return true;
 }
 
 pub type Buffer = Vec<u8>;
@@ -79,7 +103,7 @@ pub fn buffer_append_buffer(vec: &mut Buffer, string: &Buffer){
     }
 }
 
-pub fn buffer_write_file(path: &str, vec: &Buffer) -> bool{
+pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
@@ -87,8 +111,8 @@ pub fn buffer_write_file(path: &str, vec: &Buffer) -> bool{
     return true;
 }
 
-pub fn buffer_read_file(path: &str) -> Result<Buffer, ()>{
-    let file = OpenOptions::new().read(true).open(&path);
+pub fn buffer_read_file(path: &std::path::Path) -> Result<Buffer, ()>{
+    let file = OpenOptions::new().read(true).open(path);
     if file.is_err() { return Err(()); }
     let mut opened = file.unwrap();
     let mut vec: Buffer = Vec::new();
@@ -103,16 +127,16 @@ pub enum BufferFileType {
 }
 
 pub struct BufferFile{
-    pub path: String,
+    pub path: std::path::PathBuf,
     pub buffer: Option<Buffer>,
     bftype: BufferFileType,
     dirty: bool,
 }
 
 impl BufferFile{
-    pub fn new(path: &str, bftype: BufferFileType) -> BufferFile{
+    pub fn new(path: std::path::PathBuf, bftype: BufferFileType) -> BufferFile{
         BufferFile{
-            path: String::from(path),
+            path: path,
             buffer: Option::None,
             bftype: bftype,
             dirty: false,
@@ -124,8 +148,8 @@ impl BufferFile{
             Option::None =>{return false;}
             Option::Some(x) =>{
                 if self.dirty{
-                    self.dirty = !buffer_write_file(self.path.as_ref(), &x);
-                    return self.dirty;
+                    self.dirty = !buffer_write_file(self.path.as_path(), &x);
+                    return !self.dirty;
                 }
                 return true;
             }
@@ -134,7 +158,7 @@ impl BufferFile{
 
     pub fn read(&mut self, force: bool) -> bool{
         fn _read(bf: &mut BufferFile) -> bool{
-            let res = buffer_read_file(bf.path.as_ref());
+            let res = buffer_read_file(bf.path.as_path());
             match res{
                 Err(_) => {return false;}
                 Ok(x) => {
@@ -157,7 +181,10 @@ impl BufferFile{
 
     pub fn add_deadline(&mut self, deadline: data::Deadline) -> bool{
         if self.bftype != BufferFileType::Deadlines {return false;}
-        if self.buffer.is_none() {return false;}
+        if self.buffer.is_none() {
+            let ok = self.read(false);
+            if !ok {return false;}
+        }
         deadline.into_buffer(self.buffer.as_mut().unwrap());
         self.dirty = true;
         return true;

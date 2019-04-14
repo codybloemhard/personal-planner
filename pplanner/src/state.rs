@@ -5,12 +5,15 @@ pub struct State{
 }
 
 impl State{
-    pub fn new() -> Self{
-        State{
+    pub fn new() -> Option<Self>{
+        let path = save::get_data_dir_path(save::DEADLINE_DIR);
+        if path.is_none() {return Option::None;}
+        let path = path.unwrap();
+        Option::Some(State{
             deadlines: 
                 save::BufferFile::new(
-                save::DEADLINE_DIR, 
+                path, 
                 save::BufferFileType::Deadlines),
-        }
+        })
     }
 }

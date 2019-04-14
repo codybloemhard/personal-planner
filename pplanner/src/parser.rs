@@ -7,7 +7,7 @@ use super::conz;
 use super::astr;
 use super::astr::AStr;
 
-type Func = fn(&mut conz::Printer, astr::AstrVec);
+type Func = fn(&mut conz::Printer, &mut state::State, astr::AstrVec);
 
 struct FuncTree{
     tree: HashMap<astr::Astr, Box<FuncTree>>,
@@ -124,7 +124,7 @@ impl Parser {
         let search = self.ftree.find(&command);
         match search {
             Err(_) => return false,
-            Ok(x) => x(&mut self.printer, command),
+            Ok(x) => x(&mut self.printer, &mut self.state, command),
         }
         return true;
     }
@@ -135,13 +135,14 @@ mod commands {
     use super::super::data;
     use super::super::astr;
     use super::super::wizard;
+    use super::super::state;
 
-    pub fn now(printer: &mut conz::Printer, _: astr::AstrVec){
+    pub fn now(printer: &mut conz::Printer, _: &mut state::State, _: astr::AstrVec){
         let dt = data::DT::new();
         printer.println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
     }
 
-    pub fn add_deadline(printer: &mut conz::Printer, _: astr::AstrVec){
+    pub fn add_deadline(printer: &mut conz::Printer, state: &mut state::State, _: astr::AstrVec){
         let mut fields = wizard::FieldVec::new();
         fields.add(wizard::InputType::Text, astr::from_str("title: "), true);
         fields.add(wizard::InputType::DateTime, astr::from_str("deadline: "), true);
@@ -149,8 +150,17 @@ mod commands {
         if res.is_err() { return; }
         let mut res = res.unwrap();
         let deadline = res.extract_deadline();
-        let testcrash0 = res.extract_deadline();
-        let testcrash1 = res.extract_deadline();
-        println!("{} {} {}", deadline.is_ok(), testcrash0.is_ok(), testcrash1.is_ok());
+        if deadline.is_err() {
+            printer.println_type("Error: could build deadline.", conz::MsgType::Error);
+            return;
+        }
+        if !state.deadlines.add_deadline(deadline.unwrap()) {
+            printer.println_type("Error: Could not add deadline.", conz::MsgType::Error);
+            return;
+        }
+        if !state.deadlines.write() {
+            printer.println_type("Error: Could not write deadline.", conz::MsgType::Error);
+        }
+        printer.println_type("Success: deadline saved", conz::MsgType::Highlight);
     }
 }
