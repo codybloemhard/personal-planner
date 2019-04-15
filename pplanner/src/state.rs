@@ -18,4 +18,9 @@ impl State{
     pub fn is_clean(&self) -> bool{
         return self.deadlines.is_clean();
     }
+
+    pub fn flush_files(&mut self) -> bool{
+        let res_deadlines = self.deadlines.write();
+        return res_deadlines;
+    }
 }

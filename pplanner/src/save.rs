@@ -144,7 +144,12 @@ impl<T: Bufferable> BufferFile<T>{
         if self.dirty{
             self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
             if self.dirty {
-                conz::printer().println_type("Error: Could not write items.", conz::MsgType::Error);
+                let pathstr = self.path.to_str();
+                if pathstr.is_none(){
+                    conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+                }else{
+                    conz::printer().println_error("", "Error: Cannot write items to file: ", pathstr.unwrap());
+                }
                 return false;
             }
         }
@@ -166,7 +171,12 @@ impl<T: Bufferable> BufferFile<T>{
             let res = buffer_read_file(bf.path.as_path());
             match res{
                 Err(_) => {
-                    conz::printer().println_type("Error: Cannot read file.", conz::MsgType::Error);
+                    let pathstr = bf.path.to_str();
+                    if pathstr.is_none(){
+                        conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+                    }else{
+                        conz::printer().println_error("", "Error: Cannot read file: ", pathstr.unwrap());
+                    }
                     return false;
                 }
                 Ok(x) => {

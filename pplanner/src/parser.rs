@@ -90,6 +90,7 @@ impl Parser {
         let mut ftree = FuncTree::new();
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
         ftree.push(&astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
+        ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
 
         return Parser {
             ftree,
@@ -99,7 +100,7 @@ impl Parser {
 
     fn do_quit(&self) -> bool{
         if self.state.is_clean() {return true;}
-        conz::printer().println_type("Unsaved files! Do you really want to quit?", conz::MsgType::Highlight);
+        conz::printer().println_type("Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
         match x.as_ref(){
             "y" => return true,
@@ -161,6 +162,19 @@ mod commands {
         if deadline.is_err() {return;}
         state.deadlines.add_item(deadline.unwrap());
         if !state.deadlines.write() {return;}
-        conz::printer().println_type("Success: deadline saved", conz::MsgType::Highlight);
+        conz::printer().println_type("Success: Deadline saved.", conz::MsgType::Highlight);
+    }
+
+    pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
+        if state.is_clean() {
+            conz::printer().println_type("All files clean, nothing to do.", conz::MsgType::Highlight);
+            return;
+        }
+        let res = state.flush_files();
+        if res {
+            conz::printer().println_type("Success: Flushed all dirty files.", conz::MsgType::Highlight);
+        }else{
+            conz::printer().println_type("Error: Could not flush all dirty files.", conz::MsgType::Error);
+        }
     }
 }
