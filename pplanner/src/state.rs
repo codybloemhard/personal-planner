@@ -14,4 +14,8 @@ impl State{
             deadlines: save::BufferFile::new(path),
         })
     }
+
+    pub fn is_clean(&self) -> bool{
+        return self.deadlines.is_clean();
+    }
 }

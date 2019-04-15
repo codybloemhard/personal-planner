@@ -97,6 +97,16 @@ impl Parser {
         }
     }
 
+    fn do_quit(&self) -> bool{
+        if self.state.is_clean() {return true;}
+        conz::printer().println_type("Unsaved files! Do you really want to quit?", conz::MsgType::Highlight);
+        let x = conz::prompt("Quit? y/*: ");
+        match x.as_ref(){
+            "y" => return true,
+            _ => return false,
+        }
+    }
+
     pub fn start_loop(&mut self) {
         conz::printer().println_type("Henlo Fren!", conz::MsgType::Prompt);
         conz::printer().println_type("pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
@@ -105,8 +115,8 @@ impl Parser {
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
             match y {
-                "q" => break,
-                "quit" => break,
+                "q" => if self.do_quit() {break;},
+                "quit" => if self.do_quit() {break;},
                 _ => {
                     let found_cmd = self.parse_and_run(y);
                     if found_cmd { continue; }

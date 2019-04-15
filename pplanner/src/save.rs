@@ -196,4 +196,8 @@ impl<T: Bufferable> BufferFile<T>{
         self.dirty = true;
         return true;
     }
+
+    pub fn is_clean(&self) -> bool{
+        return !self.dirty;
+    }
 }
