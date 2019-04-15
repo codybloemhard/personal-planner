@@ -1,6 +1,5 @@
 short:
-files
-mk deadline
+refac errors
 ls deadline
 rm deadline
 edit deadline

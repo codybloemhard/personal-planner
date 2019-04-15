@@ -101,7 +101,7 @@ impl DT {
 }
 
 impl save::Bufferable for DT{
-    type Return = DT;
+    //type Return = DT;
     fn into_buffer(&self, vec: &mut Vec<u8>){
         u32::into_buffer(&self.dt.hour(), vec);
         u32::into_buffer(&self.dt.minute(), vec);
@@ -111,7 +111,7 @@ impl save::Bufferable for DT{
         u32::into_buffer(&(self.dt.year() as u32), vec);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self::Return,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
         if (vec.len() as i32) - (*iter as i32) < 24 { return Err(()); }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
@@ -147,14 +147,14 @@ impl Deadline{
 }
 
 impl save::Bufferable for Deadline{
-    type Return = Deadline;
+    //type Return = Deadline;
 
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.dt.into_buffer(vec);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self::Return,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
         let res_title = astr::Astr::from_buffer(vec, iter);
         if res_title.is_err() {return Err(());}
         let res_dt = DT::from_buffer(vec, iter);

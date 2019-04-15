@@ -149,7 +149,7 @@ mod commands {
         let mut res = res.unwrap();
         let deadline = res.extract_deadline();
         if deadline.is_err() {return;}
-        if !state.deadlines.add_deadline(deadline.unwrap()) {return;}
+        state.deadlines.add_item(deadline.unwrap());
         if !state.deadlines.write() {return;}
         conz::printer().println_type("Success: deadline saved", conz::MsgType::Highlight);
     }

@@ -71,14 +71,14 @@ pub fn setup_config_dir() -> bool{
 
 pub type Buffer = Vec<u8>;
 
-pub trait Bufferable{
-    type Return;
+pub trait Bufferable where Self: std::marker::Sized{
+    //type Return;
     fn into_buffer(&self, vec: &mut Buffer);
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self::Return, ()>;
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>;
 }
 
 impl Bufferable for u32{
-    type Return = u32;
+    //type Return = u32;
     fn into_buffer(&self, vec: &mut Buffer){
         vec.push(((*self >> 24) & 0xff) as u8);
         vec.push(((*self >> 16) & 0xff) as u8);
@@ -86,7 +86,7 @@ impl Bufferable for u32{
         vec.push((*self & 0xff) as u8);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self::Return, ()>{
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
         if (vec.len() as i32) - (*iter as i32) < 4 { return Err(()); }
         let mut val: u32 = 0;
         val += (vec[(*iter + 0) as usize] as u32) << 24;
@@ -127,75 +127,85 @@ pub enum BufferFileType {
     Cards,
 }
 
-pub struct BufferFile{
-    pub path: std::path::PathBuf,
-    pub buffer: Option<Buffer>,
+pub struct BufferFile<T: Bufferable>{
+    path: std::path::PathBuf,
+    content: Vec<T>,
     bftype: BufferFileType,
     dirty: bool,
 }
 
-impl BufferFile{
-    pub fn new(path: std::path::PathBuf, bftype: BufferFileType) -> BufferFile{
+impl<T: Bufferable> BufferFile<T>{
+    pub fn new(path: std::path::PathBuf, bftype: BufferFileType) -> BufferFile<T>{
         BufferFile{
             path: path,
-            buffer: Option::None,
+            content: Vec::new(),
             bftype: bftype,
             dirty: false,
         }
     }
     
+    fn content_to_buffer(vec: &Vec<T>) -> Buffer{
+        let mut buf = Vec::new();
+        for x in vec{
+            x.into_buffer(&mut buf);
+        }
+        return buf;
+    }
+
     pub fn write(&mut self) -> bool{
-        loop{
-            match self.buffer.as_mut(){
-                Option::None =>{break;}
-                Option::Some(x) =>{
-                    if self.dirty{
-                        self.dirty = !buffer_write_file(self.path.as_path(), &x);
-                        if self.dirty {break;}
-                    }
-                    return true;
-                }
+        if self.dirty{
+            self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
+            if self.dirty {
+                conz::printer().println_type("Error: Could not write items.", conz::MsgType::Error);
+                return false;
             }
         }
-        conz::printer().println_type("Error: Could not write deadline.", conz::MsgType::Error);
-        return false;
+        return true;
+    }
+
+    fn buffer_to_content(&mut self, vec: &Buffer){
+        let mut iter: u32 = 0;
+        self.content.clear();
+        loop{
+            let res = T::from_buffer(vec, &mut iter);
+            if res.is_err() {break;}
+            self.content.push(res.unwrap());
+        }
     }
 
     pub fn read(&mut self, force: bool) -> bool{
-        fn _read(bf: &mut BufferFile) -> bool{
+        fn _read<T: Bufferable>(bf: &mut BufferFile<T>) -> bool{
             let res = buffer_read_file(bf.path.as_path());
             match res{
-                Err(_) => {return false;}
+                Err(_) => {
+                    conz::printer().println_type("Error: Cannot read file.", conz::MsgType::Error);
+                    return false;
+                }
                 Ok(x) => {
-                    bf.buffer = Option::Some(x);
+                    bf.buffer_to_content(&x);
                     bf.dirty = false;
                     return true;
                 }
             }
         }
-        match self.buffer.as_mut(){
-            Option::None =>{
-                return _read(self);
-            }
-            Option::Some(_) =>{
-                if !force {return false;}
-                return _read(self);
-            }
+        if self.content.len() == 0 || force {
+            return _read(self);
+        }
+        else {
+            conz::printer().print_type("Error: Content already loaded, need force=true to over-read.", conz::MsgType::Error);
+            return false;
         }
     }
 
-    pub fn add_deadline(&mut self, deadline: data::Deadline) -> bool{
-        loop{
-            if self.bftype != BufferFileType::Deadlines {break;}
-            if self.buffer.is_none() {
-                let ok = self.read(false);
-                if !ok {break;}
+    pub fn add_item(&mut self, item: T) -> bool{
+        if self.content.len() == 0 {
+            if !self.read(false) {
+                conz::printer().println_type("Error: Cannot add item.", conz::MsgType::Error);
+                return false;
             }
-            deadline.into_buffer(self.buffer.as_mut().unwrap());
-            self.dirty = true;
-            return true;
         }
-        conz::printer().println_type("Error: Could not add deadline.", conz::MsgType::Error);
-        return false;
+        self.content.push(item);
+        self.dirty = true;
+        return true;
     }
 }

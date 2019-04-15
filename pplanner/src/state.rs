@@ -1,7 +1,8 @@
 use super::save;
+use super::data;
 
 pub struct State{
-    pub deadlines: save::BufferFile,
+    pub deadlines: save::BufferFile<data::Deadline>,
 }
 
 impl State{

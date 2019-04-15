@@ -100,7 +100,7 @@ impl AStr for Astr{
 }
 
 impl save::Bufferable for Astr{
-    type Return = Astr;
+    //type Return = Astr;
     fn into_buffer(&self, vec: &mut Vec<u8>){
         let len = self.len() as u32;
         u32::into_buffer(&len, vec);
