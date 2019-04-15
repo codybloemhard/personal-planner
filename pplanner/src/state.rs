@@ -11,10 +11,7 @@ impl State{
         if path.is_none() {return Option::None;}
         let path = path.unwrap();
         Option::Some(State{
-            deadlines: 
-                save::BufferFile::new(
-                path, 
-                save::BufferFileType::Deadlines),
+            deadlines: save::BufferFile::new(path),
         })
     }
 }

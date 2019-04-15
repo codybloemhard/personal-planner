@@ -35,12 +35,10 @@ pub fn setup_config_dir() -> bool{
     if !metatdata.is_ok() {
         let res = std::fs::create_dir_all(path);
         if !res.is_ok() {
-            printer.print_type("Error: Could not create path: ", conz::MsgType::Error);
-            printer.println_type(pathstr, conz::MsgType::Highlight);
+            printer.println_error("", "Error: Could not create path: ", pathstr);
             return false;
         }else{
-            printer.print_type("First time use: created path: ", conz::MsgType::Normal);
-            printer.println_type(pathstr, conz::MsgType::Highlight);
+            printer.println_error("", "First time use: created path: ", pathstr);
         }
     }
     let dummy: Vec<u8> = Vec::new();
@@ -57,12 +55,10 @@ pub fn setup_config_dir() -> bool{
             }
             let pathstr = pathstr.unwrap();
             if ok{
-                printer.print_type("First time use: created file: ", conz::MsgType::Normal);
-                printer.println_type(pathstr, conz::MsgType::Highlight);
+                printer.println_error("", "First time use: created file: ", pathstr);
             }
             else{
-                printer.print_type("Error: Could not create file: ", conz::MsgType::Error);
-                printer.println_type(pathstr, conz::MsgType::Highlight);
+                printer.println_error("", "Error: Could not create file: ", pathstr);
             }
         }
     }
@@ -121,25 +117,17 @@ pub fn buffer_read_file(path: &std::path::Path) -> Result<Buffer, ()>{
     return Ok(vec);
 }
 
-#[derive(PartialEq)]
-pub enum BufferFileType {
-    Deadlines,
-    Cards,
-}
-
 pub struct BufferFile<T: Bufferable>{
     path: std::path::PathBuf,
     content: Vec<T>,
-    bftype: BufferFileType,
     dirty: bool,
 }
 
 impl<T: Bufferable> BufferFile<T>{
-    pub fn new(path: std::path::PathBuf, bftype: BufferFileType) -> BufferFile<T>{
+    pub fn new(path: std::path::PathBuf) -> BufferFile<T>{
         BufferFile{
             path: path,
             content: Vec::new(),
-            bftype: bftype,
             dirty: false,
         }
     }

@@ -1,5 +1,5 @@
 short:
-refac errors
+ask save on quit
 ls deadline
 rm deadline
 edit deadline
