@@ -102,23 +102,23 @@ impl DT {
 
 impl save::Bufferable for DT{
     fn into_buffer(&self, vec: &mut Vec<u8>){
-        u32::into_buffer(&self.dt.hour(), vec);
-        u32::into_buffer(&self.dt.minute(), vec);
-        u32::into_buffer(&self.dt.second(), vec);
-        u32::into_buffer(&self.dt.day(), vec);
-        u32::into_buffer(&self.dt.month(), vec);
+        u8::into_buffer(&(self.dt.hour() as u8), vec);
+        u8::into_buffer(&(self.dt.minute() as u8), vec);
+        u8::into_buffer(&(self.dt.second() as u8), vec);
+        u8::into_buffer(&(self.dt.day() as u8), vec);
+        u8::into_buffer(&(self.dt.month() as u8), vec);
         u32::into_buffer(&(self.dt.year() as u32), vec);
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
-        if (vec.len() as i32) - (*iter as i32) < 24 { return Err(()); }
+        if (vec.len() as i32) - (*iter as i32) < 9 { return Err(()); }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
-        let ho = u32::from_buffer(vec, iter).unwrap();
-        let mi = u32::from_buffer(vec, iter).unwrap();
-        let se = u32::from_buffer(vec, iter).unwrap();
-        let da = u32::from_buffer(vec, iter).unwrap();
-        let mo = u32::from_buffer(vec, iter).unwrap();
+        let ho = u8::from_buffer(vec, iter).unwrap() as u32;
+        let mi = u8::from_buffer(vec, iter).unwrap() as u32;
+        let se = u8::from_buffer(vec, iter).unwrap() as u32;
+        let da = u8::from_buffer(vec, iter).unwrap() as u32;
+        let mo = u8::from_buffer(vec, iter).unwrap() as u32;
         let ye = u32::from_buffer(vec, iter).unwrap();
         return DT::make_datetime((da,mo,ye), (ho,mi,se));
     }
