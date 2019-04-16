@@ -42,6 +42,8 @@ pub trait AStr{
     fn to_string(&self) -> String;
     fn split_str(&self, splitchars: &Astr) -> AstrVec;
     fn copy_from_ref(&self) -> Astr;
+    fn confine(&self, max: u16) -> Astr;
+    fn pad_after(&self, max: u16) -> Astr;
 }
 
 impl AStr for Astr{
@@ -96,6 +98,34 @@ impl AStr for Astr{
             newstr.push(*ch);
         }
         return newstr;
+    }
+
+    fn confine(&self, max: u16) -> Astr{
+        if self.len() <= max as usize {
+            return self.copy_from_ref();
+        }
+        let mut newstr = Vec::new();
+        for i in 0..(max-3){
+            newstr.push(self[i as usize] as u8);
+        }
+        for _ in 0..3 {
+            newstr.push('.' as u8);
+        }
+        return newstr;
+    }
+
+    fn pad_after(&self, max: u16) -> Astr{
+        if self.len() == max as usize {
+            return self.copy_from_ref();
+        }else if self.len() < max as usize {
+            let mut newstr = self.copy_from_ref();
+            for _ in 0..(max-self.len() as u16){
+                newstr.push(' ' as u8);
+            }
+            return newstr;
+        }else{
+            return self.confine(max);
+        }
     }
 }
 

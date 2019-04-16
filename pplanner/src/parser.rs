@@ -176,6 +176,11 @@ mod commands {
         conz::printer().print_type("Found ", conz::MsgType::Normal);
         conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
         conz::printer().println_type(" points.", conz::MsgType::Normal);
+        conz::printer().print_type(astr::from_str("title:").pad_after(32).to_string().as_ref(), conz::MsgType::Highlight);
+        conz::printer().print_type(" - ", conz::MsgType::Highlight);
+        conz::printer().print_type(astr::from_str("relative:").pad_after(16).to_string().as_ref(), conz::MsgType::Highlight);
+        conz::printer().print_type(" - ", conz::MsgType::Highlight);
+        conz::printer().println_type(astr::from_str("time date:").pad_after(19).to_string().as_ref(), conz::MsgType::Highlight);
         let now = data::DT::new();
         for x in state.points.get_items(){
             let diff = now.diff(&x.dt);
@@ -186,9 +191,9 @@ mod commands {
             }else{
                 conz::MsgType::Normal
             };
-            conz::printer().print_type(x.title.to_string().as_ref(), conz::MsgType::Normal);
+            conz::printer().print_type(x.title.pad_after(32).to_string().as_ref(), conz::MsgType::Normal);
             conz::printer().print_type(" - ", conz::MsgType::Highlight);
-            conz::printer().print_type(diff.string_significant().as_ref(), timecol);
+            conz::printer().print_type(astr::from_string(diff.string_significant()).pad_after(16).to_string().as_ref(), timecol);
             conz::printer().print_type(" - ", conz::MsgType::Highlight);
             conz::printer().print_type(x.dt.str_datetime().as_ref(), conz::MsgType::Value);
             conz::printer().println("");
