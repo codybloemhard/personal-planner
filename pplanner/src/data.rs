@@ -151,6 +151,10 @@ impl save::Bufferable for Point{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.dt.into_buffer(vec);
+        match self.is_deadline{
+            true => 1 as u8,
+            false => 0 as u8,
+        }.into_buffer(vec);
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{

@@ -82,7 +82,7 @@ impl Bufferable for u32{
     }
 
     fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
-        if (vec.len() as i32) - (*iter as i32) < 4 { return Err(()); }
+        if (vec.len() as i32) - (*iter as i32) < 4 {return Err(());}
         let mut val: u32 = 0;
         val += (vec[(*iter + 0) as usize] as u32) << 24;
         val += (vec[(*iter + 1) as usize] as u32) << 16;
@@ -99,7 +99,7 @@ impl Bufferable for u8{
     }
 
     fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
-        if (vec.len() as i32) - (*iter as i32) < 1 { return Err(()); }
+        if (vec.len() as i32) - (*iter as i32) < 1 {return Err(());}
         let val = vec[*iter as usize];
         *iter += 1;
         return Ok(val);
@@ -116,7 +116,7 @@ pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
-    if opened.write_all(&vec).is_err() { return false; }
+    if opened.write_all(&vec).is_err() {return false;}
     return true;
 }
 
@@ -125,7 +125,7 @@ pub fn buffer_read_file(path: &std::path::Path) -> Result<Buffer, ()>{
     if file.is_err() { return Err(()); }
     let mut opened = file.unwrap();
     let mut vec: Buffer = Vec::new();
-    if opened.read_to_end(&mut vec).is_err() { return Err(()); }
+    if opened.read_to_end(&mut vec).is_err() {return Err(());}
     return Ok(vec);
 }
 
@@ -133,6 +133,7 @@ pub struct BufferFile<T: Bufferable>{
     path: std::path::PathBuf,
     content: Vec<T>,
     dirty: bool,
+    loaded: bool,
 }
 
 impl<T: Bufferable> BufferFile<T>{
@@ -141,6 +142,7 @@ impl<T: Bufferable> BufferFile<T>{
             path: path,
             content: Vec::new(),
             dirty: false,
+            loaded: false,
         }
     }
     
@@ -153,19 +155,20 @@ impl<T: Bufferable> BufferFile<T>{
     }
 
     pub fn write(&mut self) -> bool{
-        if self.dirty{
-            self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
-            if self.dirty {
-                let pathstr = self.path.to_str();
-                if pathstr.is_none(){
-                    conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
-                }else{
-                    conz::printer().println_error("", "Error: Cannot write items to file: ", pathstr.unwrap());
-                }
-                return false;
-            }
+        if !self.dirty{return true;}
+        if !self.loaded{
+            conz::printer().println_type("Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
+            return false;
         }
-        return true;
+        self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
+        if !self.dirty {return true;}
+        let pathstr = self.path.to_str();
+        if pathstr.is_none(){
+            conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+        }else{
+            conz::printer().println_error("", "Error: Cannot write items to file: ", pathstr.unwrap());
+        }
+        return false;
     }
 
     fn buffer_to_content(&mut self, vec: &Buffer){
@@ -176,6 +179,7 @@ impl<T: Bufferable> BufferFile<T>{
             if res.is_err() {break;}
             self.content.push(res.unwrap());
         }
+        self.loaded = true;
     }
 
     pub fn read(&mut self, force: bool) -> bool{
@@ -198,17 +202,14 @@ impl<T: Bufferable> BufferFile<T>{
                 }
             }
         }
-        if self.content.len() == 0 || force {
+        if !self.loaded || force {
             return _read(self);
         }
-        else {
-            conz::printer().print_type("Error: Content already loaded, need force=true to over-read.", conz::MsgType::Error);
-            return false;
-        }
+        return true;
     }
 
     pub fn add_item(&mut self, item: T) -> bool{
-        if self.content.len() == 0 {
+        if !self.loaded{
             if !self.read(false) {
                 conz::printer().println_type("Error: Cannot add item.", conz::MsgType::Error);
                 return false;
@@ -217,6 +218,10 @@ impl<T: Bufferable> BufferFile<T>{
         self.content.push(item);
         self.dirty = true;
         return true;
+    }
+
+    pub fn get_items(&self) -> &Vec<T>{
+        return &self.content;
     }
 
     pub fn is_clean(&self) -> bool{

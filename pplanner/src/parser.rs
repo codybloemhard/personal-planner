@@ -90,6 +90,7 @@ impl Parser {
         let mut ftree = FuncTree::new();
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
         ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
+        ftree.push(&astr::from_str("ls points").split_str(&astr::astr_whitespace()), commands::ls_points);
         ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
 
         return Parser {
@@ -157,13 +158,21 @@ mod commands {
         fields.add(wizard::InputType::Bool, astr::from_str("is deadline?: "), false);
         fields.add(wizard::InputType::DateTime, astr::from_str("time date: "), true);
         let res = fields.execute();
-        if res.is_err() { return; }
+        if res.is_err() {return;}
         let mut res = res.unwrap();
         let point = res.extract_point();
         if point.is_err() {return;}
         state.points.add_item(point.unwrap());
         if !state.points.write() {return;}
         conz::printer().println_type("Success: Point saved.", conz::MsgType::Highlight);
+    }
+
+    pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
+        state.points.read(false);
+        let count = state.points.get_items().len();
+        conz::printer().print_type("Found ", conz::MsgType::Normal);
+        conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
+        conz::printer().println_type(" points.", conz::MsgType::Normal);
     }
 
     pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
