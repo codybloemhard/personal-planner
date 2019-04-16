@@ -144,12 +144,15 @@ mod commands {
     use super::super::conz;
     use super::super::data;
     use super::super::astr;
+    use super::super::astr::AStr;
     use super::super::wizard;
     use super::super::state;
 
     pub fn now(_: &mut state::State, _: astr::AstrVec){
         let dt = data::DT::new();
-        conz::printer().println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+        conz::printer().print_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+        conz::printer().print(" ");
+        conz::printer().println_type(dt.str_dayofweek().as_ref(), conz::MsgType::Value);
     }
 
     pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
@@ -173,6 +176,24 @@ mod commands {
         conz::printer().print_type("Found ", conz::MsgType::Normal);
         conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
         conz::printer().println_type(" points.", conz::MsgType::Normal);
+        let now = data::DT::new();
+        for x in state.points.get_items(){
+            let diff = now.diff(&x.dt);
+            let timecol = if diff.neg{
+                conz::MsgType::Error
+            }else if diff.total_hours <= 48 {
+                conz::MsgType::Highlight
+            }else{
+                conz::MsgType::Normal
+            };
+            conz::printer().print_type(x.title.to_string().as_ref(), conz::MsgType::Normal);
+            conz::printer().print_type(" - ", conz::MsgType::Highlight);
+            conz::printer().print_type(diff.string_significant().as_ref(), timecol);
+            conz::printer().print_type(" - ", conz::MsgType::Highlight);
+            conz::printer().print_type(x.dt.str_datetime().as_ref(), conz::MsgType::Value);
+            conz::printer().println("");
+
+        }
     }
 
     pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
