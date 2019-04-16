@@ -89,7 +89,7 @@ impl Parser {
     pub fn new(state: state::State) -> Parser {
         let mut ftree = FuncTree::new();
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
-        ftree.push(&astr::from_str("add deadline").split_str(&astr::astr_whitespace()), commands::add_deadline);
+        ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
         ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
 
         return Parser {
@@ -151,18 +151,19 @@ mod commands {
         conz::printer().println_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
     }
 
-    pub fn add_deadline(state: &mut state::State, _: astr::AstrVec){
+    pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
         let mut fields = wizard::FieldVec::new();
-        fields.add(wizard::InputType::Text, astr::from_str("title: "), true);
-        fields.add(wizard::InputType::DateTime, astr::from_str("deadline: "), true);
+        fields.add(wizard::InputType::Text, astr::from_str("title: "), false);
+        fields.add(wizard::InputType::Bool, astr::from_str("is deadline?: "), false);
+        fields.add(wizard::InputType::DateTime, astr::from_str("time date: "), true);
         let res = fields.execute();
         if res.is_err() { return; }
         let mut res = res.unwrap();
-        let deadline = res.extract_deadline();
-        if deadline.is_err() {return;}
-        state.deadlines.add_item(deadline.unwrap());
-        if !state.deadlines.write() {return;}
-        conz::printer().println_type("Success: Deadline saved.", conz::MsgType::Highlight);
+        let point = res.extract_point();
+        if point.is_err() {return;}
+        state.points.add_item(point.unwrap());
+        if !state.points.write() {return;}
+        conz::printer().println_type("Success: Point saved.", conz::MsgType::Highlight);
     }
 
     pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

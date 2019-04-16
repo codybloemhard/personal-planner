@@ -1,17 +1,16 @@
 short:
-ask save on quit
-ls deadline
-rm deadline
-edit deadline
+ls point
+rm point
+edit point
 help
-card type
-mk card
-ls card
-rm card
-edit card
-inspect card
+slice type
+mk slice
+ls slice
+rm slice
+edit slice
+inspect slice
 long:
-deadlines and cards
+points and slices
 todos
 timeslots and sequential planner
 scriptableness

@@ -2,10 +2,9 @@ use std::io::prelude::*;
 use std::fs::OpenOptions;
 
 use super::conz;
-use super::data;
 
 pub const DATA_DIR: &'static str = ".config/pplanner";
-pub const DEADLINE_DIR: &'static str = "deadlines";
+pub const POINT_DIR: &'static str = "points";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let hd = dirs::home_dir();
@@ -20,7 +19,7 @@ pub fn setup_config_dir() -> bool{
     let mut printer = conz::printer();
     let home = get_data_dir_path("");
     if home.is_none() {
-        printer.print_type("Error: could not get home directory.", conz::MsgType::Error);
+        printer.println_type("Error: could not get home directory.", conz::MsgType::Error);
         return false;
     }
     let path = home.unwrap();
@@ -28,7 +27,7 @@ pub fn setup_config_dir() -> bool{
     let metatdata = std::fs::metadata(path);
     let pathstr = path.to_str();
     if pathstr.is_none() {
-        printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
+        printer.println_type("Error: could not get string from path.", conz::MsgType::Error);
         return false;
     }
     let pathstr = pathstr.unwrap();
@@ -38,24 +37,26 @@ pub fn setup_config_dir() -> bool{
             printer.println_error("", "Error: Could not create path: ", pathstr);
             return false;
         }else{
-            printer.println_error("", "First time use: created path: ", pathstr);
+            printer.print_type("First time use: created path: ", conz::MsgType::Highlight);
+            printer.println_type(pathstr, conz::MsgType::Value);
         }
     }
     let dummy: Vec<u8> = Vec::new();
     {
-        let deadlinepath = get_data_dir_path(DEADLINE_DIR).unwrap();
-        let deadlinepath = deadlinepath.as_path();
-        let metatdata = std::fs::metadata(deadlinepath);
+        let pointpath = get_data_dir_path(POINT_DIR).unwrap();
+        let pointpath = pointpath.as_path();
+        let metatdata = std::fs::metadata(pointpath);
         if metatdata.is_err() {
-            let ok = buffer_write_file(deadlinepath, &dummy);
-            let pathstr = path.to_str();
+            let ok = buffer_write_file(pointpath, &dummy);
+            let pathstr = pointpath.to_str();
             if pathstr.is_none() {
                 printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
                 return false;
             }
             let pathstr = pathstr.unwrap();
             if ok{
-                printer.println_error("", "First time use: created file: ", pathstr);
+                printer.print_type("First time use: created path: ", conz::MsgType::Highlight);
+                printer.println_type(pathstr, conz::MsgType::Value);
             }
             else{
                 printer.println_error("", "Error: Could not create file: ", pathstr);
@@ -68,13 +69,11 @@ pub fn setup_config_dir() -> bool{
 pub type Buffer = Vec<u8>;
 
 pub trait Bufferable where Self: std::marker::Sized{
-    //type Return;
     fn into_buffer(&self, vec: &mut Buffer);
     fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>;
 }
 
 impl Bufferable for u32{
-    //type Return = u32;
     fn into_buffer(&self, vec: &mut Buffer){
         vec.push(((*self >> 24) & 0xff) as u8);
         vec.push(((*self >> 16) & 0xff) as u8);
@@ -90,6 +89,19 @@ impl Bufferable for u32{
         val += (vec[(*iter + 2) as usize] as u32) << 8;
         val += vec[(*iter + 3) as usize] as u32;
         *iter += 4;
+        return Ok(val);
+    }
+}
+
+impl Bufferable for u8{
+    fn into_buffer(&self, vec: &mut Buffer){
+        vec.push(*self);
+    }
+
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
+        if (vec.len() as i32) - (*iter as i32) < 1 { return Err(()); }
+        let val = vec[*iter as usize];
+        *iter += 1;
         return Ok(val);
     }
 }

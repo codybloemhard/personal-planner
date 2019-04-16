@@ -8,6 +8,7 @@ use super::astr::*;
 pub enum InputType{
     Text,
     DateTime,
+    Bool,
 }
 
 struct Field{
@@ -38,11 +39,13 @@ impl FieldVec{
     pub fn execute(&self) -> Result<WizardRes,()>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
+        let mut bools: VecDeque<bool> = VecDeque::new();
         for instr in &self.vec{
             loop {
                 let is_ok = match instr.field_type{
                     InputType::Text => Self::handle_text(&mut texts, &instr),
                     InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
+                    InputType::Bool => Self::handle_bool(&mut bools, &instr),
                 };
                 if is_ok { break; }
                 if !instr.reprompt { return Err(()); }
@@ -50,7 +53,7 @@ impl FieldVec{
                 if redo == "n" { return Err(()); }
             }
         }
-        let res = WizardRes::new(texts, datetimes);
+        let res = WizardRes::new(texts, datetimes, bools);
         return Ok(res);
     }
 
@@ -72,22 +75,37 @@ impl FieldVec{
         datetimes.push_back(dt1.unwrap());
         return true;
     }
+
+    fn handle_bool(bools: &mut VecDeque<bool>, field: &Field) -> bool{
+        let line = conz::prompt(&field.prompt_msg.to_string());
+        match line.as_ref(){
+            "y" => bools.push_back(true),
+            "ye" => bools.push_back(true),
+            "yes" => bools.push_back(true),
+            "ok" => bools.push_back(true),
+            "+" => bools.push_back(true),
+            _ => bools.push_back(false),
+        }
+        return true;
+    }
 }
 
 pub struct WizardRes{
     all_text: VecDeque<astr::Astr>,
     all_datetime: VecDeque<data::DT>,
+    all_bool: VecDeque<bool>,
 }
 
 impl WizardRes{
-    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::DT>) -> Self{
+    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::DT>, bools: VecDeque<bool>) -> Self{
         WizardRes{
             all_text: text,
             all_datetime: dt,
+            all_bool: bools,
         }
     }
 
-    pub fn extract_deadline(&mut self) -> Result<data::Deadline,()>{
+    pub fn extract_point(&mut self) -> Result<data::Point,()>{
         loop{
             if self.all_text.len() < 1 {break;}
             if self.all_datetime.len() < 1 {break;}
@@ -95,10 +113,12 @@ impl WizardRes{
             if dt_res.is_none() {break;}
             let title_res = self.all_text.pop_front();
             if title_res.is_none() {break;}
-            let ret = data::Deadline::new(dt_res.unwrap(), title_res.unwrap());
+            let isdead_res = self.all_bool.pop_front();
+            if isdead_res.is_none() {break;}
+            let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Ok(ret);
         }
-        conz::printer().println_type("Error: could build deadline.", conz::MsgType::Error);
+        conz::printer().println_type("Error: could build point.", conz::MsgType::Error);
         return Err(());
     }
 }

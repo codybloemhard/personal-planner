@@ -101,7 +101,6 @@ impl DT {
 }
 
 impl save::Bufferable for DT{
-    //type Return = DT;
     fn into_buffer(&self, vec: &mut Vec<u8>){
         u32::into_buffer(&self.dt.hour(), vec);
         u32::into_buffer(&self.dt.minute(), vec);
@@ -132,23 +131,23 @@ pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     return Ok((triplet[0],triplet[1],triplet[2]));
 }
 
-pub struct Deadline{
+pub struct Point{
     pub dt: DT,
     pub title: astr::Astr,
+    pub is_deadline: bool,
 }
 
-impl Deadline{
-    pub fn new(dt: DT, title: astr::Astr) -> Self{
-        Deadline{
+impl Point{
+    pub fn new(dt: DT, title: astr::Astr, is_deadline: bool) -> Self{
+        Point{
             dt: dt,
             title: title,
+            is_deadline: is_deadline,
         }
     }
 }
 
-impl save::Bufferable for Deadline{
-    //type Return = Deadline;
-
+impl save::Bufferable for Point{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.dt.into_buffer(vec);
@@ -159,9 +158,12 @@ impl save::Bufferable for Deadline{
         if res_title.is_err() {return Err(());}
         let res_dt = DT::from_buffer(vec, iter);
         if res_dt.is_err() {return Err(());}
-        return Ok(Deadline{
+        let res_isdead = u8::from_buffer(vec, iter);
+        if res_isdead.is_err() {return Err(());}
+        return Ok(Point{
             title: res_title.unwrap(),
             dt: res_dt.unwrap(),
+            is_deadline: res_isdead.unwrap() != 0,
         }); 
     }
 }
