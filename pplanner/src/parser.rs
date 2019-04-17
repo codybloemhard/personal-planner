@@ -150,9 +150,9 @@ mod commands {
 
     pub fn now(_: &mut state::State, _: astr::AstrVec){
         let dt = data::DT::new();
-        conz::printer().print_type(dt.str_datetime().as_ref(), conz::MsgType::Value);
+        conz::printer().print_type(dt.str_datetime().to_string().as_ref(), conz::MsgType::Value);
         conz::printer().print(" ");
-        conz::printer().println_type(dt.str_dayofweek().as_ref(), conz::MsgType::Value);
+        conz::printer().println_type(dt.str_dayofweek().to_string().as_ref(), conz::MsgType::Value);
     }
 
     pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
@@ -172,14 +172,31 @@ mod commands {
 
     pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
         let count = state.points.get_items().len();
+        let len_title = 32; let len_relative = 16; let len_dt = 29;
         conz::printer().print_type("Found ", conz::MsgType::Normal);
         conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
         conz::printer().println_type(" points.", conz::MsgType::Normal);
-        conz::printer().print_type(astr::from_str("title:").pad_after(32).to_string().as_ref(), conz::MsgType::Highlight);
-        conz::printer().print_type(" - ", conz::MsgType::Highlight);
-        conz::printer().print_type(astr::from_str("relative:").pad_after(16).to_string().as_ref(), conz::MsgType::Highlight);
-        conz::printer().print_type(" - ", conz::MsgType::Highlight);
-        conz::printer().println_type(astr::from_str("time date:").pad_after(19).to_string().as_ref(), conz::MsgType::Highlight);
+        let divider_ver = || {conz::printer().print_type(" | ", conz::MsgType::Highlight);};
+        let divider_ver_edge = || {conz::printer().print_type("|", conz::MsgType::Highlight);};
+        let divider_hor = |a| {astr::from_str("|")
+            .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + (2*3)))
+            .concat(astr::from_str("|")).to_string()};
+        conz::printer().println_type(divider_hor("=").as_ref(), conz::MsgType::Highlight);
+        divider_ver_edge();
+        conz::printer().print_type(
+            astr::from_str("title:").pad_after(len_title).to_string().as_ref(), 
+            conz::MsgType::Normal);
+        divider_ver();
+        conz::printer().print_type(
+            astr::from_str("relative:").pad_after(len_relative).to_string().as_ref(), 
+            conz::MsgType::Normal);
+        divider_ver();
+        conz::printer().print_type(
+            astr::from_str("time date:").pad_after(len_dt).to_string().as_ref(),
+            conz::MsgType::Normal);
+        divider_ver_edge();
+        conz::printer().println("");
+        conz::printer().println_type(divider_hor("-").as_ref(), conz::MsgType::Highlight);
         let now = data::DT::new();
         for x in state.points.get_items(){
             let diff = now.diff(&x.dt);
@@ -190,14 +207,26 @@ mod commands {
             }else{
                 conz::MsgType::Normal
             };
-            conz::printer().print_type(x.title.pad_after(32).to_string().as_ref(), conz::MsgType::Normal);
-            conz::printer().print_type(" - ", conz::MsgType::Highlight);
-            conz::printer().print_type(astr::from_string(diff.string_significant()).pad_after(16).to_string().as_ref(), timecol);
-            conz::printer().print_type(" - ", conz::MsgType::Highlight);
-            conz::printer().print_type(x.dt.str_datetime().as_ref(), conz::MsgType::Value);
+            divider_ver_edge();
+            conz::printer().print_type(
+                x.title.pad_after(len_title).to_string().as_ref(),
+                conz::MsgType::Normal);
+            divider_ver();
+            conz::printer().print_type(
+                astr::from_string(diff.string_significant())
+                    .pad_after(len_relative)
+                    .to_string().as_ref(), 
+                timecol);
+            divider_ver();
+            conz::printer().print_type(
+                x.dt.str_datetime().concat(astr::from_str(" "))
+                    .concat(x.dt.str_dayofweek()).pad_after(len_dt)
+                    .to_string().as_ref(),
+                conz::MsgType::Value);
+            divider_ver_edge();
             conz::printer().println("");
-
         }
+        conz::printer().println_type(divider_hor("=").as_ref(), conz::MsgType::Highlight);
     }
 
     pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

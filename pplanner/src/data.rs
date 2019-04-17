@@ -69,20 +69,20 @@ impl DT {
         return Ok(DT{ dt: datetime.unwrap(), });
     }
 
-    pub fn str_datetime(&self) -> String{    
-        return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y"));
+    pub fn str_datetime(&self) -> astr::Astr{    
+        return astr::from_string(format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")));
     }
 
-    pub fn str_dayofweek(&self) -> String{
-        match self.dt.weekday(){
-            chrono::Weekday::Mon => String::from("Monday"),
-            chrono::Weekday::Tue => String::from("Tuesday"),
-            chrono::Weekday::Wed => String::from("Wednesday"),
-            chrono::Weekday::Thu => String::from("Thursday"),
-            chrono::Weekday::Fri => String::from("Friday"),
-            chrono::Weekday::Sat => String::from("Saturday"),
-            chrono::Weekday::Sun => String::from("Sunday"),
-        }
+    pub fn str_dayofweek(&self) -> astr::Astr{
+        astr::from_str(match self.dt.weekday(){
+            chrono::Weekday::Mon => "Monday",
+            chrono::Weekday::Tue => "Tuesday",
+            chrono::Weekday::Wed => "Wednesday",
+            chrono::Weekday::Thu => "Thursday",
+            chrono::Weekday::Fri => "Friday",
+            chrono::Weekday::Sat => "Saturday",
+            chrono::Weekday::Sun => "Sunday",
+        })
     }
 
     pub fn add(&mut self, days: i64, months: i64, years: i64){

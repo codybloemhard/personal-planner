@@ -44,6 +44,8 @@ pub trait AStr{
     fn copy_from_ref(&self) -> Astr;
     fn confine(&self, max: u16) -> Astr;
     fn pad_after(&self, max: u16) -> Astr;
+    fn repeat(&self, times: u16) -> Astr;
+    fn concat(&self, other: Astr) -> Astr;
 }
 
 impl AStr for Astr{
@@ -126,6 +128,24 @@ impl AStr for Astr{
         }else{
             return self.confine(max);
         }
+    }
+
+    fn repeat(&self, times: u16) -> Astr{
+        let mut newstr = Vec::new();
+        for _ in 0..times{
+            for ch in self{
+                newstr.push(*ch);
+            }
+        }
+        return newstr;
+    }
+
+    fn concat(&self, other: Astr) -> Astr{
+        let mut newstr = self.copy_from_ref();
+        for ch in other{
+            newstr.push(ch);
+        }
+        return newstr;
     }
 }
 
