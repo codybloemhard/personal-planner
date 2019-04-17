@@ -129,20 +129,22 @@ pub fn buffer_read_file(path: &std::path::Path) -> Result<Buffer, ()>{
     return Ok(vec);
 }
 
-pub struct BufferFile<T: Bufferable>{
+pub struct BufferFile<T: Bufferable + std::cmp::Ord>{
     path: std::path::PathBuf,
     content: Vec<T>,
     dirty: bool,
     loaded: bool,
+    sorted: bool,
 }
 
-impl<T: Bufferable> BufferFile<T>{
+impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
     pub fn new(path: std::path::PathBuf) -> BufferFile<T>{
         BufferFile{
             path: path,
             content: Vec::new(),
             dirty: false,
             loaded: false,
+            sorted: false,
         }
     }
     
@@ -160,6 +162,7 @@ impl<T: Bufferable> BufferFile<T>{
             conz::printer().println_type("Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
             return false;
         }
+        if !self.sorted {self.sort();}
         self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
@@ -183,7 +186,7 @@ impl<T: Bufferable> BufferFile<T>{
     }
 
     pub fn read(&mut self, force: bool) -> bool{
-        fn _read<T: Bufferable>(bf: &mut BufferFile<T>) -> bool{
+        fn _read<T: Bufferable + std::cmp::Ord>(bf: &mut BufferFile<T>) -> bool{
             let res = buffer_read_file(bf.path.as_path());
             match res{
                 Err(_) => {
@@ -203,7 +206,13 @@ impl<T: Bufferable> BufferFile<T>{
             }
         }
         if !self.loaded || force {
-            return _read(self);
+            if !_read(self) {return false;}
+            let sorted = self.is_sorted();
+            if !sorted {
+                conz::printer().println_type("Warning: data was not stored sorted!", conz::MsgType::Error);
+                self.sort();
+                self.dirty = true;
+            }
         }
         return true;
     }
@@ -217,11 +226,43 @@ impl<T: Bufferable> BufferFile<T>{
         }
         self.content.push(item);
         self.dirty = true;
+        self.sorted = false;
         return true;
     }
 
-    pub fn get_items(&self) -> &Vec<T>{
+    pub fn get_items(&mut self) -> &Vec<T>{
+        if !self.loaded {self.read(false);}
+        if !self.sorted {self.sort();}
         return &self.content;
+    }
+
+    pub fn sort(&mut self){
+        /*
+        Rust docs:
+        The current algorithm is an adaptive, iterative merge sort inspired by timsort.
+        It is designed to be very fast in cases where the slice is nearly sorted, or consists of two or more sorted sequences concatenated one after another.
+        *//*
+        Items get added incrementally, written sorted, when first read there sorted.
+        Should be ok-ish for our usecase.
+        */
+        self.content.sort();
+        self.sorted = true;
+    }
+
+    pub fn is_sorted(&mut self) -> bool{
+        let len = self.content.len();
+        if len <= 1 {return true;}
+        if len == 2 {
+            return self.content[0] <= self.content[1];
+        }
+        let mut last = &self.content[0];
+        for i in 1..len{
+            if last > &self.content[i] {
+                return false;
+            }
+            last = &self.content[i];
+        }
+        return true;
     }
 
     pub fn is_clean(&self) -> bool{

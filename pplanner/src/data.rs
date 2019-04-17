@@ -45,8 +45,9 @@ impl Span {
     }
 }
 
+#[derive(Eq)]
 pub struct DT {
-    dt: chrono::DateTime<Local>,
+    pub dt: chrono::DateTime<Local>,
 }
 
 impl DT {
@@ -153,6 +154,25 @@ impl save::Bufferable for DT{
     }
 }
 
+
+impl std::cmp::Ord for DT {
+    fn cmp(&self, other: &DT) -> std::cmp::Ordering {
+        return self.dt.cmp(&other.dt);
+    }
+}
+
+impl std::cmp::PartialOrd for DT {
+    fn partial_cmp(&self, other: &DT) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl std::cmp::PartialEq for DT {
+    fn eq(&self, other: &DT) -> bool {
+        return self.dt == other.dt;
+    }
+}
+
 pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 { return Err(()); }
@@ -160,6 +180,7 @@ pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     return Ok((triplet[0],triplet[1],triplet[2]));
 }
 
+#[derive(Eq)]
 pub struct Point{
     pub dt: DT,
     pub title: astr::Astr,
@@ -198,5 +219,23 @@ impl save::Bufferable for Point{
             dt: res_dt.unwrap(),
             is_deadline: res_isdead.unwrap() != 0,
         }); 
+    }
+}
+
+impl std::cmp::Ord for Point {
+    fn cmp(&self, other: &Point) -> std::cmp::Ordering {
+        return self.dt.cmp(&other.dt);
+    }
+}
+
+impl std::cmp::PartialOrd for Point {
+    fn partial_cmp(&self, other: &Point) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl std::cmp::PartialEq for Point {
+    fn eq(&self, other: &Point) -> bool {
+        return self.dt == other.dt;
     }
 }

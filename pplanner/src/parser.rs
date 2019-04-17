@@ -171,7 +171,6 @@ mod commands {
     }
 
     pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
-        state.points.read(false);
         let count = state.points.get_items().len();
         conz::printer().print_type("Found ", conz::MsgType::Normal);
         conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
