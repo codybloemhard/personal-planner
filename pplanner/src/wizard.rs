@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 use super::astr;
 use super::data;
 use super::conz;
+use super::conz::PrinterFunctions;
 use super::astr::*;
 
 pub enum InputType{
@@ -118,7 +119,7 @@ impl WizardRes{
             let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Ok(ret);
         }
-        conz::printer().println_type("Error: could build point.", conz::MsgType::Error);
+        conz::printer().println_type(&"Error: could build point.", conz::MsgType::Error);
         return Err(());
     }
 }

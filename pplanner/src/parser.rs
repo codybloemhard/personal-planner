@@ -4,6 +4,7 @@ use termcolor::{ Color };
 
 use super::state;
 use super::conz;
+use super::conz::PrinterFunctions;
 use super::astr;
 use super::astr::AStr;
 
@@ -101,7 +102,7 @@ impl Parser {
 
     fn do_quit(&self) -> bool{
         if self.state.is_clean() {return true;}
-        conz::printer().println_type("Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
+        conz::printer().println_type(&"Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
         match x.as_ref(){
             "y" => return true,
@@ -110,9 +111,9 @@ impl Parser {
     }
 
     pub fn start_loop(&mut self) {
-        conz::printer().println_type("Henlo Fren!", conz::MsgType::Prompt);
-        conz::printer().println_type("pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
-        conz::printer().println_type("Made by Cody Bloemhard.", conz::MsgType::Prompt);
+        conz::printer().println_type(&"Henlo Fren!", conz::MsgType::Prompt);
+        conz::printer().println_type(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
+        conz::printer().println_type(&"Made by Cody Bloemhard.", conz::MsgType::Prompt);
         loop{
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
@@ -122,11 +123,11 @@ impl Parser {
                 _ => {
                     let found_cmd = self.parse_and_run(y);
                     if found_cmd { continue; }
-                    conz::printer().println_error("Error: Command not found: \"", y, "\"!");
+                    conz::printer().println_error(&"Error: Command not found: \"", &y, &"\"!");
                 }
             }
         }
-        conz::printer().println_color("Bye!", Color::Cyan);
+        conz::printer().println_color(&"Bye!", Color::Cyan);
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{
@@ -142,17 +143,19 @@ impl Parser {
 
 mod commands {
     use super::super::conz;
+    use super::super::conz::PrinterFunctions;
     use super::super::data;
     use super::super::astr;
     use super::super::astr::AStr;
+    use super::super::astr::ToAstr;
     use super::super::wizard;
     use super::super::state;
 
     pub fn now(_: &mut state::State, _: astr::AstrVec){
         let dt = data::DT::new();
-        conz::printer().print_type(dt.str_datetime().to_string().as_ref(), conz::MsgType::Value);
-        conz::printer().print(" ");
-        conz::printer().println_type(dt.str_dayname().to_string().as_ref(), conz::MsgType::Value);
+        conz::printer().print_type(&dt.str_datetime(), conz::MsgType::Value);
+        conz::printer().print(&" ");
+        conz::printer().println_type(&dt.str_dayname(), conz::MsgType::Value);
     }
 
     pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
@@ -167,40 +170,40 @@ mod commands {
         if point.is_err() {return;}
         state.points.add_item(point.unwrap());
         if !state.points.write() {return;}
-        conz::printer().println_type("Success: Point saved.", conz::MsgType::Highlight);
+        conz::printer().println_type(&"Success: Point saved.", conz::MsgType::Highlight);
     }
 
     pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
         let count = state.points.get_items().len();
         let len_title = 32; let len_relative = 14; let len_dt = 23; let len_type = 11;
-        conz::printer().print_type("Found ", conz::MsgType::Normal);
-        conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
-        conz::printer().println_type(" points.", conz::MsgType::Normal);
-        let divider_ver = || {conz::printer().print_type(" | ", conz::MsgType::Highlight);};
-        let divider_ver_edge = || {conz::printer().print_type("|", conz::MsgType::Highlight);};
+        conz::printer().print_type(&"Found ", conz::MsgType::Normal);
+        conz::printer().print_type(&format!("{}", count), conz::MsgType::Value);
+        conz::printer().println_type(&" points.", conz::MsgType::Normal);
+        let divider_ver = || {conz::printer().print_type(&" | ", conz::MsgType::Highlight);};
+        let divider_ver_edge = || {conz::printer().print_type(&"|", conz::MsgType::Highlight);};
         let divider_hor = |a| {astr::from_str("|")
             .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + len_type + (3*3)))
-            .concat(astr::from_str("|")).to_string()};
-        conz::printer().println_type(divider_hor("=").as_ref(), conz::MsgType::Highlight);
+            .concat(astr::from_str("|"))};
+        conz::printer().println_type(&divider_hor("="), conz::MsgType::Highlight);
         divider_ver_edge();
         conz::printer().print_type(
-            astr::from_str("title:").pad_after(len_title).to_string().as_ref(), 
+            &astr::from_str("title:").pad_after(len_title), 
             conz::MsgType::Normal);
         divider_ver();
         conz::printer().print_type(
-            astr::from_str("relative:").pad_after(len_relative).to_string().as_ref(), 
+            &astr::from_str("relative:").pad_after(len_relative), 
             conz::MsgType::Normal);
         divider_ver();
         conz::printer().print_type(
-            astr::from_str("time date:").pad_after(len_dt).to_string().as_ref(),
+            &astr::from_str("time date:").pad_after(len_dt),
             conz::MsgType::Normal);
             divider_ver();
         conz::printer().print_type(
-            astr::from_str("type:").pad_after(len_type).to_string().as_ref(),
+            &astr::from_str("type:").pad_after(len_type),
             conz::MsgType::Normal);
         divider_ver_edge();
-        conz::printer().println("");
-        conz::printer().println_type(divider_hor("-").as_ref(), conz::MsgType::Highlight);
+        conz::printer().println(&"");
+        conz::printer().println_type(&divider_hor("-"), conz::MsgType::Highlight);
         let now = data::DT::new();
         for x in state.points.get_items(){
             let diff = now.diff(&x.dt);
@@ -213,41 +216,39 @@ mod commands {
             };
             divider_ver_edge();
             conz::printer().print_type(
-                x.title.pad_after(len_title).to_string().as_ref(),
+                &x.title.pad_after(len_title),
                 conz::MsgType::Normal);
             divider_ver();
             conz::printer().print_type(
-                astr::from_string(diff.string_significant())
-                    .pad_after(len_relative)
-                    .to_string().as_ref(), 
+                &diff.string_significant()
+                    .to_astr()
+                    .pad_after(len_relative),
                 timecol);
             divider_ver();
             conz::printer().print_type(
-                x.dt.str_datetime().concat(astr::from_str(" "))
-                    .concat(x.dt.str_dayname_short()).pad_after(len_dt)
-                    .to_string().as_ref(),
+                &x.dt.str_datetime().concat(astr::from_str(" "))
+                    .concat(x.dt.str_dayname_short()).pad_after(len_dt),
                 conz::MsgType::Value);
             divider_ver();
             conz::printer().print_type(
-                x.ptype.to_astr().pad_after(len_type)
-                .to_string().as_ref(),
+                &x.ptype.to_astr().pad_after(len_type),
                 conz::MsgType::Normal);
             divider_ver_edge();
-            conz::printer().println("");
+            conz::printer().println(&"");
         }
-        conz::printer().println_type(divider_hor("=").as_ref(), conz::MsgType::Highlight);
+        conz::printer().println_type(&divider_hor("="), conz::MsgType::Highlight);
     }
 
     pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
         if state.is_clean() {
-            conz::printer().println_type("All files clean, nothing to do.", conz::MsgType::Highlight);
+            conz::printer().println_type(&"All files clean, nothing to do.", conz::MsgType::Highlight);
             return;
         }
         let res = state.flush_files();
         if res {
-            conz::printer().println_type("Success: Flushed all dirty files.", conz::MsgType::Highlight);
+            conz::printer().println_type(&"Success: Flushed all dirty files.", conz::MsgType::Highlight);
         }else{
-            conz::printer().println_type("Error: Could not flush all dirty files.", conz::MsgType::Error);
+            conz::printer().println_type(&"Error: Could not flush all dirty files.", conz::MsgType::Error);
         }
     }
 }

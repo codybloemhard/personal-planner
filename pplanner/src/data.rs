@@ -1,9 +1,11 @@
 use chrono::prelude::*;
 
 use super::conz;
+use super::conz::PrinterFunctions;
 use super::astr;
 use super::save;
 use super::astr::AStr;
+use super::astr::ToAstr;
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -71,7 +73,7 @@ impl DT {
     }
 
     pub fn str_datetime(&self) -> astr::Astr{    
-        return astr::from_string(format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")));
+        return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")).to_astr();
     }
 
     pub fn str_dayname(&self) -> astr::Astr{
@@ -257,7 +259,7 @@ impl save::Bufferable for Point{
         self.dt.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ptype);
         if primtype.is_none() {
-            conz::printer().println_type("Error: Could not convert PointType to u8.", conz::MsgType::Error);
+            conz::printer().println_type(&"Error: Could not convert PointType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
         }else{
             primtype.unwrap().into_buffer(vec);

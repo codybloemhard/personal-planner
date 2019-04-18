@@ -8,7 +8,7 @@ pub fn new() -> Astr{
 }
 
 pub fn from_string(s: String) -> Astr{
-    let mut buffer: Vec<u8> = Vec::new();
+    let mut buffer = new();
     for ch in s.chars() {
         if !ch.is_ascii() { continue; }
         let val: u8 = ch as u8;
@@ -18,7 +18,7 @@ pub fn from_string(s: String) -> Astr{
 }
 
 pub fn from_str(s: &str) -> Astr{
-    let mut buffer: Vec<u8> = Vec::new();
+    let mut buffer = new();
     for ch in s.chars(){
         if !ch.is_ascii() { continue; }
         let val: u8 = ch as u8;
@@ -37,9 +37,37 @@ impl ToAstr for String{
     }
 }
 
+impl ToAstr for &'static str{
+    fn to_astr(self) -> Astr{
+        return from_str(self);
+    }
+}
+
+pub trait TOSTRING{
+    fn tostring(&self) -> std::string::String;
+}
+
+impl TOSTRING for &str{
+    fn tostring(&self) -> std::string::String{
+        return std::string::String::from(*self);
+    }
+}
+
+impl TOSTRING for std::string::String{
+    fn tostring(&self) -> std::string::String{
+        return self.clone();
+    }   
+}
+
+impl TOSTRING for Astr{
+    fn tostring(&self) -> std::string::String{
+        return self.to_string();
+    }   
+}
+
 pub trait AStr{
     fn clear(&mut self);
-    fn to_string(&self) -> String;
+    fn to_string(&self) -> std::string::String;
     fn split_str(&self, splitchars: &Astr) -> AstrVec;
     fn copy_from_ref(&self) -> Astr;
     fn confine(&self, max: u16) -> Astr;
@@ -55,7 +83,7 @@ impl AStr for Astr{
         self.clear();
     }
 
-    fn to_string(&self) -> String{
+    fn to_string(&self) -> std::string::String{
         let mut s: String = String::new();
         for ch in self{
             s.push(*ch as char);
@@ -70,7 +98,7 @@ impl AStr for Astr{
             *counter = 0;
         }
         let mut splits: AstrVec = Vec::new();
-        let mut current: Astr = Vec::new();
+        let mut current = new();
         let mut counter: u32 = 0;
         for ch in self{
             let mut hit: bool = false;
@@ -97,7 +125,7 @@ impl AStr for Astr{
     }
 
     fn copy_from_ref(&self) -> Astr{
-        let mut newstr = Vec::new();
+        let mut newstr = new();
         for ch in self{
             newstr.push(*ch);
         }
@@ -108,7 +136,7 @@ impl AStr for Astr{
         if self.len() <= max as usize {
             return self.copy_from_ref();
         }
-        let mut newstr = Vec::new();
+        let mut newstr = new();
         for i in 0..(max-3){
             newstr.push(self[i as usize] as u8);
         }
@@ -119,7 +147,7 @@ impl AStr for Astr{
     }
 
     fn cut(&self, max: u16) -> Astr{
-        let mut newstr = Vec::new();
+        let mut newstr = new();
         for i in 0..(std::cmp::max(max, self.len() as u16)){
             newstr.push(self[i as usize] as u8);
         }
@@ -141,7 +169,7 @@ impl AStr for Astr{
     }
 
     fn repeat(&self, times: u16) -> Astr{
-        let mut newstr = Vec::new();
+        let mut newstr = new();
         for _ in 0..times{
             for ch in self{
                 newstr.push(*ch);
@@ -159,7 +187,7 @@ impl AStr for Astr{
     }
 
     fn to_lower(&self) -> Astr{
-        let mut newstr = Vec::new();
+        let mut newstr = new();
         for ch in self{
             if char_is_letter_upper(*ch){
                 newstr.push(ch - 26);
@@ -183,7 +211,7 @@ impl save::Bufferable for Astr{
         if res_len.is_err() { return Err(()); }
         let len = res_len.unwrap();
         if (vec.len() as i32) - (*iter as i32) < (len as i32) { return Err(()); }
-        let mut string: Vec<u8> = Vec::new();
+        let mut string = new();
         for i in *iter..(*iter+len){
             string.push(vec[i as usize]);
         }

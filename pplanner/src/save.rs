@@ -2,6 +2,7 @@ use std::io::prelude::*;
 use std::fs::OpenOptions;
 
 use super::conz;
+use super::conz::PrinterFunctions;
 
 pub const DATA_DIR: &'static str = ".config/pplanner";
 pub const POINT_DIR: &'static str = "points";
@@ -19,7 +20,7 @@ pub fn setup_config_dir() -> bool{
     let mut printer = conz::printer();
     let home = get_data_dir_path("");
     if home.is_none() {
-        printer.println_type("Error: could not get home directory.", conz::MsgType::Error);
+        printer.println_type(&"Error: could not get home directory.", conz::MsgType::Error);
         return false;
     }
     let path = home.unwrap();
@@ -27,18 +28,18 @@ pub fn setup_config_dir() -> bool{
     let metatdata = std::fs::metadata(path);
     let pathstr = path.to_str();
     if pathstr.is_none() {
-        printer.println_type("Error: could not get string from path.", conz::MsgType::Error);
+        printer.println_type(&"Error: could not get string from path.", conz::MsgType::Error);
         return false;
     }
     let pathstr = pathstr.unwrap();
     if !metatdata.is_ok() {
         let res = std::fs::create_dir_all(path);
         if !res.is_ok() {
-            printer.println_error("", "Error: Could not create path: ", pathstr);
+            printer.println_error(&"", &"Error: Could not create path: ", &pathstr);
             return false;
         }else{
-            printer.print_type("First time use: created path: ", conz::MsgType::Highlight);
-            printer.println_type(pathstr, conz::MsgType::Value);
+            printer.print_type(&"First time use: created path: ", conz::MsgType::Highlight);
+            printer.println_type(&pathstr, conz::MsgType::Value);
         }
     }
     let dummy: Vec<u8> = Vec::new();
@@ -50,16 +51,16 @@ pub fn setup_config_dir() -> bool{
             let ok = buffer_write_file(pointpath, &dummy);
             let pathstr = pointpath.to_str();
             if pathstr.is_none() {
-                printer.print_type("Error: could not get string from path.", conz::MsgType::Error);
+                printer.print_type(&"Error: could not get string from path.", conz::MsgType::Error);
                 return false;
             }
             let pathstr = pathstr.unwrap();
             if ok{
-                printer.print_type("First time use: created path: ", conz::MsgType::Highlight);
-                printer.println_type(pathstr, conz::MsgType::Value);
+                printer.print_type(&"First time use: created path: ", conz::MsgType::Highlight);
+                printer.println_type(&pathstr, conz::MsgType::Value);
             }
             else{
-                printer.println_error("", "Error: Could not create file: ", pathstr);
+                printer.println_error(&"", &"Error: Could not create file: ", &pathstr);
             }
         }
     }
@@ -159,7 +160,7 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
     pub fn write(&mut self) -> bool{
         if !self.dirty{return true;}
         if !self.loaded{
-            conz::printer().println_type("Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
+            conz::printer().println_type(&"Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
             return false;
         }
         if !self.sorted {self.sort();}
@@ -167,9 +168,9 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
         if pathstr.is_none(){
-            conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+            conz::printer().println_type(&"Error: Cannot get string from path.", conz::MsgType::Error);
         }else{
-            conz::printer().println_error("", "Error: Cannot write items to file: ", pathstr.unwrap());
+            conz::printer().println_error(&"", &"Error: Cannot write items to file: ", &pathstr.unwrap());
         }
         return false;
     }
@@ -192,9 +193,9 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
                 Err(_) => {
                     let pathstr = bf.path.to_str();
                     if pathstr.is_none(){
-                        conz::printer().println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+                        conz::printer().println_type(&"Error: Cannot get string from path.", conz::MsgType::Error);
                     }else{
-                        conz::printer().println_error("", "Error: Cannot read file: ", pathstr.unwrap());
+                        conz::printer().println_error(&"", &"Error: Cannot read file: ", &pathstr.unwrap());
                     }
                     return false;
                 }
@@ -209,7 +210,7 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
             if !_read(self) {return false;}
             let sorted = self.is_sorted();
             if !sorted {
-                conz::printer().println_type("Warning: data was not stored sorted!", conz::MsgType::Error);
+                conz::printer().println_type(&"Warning: data was not stored sorted!", conz::MsgType::Error);
                 self.sort();
                 self.dirty = true;
             }
@@ -220,7 +221,7 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
     pub fn add_item(&mut self, item: T) -> bool{
         if !self.loaded{
             if !self.read(false) {
-                conz::printer().println_type("Error: Cannot add item.", conz::MsgType::Error);
+                conz::printer().println_type(&"Error: Cannot add item.", conz::MsgType::Error);
                 return false;
             }
         }

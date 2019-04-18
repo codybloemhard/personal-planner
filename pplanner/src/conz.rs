@@ -5,6 +5,10 @@ use std::collections::HashMap;
 use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
 use std::sync::Mutex;
 
+use super::astr;
+use super::astr::AStr;
+use super::astr::TOSTRING;
+
 pub enum MsgType {
     Normal,
     Error,
@@ -22,9 +26,20 @@ pub fn printer() -> std::sync::MutexGuard<'static, Printer>{
 }
 
 pub struct Printer{
-    stream: StandardStream,
-    col_map: HashMap<u32, Color>,
-    col: Color,
+    pub stream: StandardStream,
+    pub col_map: HashMap<u32, Color>,
+    pub col: Color,
+}
+
+pub trait PrinterFunctions<T>{
+    fn print(&mut self, msg: &T);
+    fn print_color(&mut self, msg: &T, color: Color);
+    fn print_type(&mut self, msg: &T, msgtype: MsgType);
+    fn print_error(&mut self, prefix: &T, middle: &T, postfix: &T);
+    fn println(&mut self, msg: &T);
+    fn println_color(&mut self, msg: &T, color: Color);
+    fn println_type(&mut self, msg: &T, msgtype: MsgType);
+    fn println_error(&mut self, prefix: &T, middle: &T, postfix: &T);
 }
 
 impl Printer {
@@ -54,24 +69,26 @@ impl Printer {
         self.stream.set_color(ColorSpec::new().set_fg(Some(color)))
             .expect("Error: Printer > set_color > 0");
     }
+}
 
-    pub fn print(&mut self, msg: &str){
-        write!(&mut self.stream, "{}", msg)
+impl<T: astr::TOSTRING> PrinterFunctions<T> for Printer{
+    fn print(&mut self, msg: &T){
+        write!(&mut self.stream, "{}", msg.tostring())
             .expect("Error: Printer > print > 0");
     }
 
-    pub fn print_color(&mut self, msg: &str, color: Color){
+    fn print_color(&mut self, msg: &T, color: Color){
         self._set_color(color);
         self.print(msg);
         self._set_color(self.col);
     }
 
-    pub fn print_type(&mut self, msg: &str, msgtype: MsgType){
+    fn print_type(&mut self, msg: &T, msgtype: MsgType){
         let col = self._get_color(msgtype);
         self.print_color(msg, col);
     }
 
-    pub fn print_error(&mut self, prefix: &str, middle: &str, postfix: &str){
+    fn print_error(&mut self, prefix: &T, middle: &T, postfix: &T){
         let prec = self._get_color(MsgType::Error);
         let midc = self._get_color(MsgType::Highlight);
         let posc = self._get_color(MsgType::Error);
@@ -80,24 +97,24 @@ impl Printer {
         self.print_color(postfix, posc);
     }
 
-    pub fn println(&mut self, msg: &str){
+    fn println(&mut self, msg: &T){
         self.print(msg);
-        self.print("\n");
+        self.print(&"\n");
     }
 
-    pub fn println_color(&mut self, msg: &str, color: Color){
+    fn println_color(&mut self, msg: &T, color: Color){
         self.print_color(msg, color);
-        self.print("\n");
+        self.print(&"\n");
     }
 
-    pub fn println_type(&mut self, msg: &str, msgtype: MsgType){
+    fn println_type(&mut self, msg: &T, msgtype: MsgType){
         self.print_type(msg, msgtype);
-        self.print("\n");
+        self.print(&"\n");
     }
 
-    pub fn println_error(&mut self, prefix: &str, middle: &str, postfix: &str){
+    fn println_error(&mut self, prefix: &T, middle: &T, postfix: &T){
         self.print_error(prefix, middle, postfix);
-        self.print("\n");
+        self.print(&"\n");
     }
 }
 
@@ -109,7 +126,7 @@ pub fn read_inp() -> String {
 
 pub fn prompt(msg : &str) -> String {
     let mut printer = printer();
-    printer.print_color(msg, Color::Cyan);
+    printer.print_color(&msg, Color::Cyan);
     printer.stream.flush()
         .expect("Error: Printer > println_color > 0");
     return read_inp();
