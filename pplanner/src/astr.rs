@@ -46,6 +46,8 @@ pub trait AStr{
     fn pad_after(&self, max: u16) -> Astr;
     fn repeat(&self, times: u16) -> Astr;
     fn concat(&self, other: Astr) -> Astr;
+    fn to_lower(&self) -> Astr;
+    fn cut(&self, max: u16) -> Astr;
 }
 
 impl AStr for Astr{
@@ -116,6 +118,14 @@ impl AStr for Astr{
         return newstr;
     }
 
+    fn cut(&self, max: u16) -> Astr{
+        let mut newstr = Vec::new();
+        for i in 0..(std::cmp::max(max, self.len() as u16)){
+            newstr.push(self[i as usize] as u8);
+        }
+        return newstr;
+    }
+
     fn pad_after(&self, max: u16) -> Astr{
         if self.len() == max as usize {
             return self.copy_from_ref();
@@ -144,6 +154,17 @@ impl AStr for Astr{
         let mut newstr = self.copy_from_ref();
         for ch in other{
             newstr.push(ch);
+        }
+        return newstr;
+    }
+
+    fn to_lower(&self) -> Astr{
+        let mut newstr = Vec::new();
+        for ch in self{
+            if char_is_letter_upper(*ch){
+                newstr.push(ch - 26);
+            }
+            newstr.push(*ch);
         }
         return newstr;
     }

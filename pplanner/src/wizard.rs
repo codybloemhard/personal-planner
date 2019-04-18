@@ -113,7 +113,7 @@ impl WizardRes{
             if dt_res.is_none() {break;}
             let title_res = self.all_text.pop_front();
             if title_res.is_none() {break;}
-            let isdead_res = self.all_bool.pop_front();
+            let isdead_res = self.all_text.pop_front();
             if isdead_res.is_none() {break;}
             let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Ok(ret);

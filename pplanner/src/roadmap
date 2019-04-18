@@ -1,5 +1,5 @@
 short:
-ls point
+refac atsr
 rm point
 edit point
 help

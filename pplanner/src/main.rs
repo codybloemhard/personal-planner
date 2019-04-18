@@ -3,6 +3,7 @@ extern crate chrono;
 extern crate dirs;
 #[macro_use]
 extern crate lazy_static;
+extern crate num_derive;
 
 mod conz;
 mod parser;

@@ -152,13 +152,13 @@ mod commands {
         let dt = data::DT::new();
         conz::printer().print_type(dt.str_datetime().to_string().as_ref(), conz::MsgType::Value);
         conz::printer().print(" ");
-        conz::printer().println_type(dt.str_dayofweek().to_string().as_ref(), conz::MsgType::Value);
+        conz::printer().println_type(dt.str_dayname().to_string().as_ref(), conz::MsgType::Value);
     }
 
     pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
         let mut fields = wizard::FieldVec::new();
         fields.add(wizard::InputType::Text, astr::from_str("title: "), false);
-        fields.add(wizard::InputType::Bool, astr::from_str("is deadline?: "), false);
+        fields.add(wizard::InputType::Text, astr::from_str("type: "), false);
         fields.add(wizard::InputType::DateTime, astr::from_str("time date: "), true);
         let res = fields.execute();
         if res.is_err() {return;}
@@ -172,14 +172,14 @@ mod commands {
 
     pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
         let count = state.points.get_items().len();
-        let len_title = 32; let len_relative = 16; let len_dt = 29;
+        let len_title = 32; let len_relative = 14; let len_dt = 23; let len_type = 11;
         conz::printer().print_type("Found ", conz::MsgType::Normal);
         conz::printer().print_type(format!("{}", count).as_ref(), conz::MsgType::Value);
         conz::printer().println_type(" points.", conz::MsgType::Normal);
         let divider_ver = || {conz::printer().print_type(" | ", conz::MsgType::Highlight);};
         let divider_ver_edge = || {conz::printer().print_type("|", conz::MsgType::Highlight);};
         let divider_hor = |a| {astr::from_str("|")
-            .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + (2*3)))
+            .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + len_type + (3*3)))
             .concat(astr::from_str("|")).to_string()};
         conz::printer().println_type(divider_hor("=").as_ref(), conz::MsgType::Highlight);
         divider_ver_edge();
@@ -193,6 +193,10 @@ mod commands {
         divider_ver();
         conz::printer().print_type(
             astr::from_str("time date:").pad_after(len_dt).to_string().as_ref(),
+            conz::MsgType::Normal);
+            divider_ver();
+        conz::printer().print_type(
+            astr::from_str("type:").pad_after(len_type).to_string().as_ref(),
             conz::MsgType::Normal);
         divider_ver_edge();
         conz::printer().println("");
@@ -220,9 +224,14 @@ mod commands {
             divider_ver();
             conz::printer().print_type(
                 x.dt.str_datetime().concat(astr::from_str(" "))
-                    .concat(x.dt.str_dayofweek()).pad_after(len_dt)
+                    .concat(x.dt.str_dayname_short()).pad_after(len_dt)
                     .to_string().as_ref(),
                 conz::MsgType::Value);
+            divider_ver();
+            conz::printer().print_type(
+                x.ptype.to_astr().pad_after(len_type)
+                .to_string().as_ref(),
+                conz::MsgType::Normal);
             divider_ver_edge();
             conz::printer().println("");
         }

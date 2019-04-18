@@ -1,5 +1,6 @@
 use chrono::prelude::*;
 
+use super::conz;
 use super::astr;
 use super::save;
 use super::astr::AStr;
@@ -73,7 +74,7 @@ impl DT {
         return astr::from_string(format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")));
     }
 
-    pub fn str_dayofweek(&self) -> astr::Astr{
+    pub fn str_dayname(&self) -> astr::Astr{
         astr::from_str(match self.dt.weekday(){
             chrono::Weekday::Mon => "Monday",
             chrono::Weekday::Tue => "Tuesday",
@@ -82,6 +83,18 @@ impl DT {
             chrono::Weekday::Fri => "Friday",
             chrono::Weekday::Sat => "Saturday",
             chrono::Weekday::Sun => "Sunday",
+        })
+    }
+
+    pub fn str_dayname_short(&self) -> astr::Astr{
+        astr::from_str(match self.dt.weekday(){
+            chrono::Weekday::Mon => "Mon",
+            chrono::Weekday::Tue => "Tue",
+            chrono::Weekday::Wed => "Wed",
+            chrono::Weekday::Thu => "Thu",
+            chrono::Weekday::Fri => "Fri",
+            chrono::Weekday::Sat => "Sat",
+            chrono::Weekday::Sun => "Sun",
         })
     }
 
@@ -180,19 +193,60 @@ pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     return Ok((triplet[0],triplet[1],triplet[2]));
 }
 
+use num_derive::ToPrimitive;
+use num_traits::ToPrimitive;
+use num_derive::FromPrimitive;    
+use num_traits::FromPrimitive;
+#[derive(FromPrimitive,ToPrimitive,Eq)]
+pub enum PointType{
+    Deadline = 1,
+    Event = 2,
+    None = 0,
+}
+
+impl PartialEq for PointType {
+    fn eq(&self, other: &PointType) -> bool {
+        ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
+    }
+}
+
+impl PointType{
+    fn from_astr(string: astr::Astr) -> PointType{
+        let string = string.to_lower();
+        if string.len() < 4 {
+            return PointType::None;
+        }
+        if string.cut(4) == astr::from_str("dead"){
+            return PointType::Deadline;
+        }
+        if string.cut(4) == astr::from_str("even"){
+            return PointType::Event;
+        }
+        return PointType::Deadline;
+    }
+
+    pub fn to_astr(&self) -> astr::Astr{
+        astr::from_str(match self{
+            PointType::None => "None",
+            PointType::Deadline => "Deadline",
+            PointType::Event => "Event",
+        })
+    }
+}
+
 #[derive(Eq)]
 pub struct Point{
     pub dt: DT,
     pub title: astr::Astr,
-    pub is_deadline: bool,
+    pub ptype: PointType,
 }
 
 impl Point{
-    pub fn new(dt: DT, title: astr::Astr, is_deadline: bool) -> Self{
+    pub fn new(dt: DT, title: astr::Astr, ptype: astr::Astr) -> Self{
         Point{
             dt: dt,
             title: title,
-            is_deadline: is_deadline,
+            ptype: PointType::from_astr(ptype),
         }
     }
 }
@@ -201,10 +255,13 @@ impl save::Bufferable for Point{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.dt.into_buffer(vec);
-        match self.is_deadline{
-            true => 1 as u8,
-            false => 0 as u8,
-        }.into_buffer(vec);
+        let primtype = ToPrimitive::to_u8(&self.ptype);
+        if primtype.is_none() {
+            conz::printer().println_type("Error: Could not convert PointType to u8.", conz::MsgType::Error);
+            (0 as u8).into_buffer(vec);
+        }else{
+            primtype.unwrap().into_buffer(vec);
+        }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
@@ -212,12 +269,14 @@ impl save::Bufferable for Point{
         if res_title.is_err() {return Err(());}
         let res_dt = DT::from_buffer(vec, iter);
         if res_dt.is_err() {return Err(());}
-        let res_isdead = u8::from_buffer(vec, iter);
-        if res_isdead.is_err() {return Err(());}
+        let res_ptype = u8::from_buffer(vec, iter);
+        if res_ptype.is_err() {return Err(());}
+        let res_ptype = FromPrimitive::from_u8(res_ptype.unwrap());
+        if res_ptype.is_none() {return Err(());}
         return Ok(Point{
             title: res_title.unwrap(),
             dt: res_dt.unwrap(),
-            is_deadline: res_isdead.unwrap() != 0,
+            ptype: res_ptype.unwrap(),
         }); 
     }
 }
