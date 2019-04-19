@@ -1,5 +1,5 @@
 short:
-FIX: freeze
+FIX: freeze(printer mutex deadlock?)
 edit point
 help
 slice type

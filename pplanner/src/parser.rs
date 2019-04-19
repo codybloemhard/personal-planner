@@ -94,6 +94,7 @@ impl Parser {
         ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
         ftree.push(&astr::from_str("ls points").split_str(&astr::astr_whitespace()), commands::ls_points);
         ftree.push(&astr::from_str("rm point").split_str(&astr::astr_whitespace()), commands::rm_point);
+        ftree.push(&astr::from_str("edit point").split_str(&astr::astr_whitespace()), commands::edit_point);
         ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
 
         return Parser {

@@ -275,4 +275,24 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         self.dirty = true;
         return self.write();
     }
+
+    pub fn replace_indices(&mut self, indices: Vec<usize>, replacement: T) -> bool{
+        if !misc::is_sorted(&indices){
+            conz::printer().println_type(&"Error: remove_indices, should be sorted, is not.", conz::MsgType::Error);
+            return false;
+        }
+        let mut index = 0;
+        for i in 0..self.content.len(){
+            if index >= indices.len(){continue;}
+            if indices[index] == i {
+                self.content[i] = replacement.clone();
+                index += 1;
+            }
+        }
+        if !misc::is_sorted(&self.content){
+            self.content.sort();
+        }
+        self.dirty = true;
+        return self.write();
+    }
 }

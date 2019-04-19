@@ -1,4 +1,5 @@
 use super::save;
+use super::misc::{DefaultValue};
 
 pub type Astr = Vec<u8>;
 pub type AstrVec = Vec<Vec<u8>>;
@@ -76,7 +77,6 @@ pub trait AStr{
     fn concat(&self, other: Astr) -> Astr;
     fn to_lower(&self) -> Astr;
     fn cut(&self, max: u16) -> Astr;
-    fn unwrap_default(inp: Result<Astr,()>) -> Astr;
 }
 
 impl AStr for Astr{
@@ -197,13 +197,6 @@ impl AStr for Astr{
         }
         return newstr;
     }
-
-    fn unwrap_default(inp: Result<Astr,()>) -> Astr{
-        if inp.is_ok(){
-            return inp.unwrap();
-        }
-        return new();
-    }
 }
 
 impl save::Bufferable for Astr{
@@ -225,6 +218,12 @@ impl save::Bufferable for Astr{
         }
         *iter += len;
         return Ok(string);
+    }
+}
+
+impl DefaultValue for Astr{
+    fn default_val() -> Self{
+        return new();
     }
 }
 

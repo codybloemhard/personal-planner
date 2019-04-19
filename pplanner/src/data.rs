@@ -6,6 +6,7 @@ use super::astr;
 use super::save;
 use super::astr::AStr;
 use super::astr::ToAstr;
+use super::misc::{DefaultValue};
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -143,13 +144,6 @@ impl DT {
         }
         return _diff(secs, neg);
     }
-    //TODO needs to refactored with astr, to share trait
-    pub fn unwrap_default(inp: Result<DT,()>) -> DT{
-        if inp.is_ok(){
-            return inp.unwrap();
-        }
-        return DT::new();
-    }
 }
 
 impl save::Bufferable for DT{
@@ -199,6 +193,12 @@ impl std::clone::Clone for DT{
         DT{
             dt: self.dt.clone(),
         }
+    }
+}
+
+impl DefaultValue for DT{
+    fn default_val() -> Self{
+        DT::make_datetime((1,1,1900), (0,0,0)).expect("Expect: DefaultValue for DT")
     }
 }
 
@@ -252,6 +252,12 @@ impl PointType{
             PointType::Event => "Event",
             PointType::DefaultValue => "Error",
         })
+    }
+}
+
+impl DefaultValue for PointType{
+    fn default_val() -> Self{
+        return PointType::DefaultValue;
     }
 }
 

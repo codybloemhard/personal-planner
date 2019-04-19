@@ -1,3 +1,26 @@
+pub trait DefaultValue{
+    fn default_val() -> Self;
+}
+
+pub trait UnwrapDefault<T>{
+    fn unwrap_default(res: Result<T,()>) -> T;
+    fn replace_if_not_default(&mut self, new: T);
+}
+
+impl<T: DefaultValue + PartialEq> UnwrapDefault<T> for T{
+    fn unwrap_default(res: Result<T,()>) -> T{
+        if res.is_ok(){
+            return res.unwrap();
+        }
+        return T::default_val();
+    }
+
+    fn replace_if_not_default(&mut self, new: T){
+        if new == Self::default_val() {return;}
+        std::mem::replace(self, new);
+    }
+}
+
 pub fn is_sorted<T: PartialOrd>(vec: &Vec<T>) -> bool{
     let len = vec.len();
     if len <= 1 {return true;}
