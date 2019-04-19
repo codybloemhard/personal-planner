@@ -215,9 +215,10 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
 pub enum PointType{
+    None = 0,
     Deadline = 1,
     Event = 2,
-    None = 0,
+    DefaultValue = 255,
 }
 
 impl PartialEq for PointType {
@@ -229,13 +230,16 @@ impl PartialEq for PointType {
 impl PointType{
     pub fn from_astr(string: &astr::Astr) -> PointType{
         let string = string.to_lower();
-        if string.len() < 4 {
+        if string.len() == 0{
+            return PointType::DefaultValue;
+        }
+        if string.len() < 3{
             return PointType::None;
         }
-        if string.cut(4) == astr::from_str("dead"){
+        if string.cut(4) == astr::from_str("dea"){
             return PointType::Deadline;
         }
-        if string.cut(4) == astr::from_str("even"){
+        if string.cut(4) == astr::from_str("eve"){
             return PointType::Event;
         }
         return PointType::None;
@@ -246,6 +250,7 @@ impl PointType{
             PointType::None => "None",
             PointType::Deadline => "Deadline",
             PointType::Event => "Event",
+            PointType::DefaultValue => "Error",
         })
     }
 }

@@ -6,8 +6,6 @@ use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
 use std::sync::Mutex;
 
 use super::astr;
-use super::astr::AStr;
-use super::astr::TOSTRING;
 
 pub enum MsgType {
     Normal,

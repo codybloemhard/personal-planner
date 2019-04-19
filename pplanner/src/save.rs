@@ -3,6 +3,7 @@ use std::fs::OpenOptions;
 
 use super::conz;
 use super::conz::PrinterFunctions;
+use super::misc;
 
 pub const DATA_DIR: &'static str = ".config/pplanner";
 pub const POINT_DIR: &'static str = "points";
@@ -208,7 +209,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         }
         if !self.loaded || force {
             if !_read(self) {return false;}
-            let sorted = self.is_sorted();
+            let sorted = misc::is_sorted(&self.content);
             if !sorted {
                 conz::printer().println_type(&"Warning: data was not stored sorted!", conz::MsgType::Error);
                 self.sort();
@@ -250,28 +251,15 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         self.sorted = true;
     }
 
-    pub fn is_sorted(&mut self) -> bool{
-        let len = self.content.len();
-        if len <= 1 {return true;}
-        if len == 2 {
-            return self.content[0] <= self.content[1];
-        }
-        let mut last = &self.content[0];
-        for i in 1..len{
-            if last > &self.content[i] {
-                return false;
-            }
-            last = &self.content[i];
-        }
-        return true;
-    }
-
     pub fn is_clean(&self) -> bool{
         return !self.dirty;
     }
 
     pub fn remove_indices(&mut self, mut indices: Vec<usize>) -> bool{
-        indices.sort();
+        if !misc::is_sorted(&indices){
+            conz::printer().println_type(&"Warning: remove_indices, should be sorted, is not.", conz::MsgType::Error);
+            indices.sort();
+        }
         let mut index = 0;
         let mut vec = Vec::new();
         for i in 0..self.content.len(){

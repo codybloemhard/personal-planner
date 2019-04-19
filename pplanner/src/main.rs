@@ -13,6 +13,7 @@ mod save;
 mod wizard;
 mod state;
 mod commands;
+mod misc;
 
 use conz::PrinterFunctions;
 

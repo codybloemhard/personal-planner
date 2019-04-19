@@ -32,7 +32,7 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
-    conz::printer().println_type(&"Remove deadline: ", conz::MsgType::Normal);
+    conz::printer().println_type(&"Remove point(search first): ", conz::MsgType::Normal);
     let mut fields = wizard::FieldVec::new();
     fields.add(wizard::InputType::Text, astr::from_str("title: "), false);
     fields.add(wizard::InputType::Text, astr::from_str("type: "), false);
@@ -42,7 +42,7 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
         if res.is_err() {return;}
         let mut res = res.unwrap();
         let ptitle = astr::Astr::unwrap_default(res.get_text());
-        let ptype = astr::Astr::unwrap_default(res.get_text());
+        let ptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
         let pdt = data::DT::unwrap_default(res.get_dt());
         let mut score = 0;
         let mut more_than_one = false;
@@ -54,7 +54,7 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
             if ptitle == current.title{
                 curr_score += 1;
             }
-            if data::PointType::from_astr(&ptype) == current.ptype{
+            if ptype == current.ptype{
                 curr_score += 1;
             }
             if pdt == current.dt{
@@ -95,7 +95,7 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
             }
         }
         if more_than_one{
-            conz::printer().println_type(&"Fail: query is ambiguous.", conz::MsgType::Error);
+            conz::printer().println_type(&"Warning: query is ambiguous.", conz::MsgType::Error);
             conz::printer().print_type(&"Found ", conz::MsgType::Normal);
             conz::printer().print_type(&format!("{}", vec.len()), conz::MsgType::Value);
             conz::printer().println_type(&" items.", conz::MsgType::Normal);
