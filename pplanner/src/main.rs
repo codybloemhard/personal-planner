@@ -12,6 +12,7 @@ mod astr;
 mod save;
 mod wizard;
 mod state;
+mod commands;
 
 use conz::PrinterFunctions;
 
