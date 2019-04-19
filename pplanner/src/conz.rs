@@ -25,6 +25,10 @@ pub fn printer() -> std::sync::MutexGuard<'static, Printer>{
     return PRINTER.lock().unwrap();
 }
 
+pub trait Printable{
+    fn print(&self);
+}
+
 pub struct Printer{
     pub stream: StandardStream,
     pub col_map: HashMap<u32, Color>,
@@ -118,16 +122,27 @@ impl<T: astr::TOSTRING> PrinterFunctions<T> for Printer{
     }
 }
 
-pub fn read_inp() -> String {
+pub fn read_inp() -> String{
     let mut inp = String::new();
     io::stdin().read_line(&mut inp).expect("Error :reading line.");
     return inp.trim().to_string();
 }
 
-pub fn prompt(msg : &str) -> String {
-    let mut printer = printer();
-    printer.print_color(&msg, Color::Cyan);
-    printer.stream.flush()
+pub fn prompt(msg : &str) -> String{
+    printer().print_color(&msg, Color::Cyan);
+    printer().stream.flush()
         .expect("Error: Printer > println_color > 0");
     return read_inp();
+}
+
+pub fn read_bool(msg: &str) -> bool{
+    let line = prompt(&msg);
+    match line.as_ref(){
+        "y" => true,
+        "ye" => true,
+        "yes" => true,
+        "ok" => true,
+        "+" => true,
+        _ => false,
+    }
 }

@@ -92,6 +92,7 @@ impl Parser {
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
         ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
         ftree.push(&astr::from_str("ls points").split_str(&astr::astr_whitespace()), commands::ls_points);
+        ftree.push(&astr::from_str("rm point").split_str(&astr::astr_whitespace()), commands::rm_point);
         ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
 
         return Parser {
@@ -144,6 +145,7 @@ impl Parser {
 mod commands {
     use super::super::conz;
     use super::super::conz::PrinterFunctions;
+    use super::super::conz::Printable;
     use super::super::data;
     use super::super::astr;
     use super::super::astr::AStr;
@@ -159,6 +161,7 @@ mod commands {
     }
 
     pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
+        conz::printer().println_type(&"Add deadline: ", conz::MsgType::Normal);
         let mut fields = wizard::FieldVec::new();
         fields.add(wizard::InputType::Text, astr::from_str("title: "), false);
         fields.add(wizard::InputType::Text, astr::from_str("type: "), false);
@@ -171,6 +174,96 @@ mod commands {
         state.points.add_item(point.unwrap());
         if !state.points.write() {return;}
         conz::printer().println_type(&"Success: Point saved.", conz::MsgType::Highlight);
+    }
+
+    pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
+        conz::printer().println_type(&"Remove deadline: ", conz::MsgType::Normal);
+        let mut fields = wizard::FieldVec::new();
+        fields.add(wizard::InputType::Text, astr::from_str("title: "), false);
+        fields.add(wizard::InputType::Text, astr::from_str("type: "), false);
+        fields.add(wizard::InputType::Text, astr::from_str("time date: "), true);
+        loop{
+            let res = fields.execute();
+            if res.is_err() {return;}
+            let mut res = res.unwrap();
+            let ptitle = astr::Astr::unwrap_default(res.get_text());
+            let ptype = astr::Astr::unwrap_default(res.get_text());
+            let pdt = data::DT::unwrap_default(res.get_dt());
+            let mut score = 0;
+            let mut more_than_one = false;
+            let mut vec = Vec::new();
+            let points = state.points.get_items();
+            for i in 0..points.len(){
+                let current = &points[i];
+                let mut curr_score = 0;
+                if ptitle == current.title{
+                    curr_score += 1;
+                }
+                if data::PointType::from_astr(&ptype) == current.ptype{
+                    curr_score += 1;
+                }
+                if pdt == current.dt{
+                    curr_score += 1;
+                }
+                if curr_score > score{
+                    score = curr_score;
+                    more_than_one = false;
+                    vec.clear();
+                    vec.push(i);
+                }
+                else if curr_score == score{
+                    more_than_one = true;
+                    vec.push(i);
+                }
+            }
+            if score > 0 && !more_than_one{
+                points[vec[0]].print();
+                match conz::read_bool(&"Delete this item?: "){
+                    true =>{
+                        let ok = state.points.remove_indices(vec);
+                        if ok {
+                            conz::printer().println_type(&"Success: Item removed.", conz::MsgType::Highlight);
+                        }else{
+                            conz::printer().println_type(&"Error: Item removing failed.", conz::MsgType::Highlight);
+                        }
+                        return;
+                    }
+                    false =>{return;}
+                }
+            }
+            if score == 0{
+                conz::printer().println_type(&"Fail: no matches found.", conz::MsgType::Error);
+                match conz::read_bool(&"Try again?: "){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+            if more_than_one{
+                conz::printer().println_type(&"Fail: query is ambiguous.", conz::MsgType::Error);
+                conz::printer().print_type(&"Found ", conz::MsgType::Normal);
+                conz::printer().print_type(&format!("{}", vec.len()), conz::MsgType::Value);
+                conz::printer().println_type(&" items.", conz::MsgType::Normal);
+                for i in &vec{
+                    points[*i].print();
+                }
+                match conz::read_bool(&"Delete all?: "){
+                    true =>{
+                        let ok = state.points.remove_indices(vec);
+                        if ok {
+                            conz::printer().println_type(&"Success: Items removed.", conz::MsgType::Highlight);
+                        }else{
+                            conz::printer().println_type(&"Error: Items removing failed.", conz::MsgType::Highlight);
+                        }
+                        return;
+                    }
+                    false =>{}
+                }
+                match conz::read_bool(&"Try again?: "){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+        }
     }
 
     pub fn ls_points(state: &mut state::State, _: astr::AstrVec){

@@ -143,6 +143,13 @@ impl DT {
         }
         return _diff(secs, neg);
     }
+    //TODO needs to refactored with astr, to share trait
+    pub fn unwrap_default(inp: Result<DT,()>) -> DT{
+        if inp.is_ok(){
+            return inp.unwrap();
+        }
+        return DT::new();
+    }
 }
 
 impl save::Bufferable for DT{
@@ -169,7 +176,6 @@ impl save::Bufferable for DT{
     }
 }
 
-
 impl std::cmp::Ord for DT {
     fn cmp(&self, other: &DT) -> std::cmp::Ordering {
         return self.dt.cmp(&other.dt);
@@ -188,6 +194,14 @@ impl std::cmp::PartialEq for DT {
     }
 }
 
+impl std::clone::Clone for DT{
+    fn clone(&self) -> Self{
+        DT{
+            dt: self.dt.clone(),
+        }
+    }
+}
+
 pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 { return Err(()); }
@@ -199,7 +213,7 @@ use num_derive::ToPrimitive;
 use num_traits::ToPrimitive;
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-#[derive(FromPrimitive,ToPrimitive,Eq)]
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
 pub enum PointType{
     Deadline = 1,
     Event = 2,
@@ -213,7 +227,7 @@ impl PartialEq for PointType {
 }
 
 impl PointType{
-    fn from_astr(string: astr::Astr) -> PointType{
+    pub fn from_astr(string: &astr::Astr) -> PointType{
         let string = string.to_lower();
         if string.len() < 4 {
             return PointType::None;
@@ -248,7 +262,7 @@ impl Point{
         Point{
             dt: dt,
             title: title,
-            ptype: PointType::from_astr(ptype),
+            ptype: PointType::from_astr(&ptype),
         }
     }
 }
@@ -298,5 +312,27 @@ impl std::cmp::PartialOrd for Point {
 impl std::cmp::PartialEq for Point {
     fn eq(&self, other: &Point) -> bool {
         return self.dt == other.dt;
+    }
+}
+
+impl std::clone::Clone for Point{
+    fn clone(&self) -> Self{
+        Point{
+            dt: self.dt.clone(),
+            title: self.title.clone(),
+            ptype: self.ptype.clone(),
+        }
+    }
+}
+
+impl conz::Printable for Point{
+    fn print(&self){
+        conz::printer().println_type(&"Success: found a match:", conz::MsgType::Error);
+        conz::printer().print_type(&"Title: ", conz::MsgType::Normal);
+        conz::printer().println_type(&self.title, conz::MsgType::Highlight);
+        conz::printer().print_type(&"Type: ", conz::MsgType::Normal);
+        conz::printer().println_type(&self.ptype.to_astr(), conz::MsgType::Highlight);
+        conz::printer().print_type(&"time date: ", conz::MsgType::Normal);
+        conz::printer().println_type(&self.dt.str_datetime(), conz::MsgType::Value);
     }
 }

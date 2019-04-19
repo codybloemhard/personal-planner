@@ -78,16 +78,7 @@ impl FieldVec{
     }
 
     fn handle_bool(bools: &mut VecDeque<bool>, field: &Field) -> bool{
-        let line = conz::prompt(&field.prompt_msg.to_string());
-        match line.as_ref(){
-            "y" => bools.push_back(true),
-            "ye" => bools.push_back(true),
-            "yes" => bools.push_back(true),
-            "ok" => bools.push_back(true),
-            "+" => bools.push_back(true),
-            _ => bools.push_back(false),
-        }
-        return true;
+        conz::read_bool(&field.prompt_msg.to_string())
     }
 }
 
@@ -119,7 +110,25 @@ impl WizardRes{
             let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Ok(ret);
         }
-        conz::printer().println_type(&"Error: could build point.", conz::MsgType::Error);
+        conz::printer().println_type(&"Error: could not build point.", conz::MsgType::Error);
         return Err(());
+    }
+
+    pub fn get_text(&mut self) -> Result<astr::Astr,()>{
+        let res = self.all_text.pop_front();
+        if res.is_none() {return Err(());}
+        return Ok(res.unwrap());
+    }
+
+    pub fn get_dt(&mut self) -> Result<data::DT,()>{
+        let res = self.all_datetime.pop_front();
+        if res.is_none() {return Err(());}
+        return Ok(res.unwrap());
+    }
+
+    pub fn get_bool(&mut self) -> Result<bool,()>{
+        let res = self.all_bool.pop_front();
+        if res.is_none() {return Err(());}
+        return Ok(res.unwrap());
     }
 }

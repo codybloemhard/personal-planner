@@ -138,7 +138,7 @@ pub struct BufferFile<T: Bufferable + std::cmp::Ord>{
     sorted: bool,
 }
 
-impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
+impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     pub fn new(path: std::path::PathBuf) -> BufferFile<T>{
         BufferFile{
             path: path,
@@ -187,7 +187,7 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
     }
 
     pub fn read(&mut self, force: bool) -> bool{
-        fn _read<T: Bufferable + std::cmp::Ord>(bf: &mut BufferFile<T>) -> bool{
+        fn _read<T: Bufferable + std::cmp::Ord + Clone>(bf: &mut BufferFile<T>) -> bool{
             let res = buffer_read_file(bf.path.as_path());
             match res{
                 Err(_) => {
@@ -268,5 +268,22 @@ impl<T: Bufferable + std::cmp::Ord> BufferFile<T>{
 
     pub fn is_clean(&self) -> bool{
         return !self.dirty;
+    }
+
+    pub fn remove_indices(&mut self, mut indices: Vec<usize>) -> bool{
+        indices.sort();
+        let mut index = 0;
+        let mut vec = Vec::new();
+        for i in 0..self.content.len(){
+            if index < indices.len(){
+                if indices[index] == i {
+                    index += 1;
+                }
+            }else{
+                vec.push(self.content[i].clone());
+            }
+        }
+        self.content = vec;
+        return self.write();
     }
 }
