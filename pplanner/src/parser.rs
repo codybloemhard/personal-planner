@@ -217,6 +217,7 @@ mod commands {
                 }
             }
             if score > 0 && !more_than_one{
+                conz::printer().println_type(&"Success: found a match:", conz::MsgType::Highlight);
                 points[vec[0]].print();
                 match conz::read_bool(&"Delete this item?: "){
                     true =>{

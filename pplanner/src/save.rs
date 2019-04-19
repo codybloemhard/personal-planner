@@ -278,12 +278,13 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             if index < indices.len(){
                 if indices[index] == i {
                     index += 1;
+                    continue;
                 }
-            }else{
-                vec.push(self.content[i].clone());
             }
+            vec.push(self.content[i].clone()); 
         }
         self.content = vec;
+        self.dirty = true;
         return self.write();
     }
 }

@@ -238,7 +238,7 @@ impl PointType{
         if string.cut(4) == astr::from_str("even"){
             return PointType::Event;
         }
-        return PointType::Deadline;
+        return PointType::None;
     }
 
     pub fn to_astr(&self) -> astr::Astr{
@@ -327,7 +327,6 @@ impl std::clone::Clone for Point{
 
 impl conz::Printable for Point{
     fn print(&self){
-        conz::printer().println_type(&"Success: found a match:", conz::MsgType::Error);
         conz::printer().print_type(&"Title: ", conz::MsgType::Normal);
         conz::printer().println_type(&self.title, conz::MsgType::Highlight);
         conz::printer().print_type(&"Type: ", conz::MsgType::Normal);
