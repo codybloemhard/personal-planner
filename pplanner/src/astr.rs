@@ -149,7 +149,7 @@ impl AStr for Astr{
 
     fn cut(&self, max: u16) -> Astr{
         let mut newstr = new();
-        for i in 0..(std::cmp::max(max, self.len() as u16)){
+        for i in 0..(std::cmp::min(max, std::cmp::max(max, self.len() as u16))){
             newstr.push(self[i as usize] as u8);
         }
         return newstr;

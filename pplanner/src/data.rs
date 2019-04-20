@@ -236,10 +236,10 @@ impl PointType{
         if string.len() < 3{
             return PointType::None;
         }
-        if string.cut(4) == astr::from_str("dea"){
+        if string.cut(3) == astr::from_str("dea"){
             return PointType::Deadline;
         }
-        if string.cut(4) == astr::from_str("eve"){
+        if string.cut(3) == astr::from_str("eve"){
             return PointType::Event;
         }
         return PointType::None;

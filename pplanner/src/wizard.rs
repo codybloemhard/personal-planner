@@ -12,10 +12,16 @@ pub enum InputType{
     Bool,
 }
 
+pub enum PromptType{
+    Reprompt,   //ask until good or user cancels -> push good val or error
+    Once,       //ask one time -> push good val or error
+    Partial,    //ask one time -> push good val or push nothing
+}
+
 struct Field{
     field_type: InputType,
     prompt_msg: astr::Astr,
-    reprompt: bool,
+    prompt_type: PromptType,
 }
 
 pub struct FieldVec{
@@ -29,11 +35,11 @@ impl FieldVec{
         }
     }
 
-    pub fn add(&mut self, field_type: InputType, prompt_msg: astr::Astr, reprompt: bool){
+    pub fn add(&mut self, field_type: InputType, prompt_msg: astr::Astr, prompt_type: PromptType){
         self.vec.push(Field{
             field_type: field_type,
             prompt_msg: prompt_msg,
-            reprompt: reprompt,
+            prompt_type: prompt_type,
         });
     }
 
@@ -48,10 +54,20 @@ impl FieldVec{
                     InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
                     InputType::Bool => Self::handle_bool(&mut bools, &instr),
                 };
-                if is_ok { break; }
-                if !instr.reprompt { return Err(()); }
-                let redo = conz::prompt("Could not parse, try again? */n: ");
-                if redo == "n" { return Err(()); }
+                if is_ok {break;}
+                match instr.prompt_type{
+                    PromptType::Once =>{
+                        conz::printer().println_type(&"Fail: could not parse.", conz::MsgType::Error);
+                        return Err(());
+                    }
+                    PromptType::Reprompt =>{
+                        let redo = conz::prompt("Could not parse, try again? */n: ");
+                        if redo == "n" { return Err(()); }
+                    }
+                    PromptType::Partial =>{
+                        break;
+                    }
+                }
             }
         }
         let res = WizardRes::new(texts, datetimes, bools);

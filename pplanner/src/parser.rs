@@ -126,7 +126,7 @@ impl Parser {
                 _ => {
                     let found_cmd = self.parse_and_run(y);
                     if found_cmd { continue; }
-                    conz::printer().println_error(&"Error: Command not found: \"", &y, &"\"!");
+                    conz::printer().println_error(&"Fail: Command not found: \"", &y, &"\"!");
                 }
             }
         }
