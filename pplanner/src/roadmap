@@ -1,15 +1,21 @@
 short:
 FIX: freeze(printer mutex deadlock?)
-edit point
+edit point: replace some fields of many items by that of one
 help
+rm: archive, perm. delete on archive
+clean
+inspect point
 slice type
 mk slice
 ls slice
 rm slice
 edit slice
 inspect slice
+command history, arrows to select
+appl. argument: run command with args and output stdout
 long:
 points and slices
 todos
 timeslots and sequential planner
 scriptableness
+auto scheduling(AI)

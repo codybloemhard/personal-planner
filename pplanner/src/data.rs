@@ -61,16 +61,16 @@ impl DT {
         }
     }
 
-    pub fn make_date(dmy: DMY) -> Result<DT, ()>{
+    pub fn make_date(dmy: DMY) -> Option<Self>{
         let date = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(0, 0, 0);
-        if date == chrono::LocalResult::None { return Err(()); }
-        return Ok(DT{ dt: date.unwrap(), });
+        if date == chrono::LocalResult::None {return Option::None;}
+        return Option::Some(DT{ dt: date.unwrap(), });
     }
 
-    pub fn make_datetime(dmy: DMY, hms: HMS) -> Result<DT, ()>{
+    pub fn make_datetime(dmy: DMY, hms: HMS) -> Option<Self>{
         let datetime = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(hms.0, hms.1, hms.2);
-        if datetime == chrono::LocalResult::None { return Err(()); }
-        return Ok(DT{ dt: datetime.unwrap(), });
+        if datetime == chrono::LocalResult::None {return Option::None;}
+        return Option::Some(DT{ dt: datetime.unwrap(), });
     }
 
     pub fn str_datetime(&self) -> astr::Astr{    
@@ -156,8 +156,8 @@ impl save::Bufferable for DT{
         u32::into_buffer(&(self.dt.year() as u32), vec);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
-        if (vec.len() as i32) - (*iter as i32) < 9 { return Err(()); }
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 9 { return Option::None; }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
         let ho = u8::from_buffer(vec, iter).unwrap() as u32;
@@ -202,11 +202,11 @@ impl DefaultValue for DT{
     }
 }
 
-pub fn parse_dmy_or_hms(string: &astr::Astr) -> Result<DMY, ()>{
+pub fn parse_dmy_or_hms(string: &astr::Astr) -> Option<DMY>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
-    if splitted.len() != 3 { return Err(()); }
+    if splitted.len() != 3 {return Option::None;}
     let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
-    return Ok((triplet[0],triplet[1],triplet[2]));
+    return Option::Some((triplet[0],triplet[1],triplet[2]));
 }
 
 use num_derive::ToPrimitive;
@@ -291,16 +291,16 @@ impl save::Bufferable for Point{
         }
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Self,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         let res_title = astr::Astr::from_buffer(vec, iter);
-        if res_title.is_err() {return Err(());}
+        if res_title.is_none() {return Option::None;}
         let res_dt = DT::from_buffer(vec, iter);
-        if res_dt.is_err() {return Err(());}
+        if res_dt.is_none() {return Option::None;}
         let res_ptype = u8::from_buffer(vec, iter);
-        if res_ptype.is_err() {return Err(());}
+        if res_ptype.is_none() {return Option::None;}
         let res_ptype = FromPrimitive::from_u8(res_ptype.unwrap());
-        if res_ptype.is_none() {return Err(());}
-        return Ok(Point{
+        if res_ptype.is_none() {return Option::None;}
+        return Option::Some(Point{
             title: res_title.unwrap(),
             dt: res_dt.unwrap(),
             ptype: res_ptype.unwrap(),

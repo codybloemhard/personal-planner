@@ -26,7 +26,7 @@ pub enum MatchResult{
 pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     let fields = get_point_fields(true);
     let res = fields.execute();
-    if res.is_err() {
+    if res.is_none() {
         return (MatchResult::None, Vec::new());
     }
     let mut res = res.unwrap();

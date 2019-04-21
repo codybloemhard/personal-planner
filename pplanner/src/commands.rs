@@ -5,9 +5,8 @@ use super::data;
 use super::astr;
 use super::astr::AStr;
 use super::astr::ToAstr;
-use super::wizard;
 use super::state;
-use super::misc::{UnwrapDefault, DefaultValue};
+use super::misc::{UnwrapDefault};
 use super::support;
 
 pub fn now(_: &mut state::State, _: astr::AstrVec){
@@ -21,10 +20,10 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
     conz::printer().println_type(&"Add point: ", conz::MsgType::Normal);
     let fields = support::get_point_fields(false);
     let res = fields.execute();
-    if res.is_err() {return;}
+    if res.is_none() {return;}
     let mut res = res.unwrap();
     let point = res.extract_point();
-    if point.is_err() {return;}
+    if point.is_none() {return;}
     state.points.add_item(point.unwrap());
     if !state.points.write() {return;}
     conz::printer().println_type(&"Success: Point saved.", conz::MsgType::Highlight);
@@ -108,7 +107,7 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
                 match conz::read_bool(&"Edit this item?: "){
                     true =>{
                         let res = fields.execute();
-                        if res.is_err() {return;}
+                        if res.is_none() {return;}
                         let mut res = res.unwrap();
                         let nptitle = astr::Astr::unwrap_default(res.get_text());
                         let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
@@ -148,7 +147,7 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
                             let mut npoint = points[*i].clone();
                             npoint.print();
                             let res = fields.execute();
-                            if res.is_err() {return;}
+                            if res.is_none() {return;}
                             let mut res = res.unwrap();
                             let nptitle = astr::Astr::unwrap_default(res.get_text());
                             let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));

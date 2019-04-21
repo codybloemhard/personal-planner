@@ -3,13 +3,13 @@ pub trait DefaultValue{
 }
 
 pub trait UnwrapDefault<T>{
-    fn unwrap_default(res: Result<T,()>) -> T;
+    fn unwrap_default(res: Option<T>) -> T;
     fn replace_if_not_default(&mut self, new: T);
 }
 
 impl<T: DefaultValue + PartialEq> UnwrapDefault<T> for T{
-    fn unwrap_default(res: Result<T,()>) -> T{
-        if res.is_ok(){
+    fn unwrap_default(res: Option<T>) -> T{
+        if res.is_some(){
             return res.unwrap();
         }
         return T::default_val();

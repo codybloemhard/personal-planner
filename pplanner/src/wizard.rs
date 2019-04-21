@@ -43,7 +43,7 @@ impl FieldVec{
         });
     }
 
-    pub fn execute(&self) -> Result<WizardRes,()>{
+    pub fn execute(&self) -> Option<WizardRes>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         let mut bools: VecDeque<bool> = VecDeque::new();
@@ -58,11 +58,11 @@ impl FieldVec{
                 match instr.prompt_type{
                     PromptType::Once =>{
                         conz::printer().println_type(&"Fail: could not parse.", conz::MsgType::Error);
-                        return Err(());
+                        return Option::None;
                     }
                     PromptType::Reprompt =>{
                         let redo = conz::prompt("Could not parse, try again? */n: ");
-                        if redo == "n" { return Err(()); }
+                        if redo == "n" {return Option::None;}
                     }
                     PromptType::Partial =>{
                         break;
@@ -71,7 +71,7 @@ impl FieldVec{
             }
         }
         let res = WizardRes::new(texts, datetimes, bools);
-        return Ok(res);
+        return Option::Some(res);
     }
 
     fn handle_text(texts: &mut VecDeque<astr::Astr>, field: &Field) -> bool{
@@ -82,13 +82,13 @@ impl FieldVec{
 
     fn handle_datetime(datetimes: &mut VecDeque<data::DT>, field: &Field) -> bool{
         let lines = astr::from_str(&conz::prompt(&field.prompt_msg.to_string())).split_str(&astr::astr_whitespace());
-        if lines.len() != 2 { return false; }
+        if lines.len() != 2 {return false;}
         let tri0 = data::parse_dmy_or_hms(&lines[0]);
         let tri1 = data::parse_dmy_or_hms(&lines[1]);
-        if tri0.is_err() { return false; }
-        if tri1.is_err() { return false; }
+        if tri0.is_none() {return false;}
+        if tri1.is_none() {return false;}
         let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
-        if dt1.is_err() { return false; }
+        if dt1.is_none() {return false;}
         datetimes.push_back(dt1.unwrap());
         return true;
     }
@@ -113,7 +113,7 @@ impl WizardRes{
         }
     }
 
-    pub fn extract_point(&mut self) -> Result<data::Point,()>{
+    pub fn extract_point(&mut self) -> Option<data::Point>{
         loop{
             if self.all_text.len() < 1 {break;}
             if self.all_datetime.len() < 1 {break;}
@@ -124,27 +124,27 @@ impl WizardRes{
             let isdead_res = self.all_text.pop_front();
             if isdead_res.is_none() {break;}
             let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
-            return Ok(ret);
+            return Option::Some(ret);
         }
         conz::printer().println_type(&"Error: could not build point.", conz::MsgType::Error);
-        return Err(());
+        return Option::None;
     }
 
-    pub fn get_text(&mut self) -> Result<astr::Astr,()>{
+    pub fn get_text(&mut self) -> Option<astr::Astr>{
         let res = self.all_text.pop_front();
-        if res.is_none() {return Err(());}
-        return Ok(res.unwrap());
+        if res.is_none() {return Option::None}
+        return Option::Some(res.unwrap());
     }
 
-    pub fn get_dt(&mut self) -> Result<data::DT,()>{
+    pub fn get_dt(&mut self) -> Option<data::DT>{
         let res = self.all_datetime.pop_front();
-        if res.is_none() {return Err(());}
-        return Ok(res.unwrap());
+        if res.is_none() {return Option::None}
+        return Option::Some(res.unwrap());
     }
 
-    pub fn get_bool(&mut self) -> Result<bool,()>{
+    pub fn get_bool(&mut self) -> Option<bool>{
         let res = self.all_bool.pop_front();
-        if res.is_none() {return Err(());}
-        return Ok(res.unwrap());
+        if res.is_none() {return Option::None;}
+        return Option::Some(res.unwrap());
     }
 }

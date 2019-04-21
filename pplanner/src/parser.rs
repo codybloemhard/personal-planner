@@ -64,7 +64,7 @@ impl FuncTree{
         _push(self, key, 0, f);
     }
 
-    fn find(&mut self, key: &astr::AstrVec) -> Result<Func,()>{
+    fn find(&mut self, key: &astr::AstrVec) -> Option<Func>{
         fn _find(root: &mut FuncTree, key: &astr::AstrVec, index: usize) -> Option<Func>{
             if index >= key.len() {return Option::None;}
             let last = index == key.len() - 1;
@@ -76,9 +76,7 @@ impl FuncTree{
                 return _find(&mut res.unwrap(), key, index + 1);
             }
         }
-        let opt = _find(self, key, 0);
-        if opt.is_none() {return Err(());}
-        else {return Ok(opt.unwrap());}
+        return _find(self, key, 0);
     }
 }
 
@@ -137,8 +135,8 @@ impl Parser {
         let command = astr::from_str(line).split_str(&astr::astr_whitespace());
         let search = self.ftree.find(&command);
         match search {
-            Err(_) => return false,
-            Ok(x) => x(&mut self.state, command),
+            Option::None => return false,
+            Option::Some(x) => x(&mut self.state, command),
         }
         return true;
     }

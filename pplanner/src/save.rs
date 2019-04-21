@@ -72,7 +72,7 @@ pub type Buffer = Vec<u8>;
 
 pub trait Bufferable where Self: std::marker::Sized{
     fn into_buffer(&self, vec: &mut Buffer);
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>;
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>;
 }
 
 impl Bufferable for u32{
@@ -83,15 +83,15 @@ impl Bufferable for u32{
         vec.push((*self & 0xff) as u8);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
-        if (vec.len() as i32) - (*iter as i32) < 4 {return Err(());}
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 4 {return Option::None;}
         let mut val: u32 = 0;
         val += (vec[(*iter + 0) as usize] as u32) << 24;
         val += (vec[(*iter + 1) as usize] as u32) << 16;
         val += (vec[(*iter + 2) as usize] as u32) << 8;
         val += vec[(*iter + 3) as usize] as u32;
         *iter += 4;
-        return Ok(val);
+        return Option::Some(val);
     }
 }
 
@@ -100,11 +100,11 @@ impl Bufferable for u8{
         vec.push(*self);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Result<Self, ()>{
-        if (vec.len() as i32) - (*iter as i32) < 1 {return Err(());}
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 1 {return Option::None;}
         let val = vec[*iter as usize];
         *iter += 1;
-        return Ok(val);
+        return Option::Some(val);
     }
 }
 
@@ -122,13 +122,13 @@ pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     return true;
 }
 
-pub fn buffer_read_file(path: &std::path::Path) -> Result<Buffer, ()>{
+pub fn buffer_read_file(path: &std::path::Path) -> Option<Buffer>{
     let file = OpenOptions::new().read(true).open(path);
-    if file.is_err() { return Err(()); }
+    if file.is_err() {return Option::None;}
     let mut opened = file.unwrap();
     let mut vec: Buffer = Vec::new();
-    if opened.read_to_end(&mut vec).is_err() {return Err(());}
-    return Ok(vec);
+    if opened.read_to_end(&mut vec).is_err() {return Option::None;}
+    return Option::Some(vec);
 }
 
 pub struct BufferFile<T: Bufferable + std::cmp::Ord>{
@@ -181,7 +181,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         self.content.clear();
         loop{
             let res = T::from_buffer(vec, &mut iter);
-            if res.is_err() {break;}
+            if res.is_none() {break;}
             self.content.push(res.unwrap());
         }
         self.loaded = true;
@@ -191,7 +191,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         fn _read<T: Bufferable + std::cmp::Ord + Clone>(bf: &mut BufferFile<T>) -> bool{
             let res = buffer_read_file(bf.path.as_path());
             match res{
-                Err(_) => {
+                Option::None => {
                     let pathstr = bf.path.to_str();
                     if pathstr.is_none(){
                         conz::printer().println_type(&"Error: Cannot get string from path.", conz::MsgType::Error);
@@ -200,7 +200,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                     }
                     return false;
                 }
-                Ok(x) => {
+                Option::Some(x) => {
                     bf.buffer_to_content(&x);
                     bf.dirty = false;
                     return true;

@@ -207,17 +207,19 @@ impl save::Bufferable for Astr{
         save::buffer_append_buffer(vec, self);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Result<Astr,()>{
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         let res_len = u32::from_buffer(vec, iter);
-        if res_len.is_err() { return Err(()); }
+        if res_len.is_none() {return Option::None;}
         let len = res_len.unwrap();
-        if (vec.len() as i32) - (*iter as i32) < (len as i32) { return Err(()); }
+        if (vec.len() as i32) - (*iter as i32) < (len as i32) {
+            return Option::None;
+        }
         let mut string = new();
         for i in *iter..(*iter+len){
             string.push(vec[i as usize]);
         }
         *iter += len;
-        return Ok(string);
+        return Option::Some(string);
     }
 }
 
