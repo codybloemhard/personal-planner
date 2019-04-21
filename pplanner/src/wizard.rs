@@ -6,6 +6,8 @@ use super::conz;
 use super::conz::PrinterFunctions;
 use super::astr::*;
 
+use std::time::{SystemTime, UNIX_EPOCH};
+
 pub enum InputType{
     Text,
     DateTime,
@@ -48,7 +50,7 @@ impl FieldVec{
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         let mut bools: VecDeque<bool> = VecDeque::new();
         for instr in &self.vec{
-            loop {
+            loop {           
                 let is_ok = match instr.field_type{
                     InputType::Text => Self::handle_text(&mut texts, &instr),
                     InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
@@ -57,7 +59,7 @@ impl FieldVec{
                 if is_ok {break;}
                 match instr.prompt_type{
                     PromptType::Once =>{
-                        conz::printer().println_type(&"Fail: could not parse.", conz::MsgType::Error);
+                        pprintln_type!(&"Fail: could not parse.", conz::MsgType::Error);
                         return Option::None;
                     }
                     PromptType::Reprompt =>{
@@ -75,7 +77,12 @@ impl FieldVec{
     }
 
     fn handle_text(texts: &mut VecDeque<astr::Astr>, field: &Field) -> bool{
+        //check if freeze is in stdin
+        //let start = SystemTime::now();
         let line = conz::prompt(&field.prompt_msg.to_string()).to_astr();
+        //let end = SystemTime::now();
+        //let dur = end.duration_since(start);
+        //println!("{:?}", dur);
         texts.push_back(line);
         return true;
     }
@@ -126,7 +133,7 @@ impl WizardRes{
             let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Option::Some(ret);
         }
-        conz::printer().println_type(&"Error: could not build point.", conz::MsgType::Error);
+        pprintln_type!(&"Error: could not build point.", conz::MsgType::Error);
         return Option::None;
     }
 

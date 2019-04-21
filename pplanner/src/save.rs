@@ -18,10 +18,9 @@ pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
 }
 
 pub fn setup_config_dir() -> bool{
-    let mut printer = conz::printer();
     let home = get_data_dir_path("");
     if home.is_none() {
-        printer.println_type(&"Error: could not get home directory.", conz::MsgType::Error);
+        pprintln_type!(&"Error: could not get home directory.", conz::MsgType::Error);
         return false;
     }
     let path = home.unwrap();
@@ -29,18 +28,18 @@ pub fn setup_config_dir() -> bool{
     let metatdata = std::fs::metadata(path);
     let pathstr = path.to_str();
     if pathstr.is_none() {
-        printer.println_type(&"Error: could not get string from path.", conz::MsgType::Error);
+        pprintln_type!(&"Error: could not get string from path.", conz::MsgType::Error);
         return false;
     }
     let pathstr = pathstr.unwrap();
     if !metatdata.is_ok() {
         let res = std::fs::create_dir_all(path);
         if !res.is_ok() {
-            printer.println_error(&"", &"Error: Could not create path: ", &pathstr);
+            pprintln_error!(&"", &"Error: Could not create path: ", &pathstr);
             return false;
         }else{
-            printer.print_type(&"First time use: created path: ", conz::MsgType::Highlight);
-            printer.println_type(&pathstr, conz::MsgType::Value);
+            pprint_type!(&"First time use: created path: ", conz::MsgType::Highlight);
+            pprintln_type!(&pathstr, conz::MsgType::Value);
         }
     }
     let dummy: Vec<u8> = Vec::new();
@@ -52,16 +51,16 @@ pub fn setup_config_dir() -> bool{
             let ok = buffer_write_file(pointpath, &dummy);
             let pathstr = pointpath.to_str();
             if pathstr.is_none() {
-                printer.print_type(&"Error: could not get string from path.", conz::MsgType::Error);
+                pprint_type!(&"Error: could not get string from path.", conz::MsgType::Error);
                 return false;
             }
             let pathstr = pathstr.unwrap();
             if ok{
-                printer.print_type(&"First time use: created path: ", conz::MsgType::Highlight);
-                printer.println_type(&pathstr, conz::MsgType::Value);
+                pprint_type!(&"First time use: created path: ", conz::MsgType::Highlight);
+                pprintln_type!(&pathstr, conz::MsgType::Value);
             }
             else{
-                printer.println_error(&"", &"Error: Could not create file: ", &pathstr);
+                pprintln_error!(&"", &"Error: Could not create file: ", &pathstr);
             }
         }
     }
@@ -161,7 +160,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     pub fn write(&mut self) -> bool{
         if !self.dirty{return true;}
         if !self.loaded{
-            conz::printer().println_type(&"Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
+            pprintln_type!(&"Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
             return false;
         }
         if !self.sorted {self.sort();}
@@ -169,9 +168,9 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
         if pathstr.is_none(){
-            conz::printer().println_type(&"Error: Cannot get string from path.", conz::MsgType::Error);
+            pprintln_type!(&"Error: Cannot get string from path.", conz::MsgType::Error);
         }else{
-            conz::printer().println_error(&"", &"Error: Cannot write items to file: ", &pathstr.unwrap());
+            pprintln_error!(&"", &"Error: Cannot write items to file: ", &pathstr.unwrap());
         }
         return false;
     }
@@ -194,9 +193,9 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                 Option::None => {
                     let pathstr = bf.path.to_str();
                     if pathstr.is_none(){
-                        conz::printer().println_type(&"Error: Cannot get string from path.", conz::MsgType::Error);
+                        pprintln_type!(&"Error: Cannot get string from path.", conz::MsgType::Error);
                     }else{
-                        conz::printer().println_error(&"", &"Error: Cannot read file: ", &pathstr.unwrap());
+                        pprintln_error!(&"", &"Error: Cannot read file: ", &pathstr.unwrap());
                     }
                     return false;
                 }
@@ -211,7 +210,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             if !_read(self) {return false;}
             let sorted = misc::is_sorted(&self.content);
             if !sorted {
-                conz::printer().println_type(&"Warning: data was not stored sorted!", conz::MsgType::Error);
+                pprintln_type!(&"Warning: data was not stored sorted!", conz::MsgType::Error);
                 self.sort();
                 self.dirty = true;
             }
@@ -222,7 +221,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     pub fn add_item(&mut self, item: T) -> bool{
         if !self.loaded{
             if !self.read(false) {
-                conz::printer().println_type(&"Error: Cannot add item.", conz::MsgType::Error);
+                pprintln_type!(&"Error: Cannot add item.", conz::MsgType::Error);
                 return false;
             }
         }
@@ -257,7 +256,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
 
     pub fn remove_indices(&mut self, mut indices: Vec<usize>) -> bool{
         if !misc::is_sorted(&indices){
-            conz::printer().println_type(&"Warning: remove_indices, should be sorted, is not.", conz::MsgType::Error);
+            pprintln_type!(&"Warning: remove_indices, should be sorted, is not.", conz::MsgType::Error);
             indices.sort();
         }
         let mut index = 0;
@@ -278,11 +277,11 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
 
     pub fn replace(&mut self, indices: Vec<usize>, replacements: Vec<T>) -> bool{
         if !misc::is_sorted(&indices){
-            conz::printer().println_type(&"Error: replace, indices should be sorted, is not.", conz::MsgType::Error);
+            pprintln_type!(&"Error: replace, indices should be sorted, is not.", conz::MsgType::Error);
             return false;
         }
         if indices.len() != replacements.len(){
-            conz::printer().println_type(&"Error: save::replace: indices.len() != replacements.len().", conz::MsgType::Error);
+            pprintln_type!(&"Error: save::replace: indices.len() != replacements.len().", conz::MsgType::Error);
             return false;
         }
         let mut index = 0;

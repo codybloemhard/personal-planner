@@ -5,6 +5,7 @@ extern crate dirs;
 extern crate lazy_static;
 extern crate num_derive;
 
+#[macro_use]
 mod conz;
 mod parser;
 mod data;
@@ -23,7 +24,7 @@ fn main() {
     if !ok {return;}
     let state = state::State::new();
     if state.is_none() {
-        conz::printer().println_type(&"Error: Could not create state.", conz::MsgType::Error);
+        pprintln_type!(&"Error: Could not create state.", conz::MsgType::Error);
         return;
     }
     let mut parser = parser::Parser::new(state.unwrap());

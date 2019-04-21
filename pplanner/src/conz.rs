@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
 use std::sync::Mutex;
+use std::io::Read;
 
 use super::astr;
 
@@ -21,6 +22,55 @@ lazy_static! {
 
 pub fn printer() -> std::sync::MutexGuard<'static, Printer>{
     return PRINTER.lock().unwrap();
+}
+
+#[macro_export]
+macro_rules! pprint{
+    ($msg:expr) => {
+        {conz::printer().print($msg);}
+    };
+}
+#[macro_export]
+macro_rules! pprint_color{
+    ($msg:expr,$col:expr) => {
+        {conz::printer().print_color($msg,$col);}
+    };
+}
+#[macro_export]
+macro_rules! pprint_type{
+    ($msg:expr,$typ:expr) => {
+        {conz::printer().print_type($msg,$typ);}
+    };
+}
+#[macro_export]
+macro_rules! pprint_error{
+    ($pre:expr,$mid:expr,$pos:expr) => {
+        {conz::printer().print_error($pre, $mid, $pos)();}
+    };
+}
+#[macro_export]
+macro_rules! pprintln{
+    ($msg:expr) => {
+        {conz::printer().println($msg);}
+    };
+}
+#[macro_export]
+macro_rules! pprintln_color{
+    ($msg:expr,$col:expr) => {
+        {conz::printer().println_color($msg,$col);}
+    };
+}
+#[macro_export]
+macro_rules! pprintln_type{
+    ($msg:expr,$typ:expr) => {
+        {conz::printer().println_type($msg,$typ);}
+    };
+}
+#[macro_export]
+macro_rules! pprintln_error{
+    ($pre:expr,$mid:expr,$pos:expr) => {
+        {conz::printer().println_error($pre, $mid, $pos);}
+    };
 }
 
 pub trait Printable{
@@ -127,9 +177,9 @@ pub fn read_inp() -> String{
 }
 
 pub fn prompt(msg : &str) -> String{
-    printer().print_color(&msg, Color::Cyan);
-    printer().stream.flush()
-        .expect("Error: Printer > println_color > 0");
+    {printer().print_color(&msg, Color::Cyan);}
+    {printer().stream.flush()
+        .expect("Error: Printer > println_color > 0");}
     return read_inp();
 }
 

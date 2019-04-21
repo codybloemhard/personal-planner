@@ -103,7 +103,7 @@ impl Parser {
 
     fn do_quit(&self) -> bool{
         if self.state.is_clean() {return true;}
-        conz::printer().println_type(&"Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
+        pprintln_type!(&"Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
         match x.as_ref(){
             "y" => return true,
@@ -112,9 +112,9 @@ impl Parser {
     }
 
     pub fn start_loop(&mut self) {
-        conz::printer().println_type(&"Henlo Fren!", conz::MsgType::Prompt);
-        conz::printer().println_type(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
-        conz::printer().println_type(&"Made by Cody Bloemhard.", conz::MsgType::Prompt);
+        pprintln_type!(&"Henlo Fren!", conz::MsgType::Prompt);
+        pprintln_type!(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
+        pprintln_type!(&"Made by Cody Bloemhard.", conz::MsgType::Prompt);
         loop{
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
@@ -124,11 +124,11 @@ impl Parser {
                 _ => {
                     let found_cmd = self.parse_and_run(y);
                     if found_cmd { continue; }
-                    conz::printer().println_error(&"Fail: Command not found: \"", &y, &"\"!");
+                    pprintln_error!(&"Fail: Command not found: \"", &y, &"\"!");
                 }
             }
         }
-        conz::printer().println_color(&"Bye!", Color::Cyan);
+        pprintln_color!(&"Bye!", Color::Cyan);
     }
 
     fn parse_and_run(&mut self, line: &str) -> bool{

@@ -284,7 +284,7 @@ impl save::Bufferable for Point{
         self.dt.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ptype);
         if primtype.is_none() {
-            conz::printer().println_type(&"Error: Could not convert PointType to u8.", conz::MsgType::Error);
+            pprintln_type!(&"Error: Could not convert PointType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
         }else{
             primtype.unwrap().into_buffer(vec);
@@ -338,11 +338,11 @@ impl std::clone::Clone for Point{
 
 impl conz::Printable for Point{
     fn print(&self){
-        conz::printer().print_type(&"Title: ", conz::MsgType::Normal);
-        conz::printer().println_type(&self.title, conz::MsgType::Highlight);
-        conz::printer().print_type(&"Type: ", conz::MsgType::Normal);
-        conz::printer().println_type(&self.ptype.to_astr(), conz::MsgType::Highlight);
-        conz::printer().print_type(&"time date: ", conz::MsgType::Normal);
-        conz::printer().println_type(&self.dt.str_datetime(), conz::MsgType::Value);
+        pprint_type!(&"Title: ", conz::MsgType::Normal);
+        pprintln_type!(&self.title, conz::MsgType::Highlight);
+        pprint_type!(&"Type: ", conz::MsgType::Normal);
+        pprintln_type!(&self.ptype.to_astr(), conz::MsgType::Highlight);
+        pprint_type!(&"time date: ", conz::MsgType::Normal);
+        pprintln_type!(&self.dt.str_datetime(), conz::MsgType::Value);
     }
 }
