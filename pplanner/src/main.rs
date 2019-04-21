@@ -14,6 +14,7 @@ mod wizard;
 mod state;
 mod commands;
 mod misc;
+mod support;
 
 use conz::PrinterFunctions;
 
