@@ -16,6 +16,18 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
+pub fn help(_: &mut state::State, args: astr::AstrVec){
+    pprintln_type!(&"Help: ", conz::MsgType::Normal);
+    let path = std::path::PathBuf::from("./help");
+    let path = path.as_path();
+    let metatdata = std::fs::metadata(path);
+    if metatdata.is_err(){
+        pprintln_type!(&"Error: Help directory not found.", conz::MsgType::Error);
+        return;
+    }
+    
+}
+
 pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Add point: ", conz::MsgType::Normal);
     let fields = support::get_point_fields(false);

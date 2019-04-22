@@ -6,7 +6,7 @@ use super::state;
 use super::conz;
 use super::conz::PrinterFunctions;
 use super::astr;
-use super::astr::AStr;
+use super::astr::{AStr};
 use super::commands;
 
 type Func = fn(&mut state::State, astr::AstrVec);
@@ -89,6 +89,7 @@ impl Parser {
     pub fn new(state: state::State) -> Parser {
         let mut ftree = FuncTree::new();
         ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
+        ftree.push(&astr::from_str("help").split_str(&astr::astr_whitespace()), commands::help);
         ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
         ftree.push(&astr::from_str("ls points").split_str(&astr::astr_whitespace()), commands::ls_points);
         ftree.push(&astr::from_str("rm point").split_str(&astr::astr_whitespace()), commands::rm_point);
@@ -111,6 +112,24 @@ impl Parser {
         }
     }
 
+    fn extract_args(line: astr::Astr) -> (astr::Astr, astr::Astr){
+        let mut mode = 0;
+        let mut command = astr::new();
+        let mut args = astr::new();
+        for ch in line{
+            if ch == '(' as u8{
+                mode = 1;
+            }else if ch == ')' as u8{
+                break;
+            }else if mode == 0{
+                command.push(ch);
+            }else if mode == 1{
+                args.push(ch);
+            }
+        }
+        return (command,args);
+    }
+
     pub fn start_loop(&mut self) {
         pprintln_type!(&"Henlo Fren!", conz::MsgType::Prompt);
         pprintln_type!(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
@@ -118,11 +137,12 @@ impl Parser {
         loop{
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
-            match y {
+            match y{
                 "q" => if self.do_quit() {break;},
                 "quit" => if self.do_quit() {break;},
                 _ => {
-                    let found_cmd = self.parse_and_run(y);
+                    let (com,arg) = Parser::extract_args(astr::from_str(y));
+                    let found_cmd = self.parse_and_run(com, arg);
                     if found_cmd { continue; }
                     pprintln_error!(&"Fail: Command not found: \"", &y, &"\"!");
                 }
@@ -131,12 +151,13 @@ impl Parser {
         pprintln_color!(&"Bye!", Color::Cyan);
     }
 
-    fn parse_and_run(&mut self, line: &str) -> bool{
-        let command = astr::from_str(line).split_str(&astr::astr_whitespace());
+    fn parse_and_run(&mut self, command: astr::Astr, args: astr::Astr) -> bool{
+        let command = command.split_str(&astr::astr_whitespace());
+        let args = args.split_str(&astr::from_str(","));
         let search = self.ftree.find(&command);
         match search {
             Option::None => return false,
-            Option::Some(x) => x(&mut self.state, command),
+            Option::Some(x) => x(&mut self.state, args),
         }
         return true;
     }
