@@ -229,6 +229,16 @@ impl DefaultValue for Astr{
     }
 }
 
+pub fn unsplit(vec: &AstrVec) -> Astr{
+    let mut newstr = new();
+    for v in vec{
+        for ch in v{
+            newstr.push(*ch);
+        }
+    }
+    return newstr;
+}
+
 pub const CHAR_START_NUM: u8 = 48;
 pub const CHAR_START_UPPER: u8 = 65;
 pub const CHAR_START_LOWER: u8 = 96;

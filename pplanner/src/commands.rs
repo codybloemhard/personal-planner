@@ -1,3 +1,8 @@
+use std::path::PathBuf;
+use std::io;
+use std::io::prelude::*;
+use std::fs::File;
+
 use super::conz;
 use super::conz::PrinterFunctions;
 use super::conz::Printable;
@@ -16,7 +21,7 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
-pub fn help(_: &mut state::State, args: astr::AstrVec){
+pub fn help(state: &mut state::State, args: astr::AstrVec){
     pprintln_type!(&"Help: ", conz::MsgType::Normal);
     let path = std::path::PathBuf::from("./help");
     let path = path.as_path();
@@ -25,7 +30,32 @@ pub fn help(_: &mut state::State, args: astr::AstrVec){
         pprintln_type!(&"Error: Help directory not found.", conz::MsgType::Error);
         return;
     }
-    
+    let res = state.fset.contains(&args);
+    if !res {
+        pprintln_type!(&"Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
+        return;
+    }
+    let mut path = PathBuf::new();
+    path.push("help");
+    path.push(astr::unsplit(&args).to_string());
+    let res = std::fs::metadata(path.clone());
+    if res.is_err(){
+        pprintln_type!(&"Error: help file not found.", conz::MsgType::Error);
+        return;
+    }
+    let mut f = File::open(path.as_path());
+    if f.is_err(){
+        pprintln_type!(&"Error: could not open file.", conz::MsgType::Error);
+        return;
+    }
+    let mut f = f.unwrap();
+    let mut string = String::new();
+    let ok = f.read_to_string(&mut string);
+    if ok.is_err(){
+        pprintln_type!(&"Error: could not read file.", conz::MsgType::Error);
+        return;
+    }
+    pprintln_type!(&string, conz::MsgType::Normal);
 }
 
 pub fn mk_point(state: &mut state::State, _: astr::AstrVec){

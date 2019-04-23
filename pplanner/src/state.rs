@@ -1,7 +1,11 @@
+use std::collections::HashSet;
+
 use super::save;
 use super::data;
+use super::astr;
 
 pub struct State{
+    pub fset: HashSet<astr::AstrVec>,
     pub points: save::BufferFile<data::Point>,
 }
 
@@ -11,6 +15,7 @@ impl State{
         if path.is_none() {return Option::None;}
         let path = path.unwrap();
         Option::Some(State{
+            fset: HashSet::new(),
             points: save::BufferFile::new(path),
         })
     }

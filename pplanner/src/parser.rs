@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::collections::HashMap;
 
 use termcolor::{ Color };
@@ -11,7 +12,7 @@ use super::commands;
 
 type Func = fn(&mut state::State, astr::AstrVec);
 
-struct FuncTree{
+pub struct FuncTree{
     tree: HashMap<astr::Astr, Box<FuncTree>>,
     leaf: Option<Func>,
 }
@@ -86,20 +87,28 @@ pub struct Parser{
 }
 
 impl Parser {
-    pub fn new(state: state::State) -> Parser {
+    pub fn new(mut state: state::State) -> Parser {
         let mut ftree = FuncTree::new();
-        ftree.push(&astr::from_str("now").split_str(&astr::astr_whitespace()), commands::now);
-        ftree.push(&astr::from_str("help").split_str(&astr::astr_whitespace()), commands::help);
-        ftree.push(&astr::from_str("mk point").split_str(&astr::astr_whitespace()), commands::mk_point);
-        ftree.push(&astr::from_str("ls points").split_str(&astr::astr_whitespace()), commands::ls_points);
-        ftree.push(&astr::from_str("rm point").split_str(&astr::astr_whitespace()), commands::rm_point);
-        ftree.push(&astr::from_str("edit point").split_str(&astr::astr_whitespace()), commands::edit_point);
-        ftree.push(&astr::from_str("flush files").split_str(&astr::astr_whitespace()), commands::flush_files);
+        let mut fset = HashSet::new();
+        Parser::add("now", commands::now, &mut ftree, &mut fset);
+        Parser::add("help", commands::help, &mut ftree, &mut fset);
+        Parser::add("mk point", commands::mk_point, &mut ftree, &mut fset);
+        Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);
+        Parser::add("rm point", commands::rm_point, &mut ftree, &mut fset);
+        Parser::add("edit point", commands::edit_point, &mut ftree, &mut fset);
+        Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
 
+        state.fset = fset;
         return Parser {
             ftree,
             state,
         }
+    }
+
+    fn add(name: &str, func: Func, ftree: &mut Box<FuncTree>, fset: &mut HashSet<astr::AstrVec>){
+        let splitted = astr::from_str(name).split_str(&astr::astr_whitespace());
+        ftree.push(&splitted, func);
+        fset.insert(splitted);
     }
 
     fn do_quit(&self) -> bool{
