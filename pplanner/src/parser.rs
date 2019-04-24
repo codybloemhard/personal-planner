@@ -105,10 +105,10 @@ impl Parser {
         }
     }
 
-    fn add(name: &str, func: Func, ftree: &mut Box<FuncTree>, fset: &mut HashSet<astr::AstrVec>){
+    fn add(name: &str, func: Func, ftree: &mut Box<FuncTree>, fset: &mut HashSet<astr::Astr>){
         let splitted = astr::from_str(name).split_str(&astr::astr_whitespace());
         ftree.push(&splitted, func);
-        fset.insert(splitted);
+        fset.insert(astr::from_str(name));
     }
 
     fn do_quit(&self) -> bool{

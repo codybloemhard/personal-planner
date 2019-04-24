@@ -22,28 +22,32 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn help(state: &mut state::State, args: astr::AstrVec){
-    pprintln_type!(&"Help: ", conz::MsgType::Normal);
-    let path = std::path::PathBuf::from("./help");
-    let path = path.as_path();
-    let metatdata = std::fs::metadata(path);
+    if args.len() == 0{
+        pprintln_type!(&"Help, type help [command] to find help.", conz::MsgType::Normal);
+        pprint_type!(&"For example: ", conz::MsgType::Normal);
+        pprint_type!(&"help (mk point)", conz::MsgType::Highlight);
+        pprintln_type!(&".", conz::MsgType::Normal);
+        return;
+    }
+    let mut path = std::path::PathBuf::from("./help");
+    let metatdata = std::fs::metadata(path.as_path());
     if metatdata.is_err(){
         pprintln_type!(&"Error: Help directory not found.", conz::MsgType::Error);
         return;
     }
-    let res = state.fset.contains(&args);
+    let res = state.fset.contains(&args[0]);
     if !res {
         pprintln_type!(&"Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
         return;
     }
-    let mut path = PathBuf::new();
-    path.push("help");
-    path.push(astr::unsplit(&args).to_string());
+    let com = astr::unsplit(&args, ' ' as u8).to_string();
+    path.push(com.clone());
     let res = std::fs::metadata(path.clone());
     if res.is_err(){
         pprintln_type!(&"Error: help file not found.", conz::MsgType::Error);
         return;
     }
-    let mut f = File::open(path.as_path());
+    let f = File::open(path.as_path());
     if f.is_err(){
         pprintln_type!(&"Error: could not open file.", conz::MsgType::Error);
         return;
@@ -55,6 +59,8 @@ pub fn help(state: &mut state::State, args: astr::AstrVec){
         pprintln_type!(&"Error: could not read file.", conz::MsgType::Error);
         return;
     }
+    pprint_type!(&"Command: ", conz::MsgType::Normal);
+    pprintln_type!(&com, conz::MsgType::Highlight);
     pprintln_type!(&string, conz::MsgType::Normal);
 }
 

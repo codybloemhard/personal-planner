@@ -229,12 +229,18 @@ impl DefaultValue for Astr{
     }
 }
 
-pub fn unsplit(vec: &AstrVec) -> Astr{
+pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
     let mut newstr = new();
+    let mut counter = 0;
+    let max = vec.len() - 1;
     for v in vec{
         for ch in v{
             newstr.push(*ch);
         }
+        if counter != max{
+            newstr.push(divider);
+        }
+        counter+=1;
     }
     return newstr;
 }

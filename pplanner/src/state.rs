@@ -5,7 +5,7 @@ use super::data;
 use super::astr;
 
 pub struct State{
-    pub fset: HashSet<astr::AstrVec>,
+    pub fset: HashSet<astr::Astr>,
     pub points: save::BufferFile<data::Point>,
 }
 
