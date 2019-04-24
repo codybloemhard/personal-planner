@@ -1,2 +1,4 @@
-mk point
-add new point
+Add a new point.
+A point is a point in time.
+For example a deadline.
+It has a title, type and a datetime.

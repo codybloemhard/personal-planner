@@ -1,0 +1,4 @@
+Lists the points in a table.
+They are sorted on datetime.
+It has a relative date, how much until the point.
+For example: in 3 days.
