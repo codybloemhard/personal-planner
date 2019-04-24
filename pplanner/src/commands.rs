@@ -89,24 +89,7 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
                     false =>{return;}
                 }
             }
-            support::MatchResult::Single =>{
-                pprintln_type!(&"Success: found a match:", conz::MsgType::Highlight);
-                points[vec[0]].print();
-                match conz::read_bool(&"Delete this item?: "){
-                    true =>{
-                        let ok = state.points.remove_indices(vec);
-                        if ok {
-                            pprintln_type!(&"Success: Item removed.", conz::MsgType::Highlight);
-                        }else{
-                            pprintln_type!(&"Error: Item removing failed.", conz::MsgType::Highlight);
-                        }
-                        return;
-                    }
-                    false =>{return;}
-                }
-            }
-            support::MatchResult::Multiple =>{
-                pprintln_type!(&"Warning: query is ambiguous.", conz::MsgType::Error);
+            support::MatchResult::Some =>{
                 pprint_type!(&"Found ", conz::MsgType::Normal);
                 pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
                 pprintln_type!(&" items.", conz::MsgType::Normal);
@@ -148,38 +131,7 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
                     false =>{return;}
                 }
             }
-            support::MatchResult::Single =>{
-                pprintln_type!(&"Success: found a match:", conz::MsgType::Highlight);
-                points[vec[0]].print();
-                match conz::read_bool(&"Edit this item?: "){
-                    true =>{
-                        let res = fields.execute();
-                        if res.is_none() {return;}
-                        let mut res = res.unwrap();
-                        let nptitle = astr::Astr::unwrap_default(res.get_text());
-                        let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
-                        let npdt = data::DT::unwrap_default(res.get_dt());
-                        let mut npoint = points[vec[0]].clone();
-                        npoint.title.replace_if_not_default(nptitle);
-                        npoint.ptype.replace_if_not_default(nptype);
-                        npoint.dt.replace_if_not_default(npdt);
-                        pprintln_type!(&"New item: ", conz::MsgType::Normal);
-                        npoint.print();
-                        let ok = conz::read_bool("Apply edit?: ");
-                        if !ok {return;}
-                        let ok = state.points.replace(vec, vec![npoint]);
-                        if ok{
-                            pprintln_type!(&"Success: Item edited.", conz::MsgType::Highlight);
-                        }else{
-                            pprintln_type!(&"Error: Item editing failed.", conz::MsgType::Highlight);
-                        }
-                        return;
-                    }
-                    false =>{return;}
-                }
-            }
-            support::MatchResult::Multiple =>{
-                pprintln_type!(&"Warning: query is ambiguous.", conz::MsgType::Error);
+            support::MatchResult::Some =>{
                 pprint_type!(&"Found ", conz::MsgType::Normal);
                 pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
                 pprintln_type!(&" items.", conz::MsgType::Normal);

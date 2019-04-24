@@ -19,8 +19,7 @@ pub fn get_point_fields(partial: bool) -> wizard::FieldVec{
 
 pub enum MatchResult{
     None,
-    Single,
-    Multiple,
+    Some,
 }
 
 pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
@@ -34,7 +33,6 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     let ptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
     let pdt = data::DT::unwrap_default(res.get_dt());
     let mut score = 0;
-    let mut more_than_one = false;
     let mut vec = Vec::new();
     for i in 0..points.len(){
         let current = &points[i];
@@ -50,23 +48,18 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
         }
         if curr_score > score{
             score = curr_score;
-            more_than_one = false;
             vec.clear();
             vec.push(i);
         }
         else if curr_score == score{
-            more_than_one = true;
             vec.push(i);
         }
     }
     if score == 0{
         return (MatchResult::None, vec);
     }
-    if score > 0 && !more_than_one{
-        return (MatchResult::Single, vec);
-    }
-    if more_than_one{
-        return (MatchResult::Multiple, vec);
+    if score > 0{
+        return (MatchResult::Some, vec);
     }
     //should not be reachable
     return (MatchResult::None, vec);
