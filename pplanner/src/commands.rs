@@ -40,8 +40,7 @@ pub fn help(state: &mut state::State, args: astr::AstrVec){
         pprintln_type!(&"Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
         return;
     }
-    let com = astr::unsplit(&args, ' ' as u8).to_string();
-    path.push(com.clone());
+    path.push(astr::unsplit(&args[0].split_str(&astr::astr_whitespace()), '_' as u8).to_string());
     let res = std::fs::metadata(path.clone());
     if res.is_err(){
         pprintln_type!(&"Error: help file not found.", conz::MsgType::Error);
@@ -60,7 +59,7 @@ pub fn help(state: &mut state::State, args: astr::AstrVec){
         return;
     }
     pprint_type!(&"Command: ", conz::MsgType::Normal);
-    pprintln_type!(&com, conz::MsgType::Highlight);
+    pprintln_type!(&astr::unsplit(&args, ' ' as u8).to_string(), conz::MsgType::Highlight);
     pprintln_type!(&string, conz::MsgType::Normal);
 }
 
