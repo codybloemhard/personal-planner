@@ -1,8 +1,6 @@
 short:
 FIX: freeze(printer mutex deadlock?)
 edit point: replace some fields of many items by that of one
-help
-rm: archive, perm. delete on archive
 clean
 inspect point
 slice type

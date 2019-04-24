@@ -294,6 +294,10 @@ pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
 }
 
+pub fn clean(state: &mut state::State, _: astr::AstrVec){
+    
+}
+
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
     if state.is_clean() {
         pprintln_type!(&"All files clean, nothing to do.", conz::MsgType::Highlight);

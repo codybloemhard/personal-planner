@@ -7,6 +7,7 @@ use super::misc;
 
 pub const DATA_DIR: &'static str = ".config/pplanner";
 pub const POINT_DIR: &'static str = "points";
+pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let hd = dirs::home_dir();
@@ -15,6 +16,28 @@ pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     hd.push(DATA_DIR);
     hd.push(relative);
     return Option::Some(hd);
+}
+
+fn setup_file(p: &str){
+    let pointpath = get_data_dir_path(p).unwrap();
+    let pointpath = pointpath.as_path();
+    let metatdata = std::fs::metadata(pointpath);
+    if metatdata.is_err() {
+        let ok = buffer_write_file(pointpath, &Vec::new());
+        let pathstr = pointpath.to_str();
+        if pathstr.is_none() {
+            pprint_type!(&"Error: could not get string from path.", conz::MsgType::Error);
+            return;
+        }
+        let pathstr = pathstr.unwrap();
+        if ok{
+            pprint_type!(&"First time use: created path: ", conz::MsgType::Highlight);
+            pprintln_type!(&pathstr, conz::MsgType::Value);
+        }
+        else{
+            pprintln_error!(&"", &"Error: Could not create file: ", &pathstr);
+        }
+    }
 }
 
 pub fn setup_config_dir() -> bool{
@@ -42,28 +65,7 @@ pub fn setup_config_dir() -> bool{
             pprintln_type!(&pathstr, conz::MsgType::Value);
         }
     }
-    let dummy: Vec<u8> = Vec::new();
-    {
-        let pointpath = get_data_dir_path(POINT_DIR).unwrap();
-        let pointpath = pointpath.as_path();
-        let metatdata = std::fs::metadata(pointpath);
-        if metatdata.is_err() {
-            let ok = buffer_write_file(pointpath, &dummy);
-            let pathstr = pointpath.to_str();
-            if pathstr.is_none() {
-                pprint_type!(&"Error: could not get string from path.", conz::MsgType::Error);
-                return false;
-            }
-            let pathstr = pathstr.unwrap();
-            if ok{
-                pprint_type!(&"First time use: created path: ", conz::MsgType::Highlight);
-                pprintln_type!(&pathstr, conz::MsgType::Value);
-            }
-            else{
-                pprintln_error!(&"", &"Error: Could not create file: ", &pathstr);
-            }
-        }
-    }
+    setup_file(POINT_DIR);
     return true;
 }
 
@@ -163,7 +165,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             pprintln_type!(&"Error: Nothing to write, content was never initialized.", conz::MsgType::Error);
             return false;
         }
-        if !self.sorted {self.sort();}
+        if !self.sorted {self.sort(false);}
         self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
@@ -211,7 +213,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             let sorted = misc::is_sorted(&self.content);
             if !sorted {
                 pprintln_type!(&"Warning: data was not stored sorted!", conz::MsgType::Error);
-                self.sort();
+                self.sort(false);
                 self.dirty = true;
             }
         }
@@ -233,11 +235,11 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
 
     pub fn get_items(&mut self) -> &Vec<T>{
         if !self.loaded {self.read(false);}
-        if !self.sorted {self.sort();}
+        self.sort(true);
         return &self.content;
     }
 
-    pub fn sort(&mut self){
+    pub fn sort(&mut self, check: bool){
         /*
         Rust docs:
         The current algorithm is an adaptive, iterative merge sort inspired by timsort.
@@ -246,6 +248,12 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         Items get added incrementally, written sorted, when first read there sorted.
         Should be ok-ish for our usecase.
         */
+        if check{
+            if misc::is_sorted(&self.content){
+                self.sorted = true;
+                return;
+            }
+        }
         self.content.sort();
         self.sorted = true;
     }
@@ -292,9 +300,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                 index += 1;
             }
         }
-        if !misc::is_sorted(&self.content){
-            self.content.sort();
-        }
+        self.sort(true);
         self.dirty = true;
         return self.write();
     }
