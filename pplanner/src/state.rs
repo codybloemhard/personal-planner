@@ -7,16 +7,21 @@ use super::astr;
 pub struct State{
     pub fset: HashSet<astr::Astr>,
     pub points: save::BufferFile<data::Point>,
+    pub points_archive: save::BufferFile<data::Point>,
 }
 
 impl State{
     pub fn new() -> Option<Self>{
-        let path = save::get_data_dir_path(save::POINT_DIR);
-        if path.is_none() {return Option::None;}
-        let path = path.unwrap();
+        let points_path = save::get_data_dir_path(save::POINT_DIR);
+        if points_path.is_none() {return Option::None;}
+        let points_path = points_path.unwrap();
+        let points_archive_path = save::get_data_dir_path(save::POINT_ARCHIVE_DIR);
+        if points_archive_path.is_none() {return Option::None;}
+        let points_archive_path = points_archive_path.unwrap();
         Option::Some(State{
             fset: HashSet::new(),
-            points: save::BufferFile::new(path),
+            points: save::BufferFile::new(points_path),
+            points_archive: save::BufferFile::new(points_archive_path),
         })
     }
 

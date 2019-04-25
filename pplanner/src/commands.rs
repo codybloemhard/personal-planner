@@ -13,6 +13,7 @@ use super::astr::ToAstr;
 use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
+use super::save;
 
 pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
@@ -76,11 +77,28 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
+pub fn rm_point(state: &mut state::State, args: astr::AstrVec){
+    fn do_archiving(archive: bool, state: &mut state::State, vec: &Vec<usize>, points: &Vec<data::Point>) -> bool{
+        if !archive{
+            for i in vec{
+                state.points_archive.add_item(points[*i].clone());
+            }
+            let stillok = state.points_archive.write();
+            if !stillok{return false;}
+        }
+        return true;
+    }
     pprintln_type!(&"Remove point(search first): ", conz::MsgType::Normal);
+    let mut archive = false;
+    if args.len() >= 1{
+        if args[0]  == astr::from_str("archive"){
+            archive = true;
+        }
+    }
+    let points = if archive {state.points_archive.get_items()}
+    else {state.points.get_items()};
+    let (match_res, vec) = support::get_matches(points);
     loop{
-        let points = state.points.get_items();
-        let (match_res, vec) = support::get_matches(points);
         match match_res{
             support::MatchResult::None =>{
                 pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
@@ -98,7 +116,9 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
                 }
                 match conz::read_bool(&"Delete all?: "){
                     true =>{
-                        let ok = state.points.remove_indices(vec);
+                        do_archiving(archive, state, &vec, points);
+                        state.points_archive.remove_indices(vec);
+                        let ok = true;
                         if ok {
                             pprintln_type!(&"Success: Items removed.", conz::MsgType::Highlight);
                         }else{

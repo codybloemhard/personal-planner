@@ -304,4 +304,8 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         self.dirty = true;
         return self.write();
     }
+
+    pub fn get_mut(&mut self) -> &mut Self{
+        return self;
+    }
 }
