@@ -66,6 +66,7 @@ pub fn setup_config_dir() -> bool{
         }
     }
     setup_file(POINT_DIR);
+    setup_file(POINT_ARCHIVE_DIR);
     return true;
 }
 
@@ -117,6 +118,14 @@ pub fn buffer_append_buffer(vec: &mut Buffer, string: &Buffer){
 
 pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
+    if file.is_err() { return false; }
+    let mut opened = file.unwrap();
+    if opened.write_all(&vec).is_err() {return false;}
+    return true;
+}
+
+pub fn buffer_write_file_append(path: &std::path::Path, vec: &Buffer) -> bool{
+    let file = OpenOptions::new().write(true).create(true).append(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
     if opened.write_all(&vec).is_err() {return false;}
@@ -307,5 +316,54 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
 
     pub fn get_mut(&mut self) -> &mut Self{
         return self;
+    }
+}
+
+pub struct ArchiveFile<T: Bufferable>{
+    path: std::path::PathBuf,
+    content: Vec<T>,
+    dirty: bool,
+}
+
+impl<T: Bufferable> ArchiveFile<T>{
+    pub fn new(path: std::path::PathBuf) -> ArchiveFile<T>{
+        ArchiveFile{
+            path: path,
+            content: Vec::new(),
+            dirty: false,
+        }
+    }
+
+    fn content_to_buffer(vec: &Vec<T>) -> Buffer{
+        let mut buf = Vec::new();
+        for x in vec{
+            x.into_buffer(&mut buf);
+        }
+        return buf;
+    }
+
+    pub fn write(&mut self) -> bool{
+        if !self.dirty{return true;}
+        self.dirty = !buffer_write_file_append(self.path.as_path(), &ArchiveFile::content_to_buffer(&self.content));
+        if !self.dirty {
+            self.content.clear();
+            return true;
+        }
+        let pathstr = self.path.to_str();
+        if pathstr.is_none(){
+            pprintln_type!(&"Error: Cannot get string from path.", conz::MsgType::Error);
+        }else{
+            pprintln_error!(&"", &"Error: Cannot write items to file: ", &pathstr.unwrap());
+        }
+        return false;
+    }
+
+    pub fn add_item(&mut self, item: T){
+        self.content.push(item);
+        self.dirty = true;
+    }
+
+    pub fn is_clean(&self) -> bool{
+        return !self.dirty;
     }
 }

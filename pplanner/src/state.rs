@@ -7,30 +7,29 @@ use super::astr;
 pub struct State{
     pub fset: HashSet<astr::Astr>,
     pub points: save::BufferFile<data::Point>,
-    pub points_archive: save::BufferFile<data::Point>,
+    pub points_archive: save::ArchiveFile<data::Point>,
 }
 
 impl State{
     pub fn new() -> Option<Self>{
-        let points_path = save::get_data_dir_path(save::POINT_DIR);
-        if points_path.is_none() {return Option::None;}
-        let points_path = points_path.unwrap();
-        let points_archive_path = save::get_data_dir_path(save::POINT_ARCHIVE_DIR);
-        if points_archive_path.is_none() {return Option::None;}
-        let points_archive_path = points_archive_path.unwrap();
+        let msg = "State::new(), file should be here";
+        //main.rs should not continue if save::setup_config_dir fails
+        //save::setup_config_dir fails should return false if not all files are there
+        let points_path = save::get_data_dir_path(save::POINT_DIR).expect(msg);
+        let points_archive_path = save::get_data_dir_path(save::POINT_ARCHIVE_DIR).expect(msg);
         Option::Some(State{
             fset: HashSet::new(),
             points: save::BufferFile::new(points_path),
-            points_archive: save::BufferFile::new(points_archive_path),
+            points_archive: save::ArchiveFile::new(points_archive_path),
         })
     }
 
     pub fn is_clean(&self) -> bool{
-        return self.points.is_clean();
+        self.points.is_clean()
+        && self.points_archive.is_clean()
     }
 
     pub fn flush_files(&mut self) -> bool{
-        let res_points = self.points.write();
-        return res_points;
+        self.points.write()
     }
 }
