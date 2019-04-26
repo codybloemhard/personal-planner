@@ -94,6 +94,7 @@ impl Parser {
         Parser::add("help", commands::help, &mut ftree, &mut fset);
         Parser::add("mk point", commands::mk_point, &mut ftree, &mut fset);
         Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);
+        Parser::add("ls points archive", commands::ls_points_archive, &mut ftree, &mut fset);
         Parser::add("inspect point", commands::inspect_point, &mut ftree, &mut fset);
         Parser::add("rm point", commands::rm_point, &mut ftree, &mut fset);
         Parser::add("clean points", commands::clean_points, &mut ftree, &mut fset);

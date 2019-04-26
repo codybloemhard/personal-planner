@@ -251,6 +251,13 @@ pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
 }
 
+pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec){
+    let res = state.points_archive.read();
+    for point in res{
+        point.print();
+    }
+}
+
 pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Inspect point(search first): ", conz::MsgType::Normal);
     loop{

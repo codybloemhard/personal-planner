@@ -358,6 +358,35 @@ impl<T: Bufferable> ArchiveFile<T>{
         return false;
     }
 
+    fn buffer_to_content(&mut self, vec: &Buffer) -> Vec<T>{
+        let mut iter: u32 = 0;
+        let mut ret = Vec::new();
+        loop{
+            let res = T::from_buffer(vec, &mut iter);
+            if res.is_none() {break;}
+            ret.push(res.unwrap());
+        }
+        return ret;
+    }
+
+    pub fn read(&mut self) -> Vec<T>{
+        let res = buffer_read_file(self.path.as_path());
+        match res{
+            Option::None => {
+                let pathstr = self.path.to_str();
+                if pathstr.is_none(){
+                    pprintln_type!(&"Error: Cannot get string from path.", conz::MsgType::Error);
+                }else{
+                    pprintln_error!(&"", &"Error: Cannot read file: ", &pathstr.unwrap());
+                }
+                return Vec::new();
+            }
+            Option::Some(x) => {
+                return self.buffer_to_content(&x);
+            }
+        }
+    }
+
     pub fn add_item(&mut self, item: T){
         self.content.push(item);
         self.dirty = true;
