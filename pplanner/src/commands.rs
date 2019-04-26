@@ -16,7 +16,7 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
     pprint_type!(&dt.str_datetime(), conz::MsgType::Value);
     pprint!(&" ");
-    pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
+    pprint_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
 pub fn help(state: &mut state::State, args: astr::AstrVec){
@@ -103,7 +103,7 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
                         }
                     }
                 }
-                support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, points);
+                support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, &points);
                 return;
             }
         }
@@ -125,7 +125,7 @@ pub fn clean_points(state: &mut state::State, _: astr::AstrVec){
         }
         vec.push(i);
     }
-    support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, points);
+    support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, &points);
 }
 
 pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
@@ -225,13 +225,7 @@ pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
     let now = data::DT::new();
     for x in state.points.get_items(){
         let diff = now.diff(&x.dt);
-        let timecol = if diff.neg{
-            conz::MsgType::Error
-        }else if diff.total_hours <= 48 {
-            conz::MsgType::Highlight
-        }else{
-            conz::MsgType::Normal
-        };
+        let timecol = support::diff_color(&diff);
         divider_ver_edge();
         pprint_type!(
             &x.title.pad_after(len_title),
@@ -255,6 +249,30 @@ pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
         pprintln!(&"");
     }
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
+}
+
+pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
+    pprintln_type!(&"Inspect point(search first): ", conz::MsgType::Normal);
+    loop{
+        let points = state.points.get_items();
+        let (match_res, vec) = support::get_matches(&points);
+        if match_res == support::MatchResult::None || vec.len() > 1{
+            if vec.len() > 1{
+                pprintln_type!(&"Fail: more than one result.", conz::MsgType::Error);
+            }else{
+                pprintln_type!(&"Fail: no results found.", conz::MsgType::Error);
+            }
+            match conz::read_bool(&"Try again?: "){
+                true =>{continue;}
+                false =>{return;}
+            }
+        }
+        points[vec[0]].print();
+        let now = data::DT::new();
+        let diff = now.diff(&points[vec[0]].dt);
+        diff.print();
+        return;
+    }
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

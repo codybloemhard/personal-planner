@@ -20,6 +20,7 @@ pub fn get_point_fields(partial: bool) -> wizard::FieldVec{
     return fields;
 }
 
+#[derive(PartialEq)]
 pub enum MatchResult{
     None,
     Some,
@@ -69,7 +70,7 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
 }
 
 pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save::ArchiveFile<data::Point>, 
-    vec: Vec<usize>, points: Vec<data::Point>){
+    vec: Vec<usize>, points: &Vec<data::Point>){
     let ok = bf.remove_indices(vec.clone());
     if ok {
         pprintln_type!(&"Success: Items removed.", conz::MsgType::Highlight);
@@ -82,5 +83,15 @@ pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save:
     }
     if !af.write(){
         pprintln_type!(&"Error: Could not write items to archive.", conz::MsgType::Error);
+    }
+}
+
+pub fn diff_color(diff: &data::Span) -> conz::MsgType{
+    if diff.neg{
+        conz::MsgType::Error
+    }else if diff.total_hours <= 48 {
+        conz::MsgType::Highlight
+    }else{
+        conz::MsgType::Normal
     }
 }

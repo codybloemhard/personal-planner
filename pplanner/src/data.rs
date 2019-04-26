@@ -49,6 +49,33 @@ impl Span {
     }
 }
 
+impl conz::Printable for Span{
+    fn print(&self){
+        pprint_type!(&"In the past: ", conz::MsgType::Normal);
+        if self.neg{
+            pprintln_type!(&"Yes", conz::MsgType::Highlight);
+        }else{
+            pprintln_type!(&"No", conz::MsgType::Highlight);
+        }
+        pprint_type!(&"Significant: ", conz::MsgType::Normal);
+        pprintln_type!(&self.string_significant(), conz::MsgType::Highlight);
+        pprint_type!(&"In Seconds: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_secs), conz::MsgType::Highlight);
+        pprint_type!(&"In Minutes: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_mins), conz::MsgType::Highlight);
+        pprint_type!(&"In Hours: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_hours), conz::MsgType::Highlight);
+        pprint_type!(&"In Days: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_hours / 24), conz::MsgType::Highlight);
+        pprint_type!(&"In Weeks: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_hours / 168), conz::MsgType::Highlight);
+        pprint_type!(&"In Months: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_hours / 720), conz::MsgType::Highlight);
+        pprint_type!(&"In Years: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.total_hours / 8760), conz::MsgType::Highlight);
+    }
+}
+
 #[derive(Eq)]
 pub struct DT {
     pub dt: chrono::DateTime<Local>,
@@ -343,6 +370,8 @@ impl conz::Printable for Point{
         pprint_type!(&"Type: ", conz::MsgType::Normal);
         pprintln_type!(&self.ptype.to_astr(), conz::MsgType::Highlight);
         pprint_type!(&"time date: ", conz::MsgType::Normal);
-        pprintln_type!(&self.dt.str_datetime(), conz::MsgType::Value);
+        pprint_type!(&self.dt.str_datetime(), conz::MsgType::Value);
+        pprint!(&" ");
+        pprintln_type!(&self.dt.str_dayname(), conz::MsgType::Value);
     }
 }
