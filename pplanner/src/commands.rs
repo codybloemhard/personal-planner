@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 
@@ -13,7 +11,6 @@ use super::astr::ToAstr;
 use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
-use super::save;
 
 pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
@@ -106,23 +103,29 @@ pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
                         }
                     }
                 }
-                let ok = state.points.remove_indices(vec.clone());
-                if ok {
-                    pprintln_type!(&"Success: Items removed.", conz::MsgType::Highlight);
-                }else{
-                    pprintln_type!(&"Error: Items removing failed.", conz::MsgType::Highlight);
-                    return;
-                }
-                for i in &vec{
-                    state.points_archive.add_item(points[*i].clone());
-                }
-                if !state.points_archive.write(){
-                    pprintln_type!(&"Error: Could not write items to archive.", conz::MsgType::Error);
-                }
+                support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, points);
                 return;
             }
         }
     }
+}
+
+pub fn clean_points(state: &mut state::State, _: astr::AstrVec){
+    pprintln_type!(&"Remove all points that are in the past: ", conz::MsgType::Normal);
+    match conz::read_bool(&"Sure to remove them?: "){
+        true =>{}
+        false =>{return;}
+    }
+    let points = state.points.get_items().clone();
+    let mut vec = Vec::new();
+    let now = data::DT::new();
+    for i in 0..points.len(){
+        if !now.diff(&points[i].dt).neg{
+            break;
+        }
+        vec.push(i);
+    }
+    support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, points);
 }
 
 pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
@@ -252,10 +255,6 @@ pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
         pprintln!(&"");
     }
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
-}
-
-pub fn clean(state: &mut state::State, _: astr::AstrVec){
-    
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

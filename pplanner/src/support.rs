@@ -2,6 +2,9 @@ use super::wizard;
 use super::astr;
 use super::data;
 use super::misc::{UnwrapDefault};
+use super::save;
+use super::conz;
+use super::conz::{PrinterFunctions};
 
 pub fn get_point_fields(partial: bool) -> wizard::FieldVec{
     let mut fields = wizard::FieldVec::new();
@@ -63,4 +66,21 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     }
     //should not be reachable
     return (MatchResult::None, vec);
+}
+
+pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save::ArchiveFile<data::Point>, 
+    vec: Vec<usize>, points: Vec<data::Point>){
+    let ok = bf.remove_indices(vec.clone());
+    if ok {
+        pprintln_type!(&"Success: Items removed.", conz::MsgType::Highlight);
+    }else{
+        pprintln_type!(&"Error: Items removing failed.", conz::MsgType::Highlight);
+        return;
+    }
+    for i in &vec{
+        af.add_item(points[*i].clone());
+    }
+    if !af.write(){
+        pprintln_type!(&"Error: Could not write items to archive.", conz::MsgType::Error);
+    }
 }

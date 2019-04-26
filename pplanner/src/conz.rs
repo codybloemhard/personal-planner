@@ -4,7 +4,6 @@ use std::collections::HashMap;
 
 use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
 use std::sync::Mutex;
-use std::io::Read;
 
 use super::astr;
 

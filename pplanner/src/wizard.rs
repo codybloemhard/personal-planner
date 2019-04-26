@@ -6,7 +6,7 @@ use super::conz;
 use super::conz::PrinterFunctions;
 use super::astr::*;
 
-use std::time::{SystemTime, UNIX_EPOCH};
+//use std::time::{SystemTime, UNIX_EPOCH};
 
 pub enum InputType{
     Text,
