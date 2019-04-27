@@ -1,7 +1,5 @@
 short:
 FIX: freeze(printer mutex deadlock?)
-FIX: functree, add funcs that share nodes in existing path
-ls points archive
 todo type
 mk todo
 ls todo

@@ -7,7 +7,6 @@ use super::conz::Printable;
 use super::data;
 use super::astr;
 use super::astr::AStr;
-use super::astr::ToAstr;
 use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
@@ -192,70 +191,12 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
-    let count = state.points.get_items().len();
-    let len_title = 32; let len_relative = 14; let len_dt = 23; let len_type = 11;
-    pprint_type!(&"Found ", conz::MsgType::Normal);
-    pprint_type!(&format!("{}", count), conz::MsgType::Value);
-    pprintln_type!(&" points.", conz::MsgType::Normal);
-    let divider_ver = || {pprint_type!(&" | ", conz::MsgType::Highlight);};
-    let divider_ver_edge = || {pprint_type!(&"|", conz::MsgType::Highlight);};
-    let divider_hor = |a| {astr::from_str("|")
-        .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + len_type + (3*3)))
-        .concat(astr::from_str("|"))};
-    pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
-    divider_ver_edge();
-    pprint_type!(
-        &astr::from_str("title:").pad_after(len_title), 
-        conz::MsgType::Normal);
-    divider_ver();
-    pprint_type!(
-        &astr::from_str("relative:").pad_after(len_relative), 
-        conz::MsgType::Normal);
-    divider_ver();
-    pprint_type!(
-        &astr::from_str("time date:").pad_after(len_dt),
-        conz::MsgType::Normal);
-        divider_ver();
-    pprint_type!(
-        &astr::from_str("type:").pad_after(len_type),
-        conz::MsgType::Normal);
-    divider_ver_edge();
-    pprintln!(&"");
-    pprintln_type!(&divider_hor("-"), conz::MsgType::Highlight);
-    let now = data::DT::new();
-    for x in state.points.get_items(){
-        let diff = now.diff(&x.dt);
-        let timecol = support::diff_color(&diff);
-        divider_ver_edge();
-        pprint_type!(
-            &x.title.pad_after(len_title),
-            conz::MsgType::Normal);
-        divider_ver();
-        pprint_type!(
-            &diff.string_significant()
-                .to_astr()
-                .pad_after(len_relative),
-            timecol);
-        divider_ver();
-        pprint_type!(
-            &x.dt.str_datetime().concat(astr::from_str(" "))
-                .concat(x.dt.str_dayname_short()).pad_after(len_dt),
-            conz::MsgType::Value);
-        divider_ver();
-        pprint_type!(
-            &x.ptype.to_astr().pad_after(len_type),
-            conz::MsgType::Normal);
-        divider_ver_edge();
-        pprintln!(&"");
-    }
-    pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
+    support::print_points(state.points.get_items());
 }
 
 pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec){
     let res = state.points_archive.read();
-    for point in res{
-        point.print();
-    }
+    support::print_points(&res);
 }
 
 pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
