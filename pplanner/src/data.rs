@@ -255,9 +255,9 @@ impl PartialEq for PointType {
 }
 
 impl PointType{
-    pub fn from_astr(string: &astr::Astr) -> PointType{
+    pub fn from_astr(string: &astr::Astr, partial: bool) -> PointType{
         let string = string.to_lower();
-        if string.len() == 0{
+        if string.len() == 0 && partial{
             return PointType::DefaultValue;
         }
         if string.len() < 3{
@@ -300,7 +300,7 @@ impl Point{
         Point{
             dt: dt,
             title: title,
-            ptype: PointType::from_astr(&ptype),
+            ptype: PointType::from_astr(&ptype, false),
         }
     }
 }

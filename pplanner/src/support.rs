@@ -34,7 +34,7 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     }
     let mut res = res.unwrap();
     let ptitle = astr::Astr::unwrap_default(res.get_text());
-    let ptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
+    let ptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()), true);
     let pdt = data::DT::unwrap_default(res.get_dt());
     let mut score = 0;
     let mut vec = Vec::new();

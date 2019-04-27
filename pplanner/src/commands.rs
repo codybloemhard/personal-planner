@@ -160,7 +160,7 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
                             if res.is_none() {return;}
                             let mut res = res.unwrap();
                             let nptitle = astr::Astr::unwrap_default(res.get_text());
-                            let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()));
+                            let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()), true);
                             let npdt = data::DT::unwrap_default(res.get_dt());
                             npoint.title.replace_if_not_default(nptitle);
                             npoint.ptype.replace_if_not_default(nptype);
