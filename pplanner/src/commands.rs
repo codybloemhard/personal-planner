@@ -6,7 +6,7 @@ use super::conz::PrinterFunctions;
 use super::conz::Printable;
 use super::data;
 use super::astr;
-use super::astr::AStr;
+use super::astr::{AStr,TOSTRING};
 use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
@@ -20,9 +20,14 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
 
 pub fn help(state: &mut state::State, args: astr::AstrVec){
     if args.len() == 0{
-        pprintln_type!(&"Help, type help [command] to find help.", conz::MsgType::Normal);
+        pprint_type!(&"Help, type ", conz::MsgType::Normal);
+        pprint_type!(&"help(command) ", conz::MsgType::Highlight);
+        pprintln_type!(&"to find help.", conz::MsgType::Normal);
         pprint_type!(&"For example: ", conz::MsgType::Normal);
         pprint_type!(&"help (mk point)", conz::MsgType::Highlight);
+        pprintln_type!(&".", conz::MsgType::Normal);
+        pprint_type!(&"To list all commands use ", conz::MsgType::Normal);
+        pprint_type!(&"ls commands", conz::MsgType::Highlight);
         pprintln_type!(&".", conz::MsgType::Normal);
         return;
     }
@@ -58,6 +63,13 @@ pub fn help(state: &mut state::State, args: astr::AstrVec){
     pprint_type!(&"Command: ", conz::MsgType::Normal);
     pprintln_type!(&astr::unsplit(&args, ' ' as u8).to_string(), conz::MsgType::Highlight);
     pprintln_type!(&string, conz::MsgType::Normal);
+}
+
+pub fn ls_commands(state: &mut state::State, _: astr::AstrVec){
+    pprintln_type!(&"All commands: ", conz::MsgType::Normal);
+    for f in &state.fset{
+        pprintln_type!(f, conz::MsgType::Normal);
+    }
 }
 
 pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
