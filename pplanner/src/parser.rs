@@ -57,7 +57,7 @@ impl FuncTree{
                             panic!("FuncTree: double element");
                         }
                     }else{
-                        _push(x, key, index, f);
+                        _push(x, key, index + 1, f);
                     }
                 }
             }
