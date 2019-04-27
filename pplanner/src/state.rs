@@ -8,6 +8,8 @@ pub struct State{
     pub fset: HashSet<astr::Astr>,
     pub points: save::BufferFile<data::Point>,
     pub points_archive: save::ArchiveFile<data::Point>,
+    pub todos: save::BufferFile<data::Todo>,
+    pub todos_archive: save::ArchiveFile<data::Todo>,
 }
 
 impl State{
@@ -17,10 +19,14 @@ impl State{
         //save::setup_config_dir fails should return false if not all files are there
         let points_path = save::get_data_dir_path(save::POINT_DIR).expect(msg);
         let points_archive_path = save::get_data_dir_path(save::POINT_ARCHIVE_DIR).expect(msg);
+        let todo_path = save::get_data_dir_path(save::TODO_DIR).expect(msg);
+        let todo_archive_path = save::get_data_dir_path(save::TODO_ARCHIVE_DIR).expect(msg);
         Option::Some(State{
             fset: HashSet::new(),
             points: save::BufferFile::new(points_path),
             points_archive: save::ArchiveFile::new(points_archive_path),
+            todos: save::BufferFile::new(todo_path),
+            todos_archive: save::ArchiveFile::new(todo_archive_path),
         })
     }
 

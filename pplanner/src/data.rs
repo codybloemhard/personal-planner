@@ -1,4 +1,8 @@
 use chrono::prelude::*;
+use num_derive::ToPrimitive;
+use num_traits::ToPrimitive;
+use num_derive::FromPrimitive;    
+use num_traits::FromPrimitive;
 
 use super::conz;
 use super::conz::PrinterFunctions;
@@ -236,10 +240,6 @@ pub fn parse_dmy_or_hms(string: &astr::Astr) -> Option<DMY>{
     return Option::Some((triplet[0],triplet[1],triplet[2]));
 }
 
-use num_derive::ToPrimitive;
-use num_traits::ToPrimitive;
-use num_derive::FromPrimitive;    
-use num_traits::FromPrimitive;
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
 pub enum PointType{
     None = 0,
@@ -373,5 +373,95 @@ impl conz::Printable for Point{
         pprint_type!(&self.dt.str_datetime(), conz::MsgType::Value);
         pprint!(&" ");
         pprintln_type!(&self.dt.str_dayname(), conz::MsgType::Value);
+    }
+}
+
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+pub enum TodoType{
+    Todo,
+    Longterm,
+    Idea,
+}
+
+impl PartialEq for TodoType {
+    fn eq(&self, other: &TodoType) -> bool {
+        ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
+    }
+}
+
+#[derive(Eq)]
+pub struct Todo{
+    title: astr::Astr,
+    ttype: TodoType,
+    urgency: u16,
+}
+
+impl Todo{
+    pub fn new(title: astr::Astr, ttype: TodoType, urgency: u16) -> Todo{
+        Todo{
+            title: title,
+            ttype: ttype,
+            urgency: urgency,
+        }
+    }
+}
+
+impl save::Bufferable for Todo{
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        self.title.into_buffer(vec);
+        self.urgency.into_buffer(vec);
+        let primtype = ToPrimitive::to_u8(&self.ttype);
+        if primtype.is_none() {
+            pprintln_type!(&"Error: Could not convert TodoType to u8.", conz::MsgType::Error);
+            (0 as u8).into_buffer(vec);
+        }else{
+            primtype.unwrap().into_buffer(vec);
+        }
+    }
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+        let res_title = astr::Astr::from_buffer(vec, iter);
+        if res_title.is_none() {return Option::None;}
+        let res_urg = u16::from_buffer(vec, iter);
+        if res_urg.is_none() {return Option::None;}
+        let res_ttype = u8::from_buffer(vec, iter);
+        if res_ttype.is_none() {return Option::None;}
+        let res_ttype = FromPrimitive::from_u8(res_ttype.unwrap());
+        if res_ttype.is_none() {return Option::None;}
+        return Option::Some(Todo{
+            title: res_title.unwrap(),
+            urgency: res_urg.unwrap(),
+            ttype: res_ttype.unwrap(),
+        }); 
+    }
+}
+
+impl std::cmp::Ord for Todo {
+    fn cmp(&self, other: &Todo) -> std::cmp::Ordering {
+        self.urgency.cmp(&other.urgency)
+    }
+}
+
+impl std::cmp::PartialOrd for Todo {
+    fn partial_cmp(&self, other: &Todo) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::cmp::PartialEq for Todo {
+    fn eq(&self, other: &Todo) -> bool {
+        self.title == other.title &&
+        self.ttype == other.ttype &&
+        self.urgency == other.urgency
+    }
+}
+
+impl std::clone::Clone for Todo{
+    fn clone(&self) -> Self{
+        Todo{
+            title: self.title.clone(),
+            ttype: self.ttype.clone(),
+            urgency: self.urgency.clone(),
+        }
     }
 }

@@ -277,6 +277,14 @@ pub fn to_u32_unchecked(string: &Astr) -> u32{
     return u;
 }
 
+pub fn to_u16_unchecked(string: &Astr) -> u16{
+    let mut u: u16 = 0;
+    for ch in string{
+        u = u * 10 + ((ch - 48) as u16);
+    }
+    return u;
+}
+
 pub fn astr_whitespace() -> Astr{
     return from_str(" \n\t");
 }

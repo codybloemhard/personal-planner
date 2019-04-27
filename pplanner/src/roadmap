@@ -1,7 +1,5 @@
 short:
 FIX: freeze(printer mutex deadlock?)
-ls commands
-help files
 todo type
 mk todo
 ls todo

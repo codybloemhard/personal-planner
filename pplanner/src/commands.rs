@@ -235,6 +235,19 @@ pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
     }
 }
 
+pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
+    pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
+    let fields = support::get_todo_fields(false);
+    let res = fields.execute();
+    if res.is_none() {return;}
+    let mut res = res.unwrap();
+    let todo = res.extract_todo();
+    if todo.is_none() {return;}
+    //state.points.add_item(point.unwrap());
+    //if !state.points.write() {return;}
+    //pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
+}
+
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
     if state.is_clean() {
         pprintln_type!(&"All files clean, nothing to do.", conz::MsgType::Highlight);

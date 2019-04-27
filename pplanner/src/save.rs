@@ -8,6 +8,8 @@ use super::misc;
 pub const DATA_DIR: &'static str = ".config/pplanner";
 pub const POINT_DIR: &'static str = "points";
 pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
+pub const TODO_DIR: &'static str = "todo";
+pub const TODO_ARCHIVE_DIR: &'static str = "todo_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let hd = dirs::home_dir();
@@ -93,6 +95,22 @@ impl Bufferable for u32{
         val += (vec[(*iter + 2) as usize] as u32) << 8;
         val += vec[(*iter + 3) as usize] as u32;
         *iter += 4;
+        return Option::Some(val);
+    }
+}
+
+impl Bufferable for u16{
+    fn into_buffer(&self, vec: &mut Buffer){
+        vec.push(((*self >> 8) & 0xff) as u8);
+        vec.push((*self & 0xff) as u8);
+    }
+
+    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 2 {return Option::None;}
+        let mut val: u16 = 0;
+        val += (vec[(*iter + 0) as usize] as u16) << 8;
+        val += vec[(*iter + 1) as usize] as u16;
+        *iter += 2;
         return Option::Some(val);
     }
 }

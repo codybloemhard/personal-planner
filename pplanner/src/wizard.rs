@@ -11,7 +11,7 @@ use super::astr::*;
 pub enum InputType{
     Text,
     DateTime,
-    Bool,
+    U16,
 }
 
 pub enum PromptType{
@@ -48,13 +48,13 @@ impl FieldVec{
     pub fn execute(&self) -> Option<WizardRes>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
-        let mut bools: VecDeque<bool> = VecDeque::new();
+        let mut u16s: VecDeque<u16> = VecDeque::new();
         for instr in &self.vec{
             loop {           
                 let is_ok = match instr.field_type{
                     InputType::Text => Self::handle_text(&mut texts, &instr),
                     InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
-                    InputType::Bool => Self::handle_bool(&mut bools, &instr),
+                    InputType::U16 => Self::handle_u16(&mut u16s, &instr),
                 };
                 if is_ok {break;}
                 match instr.prompt_type{
@@ -72,7 +72,7 @@ impl FieldVec{
                 }
             }
         }
-        let res = WizardRes::new(texts, datetimes, bools);
+        let res = WizardRes::new(texts, datetimes, u16s);
         return Option::Some(res);
     }
 
@@ -100,23 +100,26 @@ impl FieldVec{
         return true;
     }
 
-    fn handle_bool(bools: &mut VecDeque<bool>, field: &Field) -> bool{
-        conz::read_bool(&field.prompt_msg.to_string())
+    fn handle_u16(u16s: &mut VecDeque<u16>, field: &Field) -> bool{
+        let asu32 = astr::to_u32_unchecked(&conz::prompt(&field.prompt_msg.to_string()).to_astr());
+        if asu32 > std::u16::MAX as u32 {return false;}
+        u16s.push_back(asu32 as u16);
+        return true;
     }
 }
 
 pub struct WizardRes{
     all_text: VecDeque<astr::Astr>,
     all_datetime: VecDeque<data::DT>,
-    all_bool: VecDeque<bool>,
+    all_u16s: VecDeque<u16>,
 }
 
 impl WizardRes{
-    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::DT>, bools: VecDeque<bool>) -> Self{
+    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::DT>, u16s: VecDeque<u16>) -> Self{
         WizardRes{
             all_text: text,
             all_datetime: dt,
-            all_bool: bools,
+            all_u16s: u16s,
         }
     }
 
@@ -137,6 +140,14 @@ impl WizardRes{
         return Option::None;
     }
 
+    pub fn extract_todo(&mut self) -> Option<data::Todo>{
+        loop{
+            
+        }
+        pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
+        return Option::None;
+    }
+
     pub fn get_text(&mut self) -> Option<astr::Astr>{
         let res = self.all_text.pop_front();
         if res.is_none() {return Option::None}
@@ -149,8 +160,8 @@ impl WizardRes{
         return Option::Some(res.unwrap());
     }
 
-    pub fn get_bool(&mut self) -> Option<bool>{
-        let res = self.all_bool.pop_front();
+    pub fn get_u16(&mut self) -> Option<u16>{
+        let res = self.all_u16s.pop_front();
         if res.is_none() {return Option::None;}
         return Option::Some(res.unwrap());
     }

@@ -10,13 +10,27 @@ use super::conz::{PrinterFunctions};
 pub fn get_point_fields(partial: bool) -> wizard::FieldVec{
     let mut fields = wizard::FieldVec::new();
     if partial{
-        fields.add(wizard::InputType::Text, astr::from_str("title: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::Text, astr::from_str("type: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::DateTime, astr::from_str("time date: "), wizard::PromptType::Partial);
+        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
+        fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Partial);
     }else{
-        fields.add(wizard::InputType::Text, astr::from_str("title: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::Text, astr::from_str("type: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::DateTime, astr::from_str("time date: "), wizard::PromptType::Reprompt);
+        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
+        fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Reprompt);
+    }
+    return fields;
+}
+
+pub fn get_todo_fields(partial: bool) -> wizard::FieldVec{
+    let mut fields = wizard::FieldVec::new();
+    if partial{
+        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
+        fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Partial);
+    }else{
+        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
+        fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
     }
     return fields;
 }
