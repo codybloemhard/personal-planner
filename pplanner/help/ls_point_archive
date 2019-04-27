@@ -1,0 +1,4 @@
+Displays the points in the archive file.
+This command reads the file everytime it is called.
+The archive will not be cached in ram.
+It is an archive, it will not be used often(atleast i think you won't).
