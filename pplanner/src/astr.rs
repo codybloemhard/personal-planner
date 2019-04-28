@@ -8,7 +8,7 @@ pub fn new() -> Astr{
     return Vec::new();
 }
 
-pub fn from_string(s: String) -> Astr{
+pub fn from_string(s: &String) -> Astr{
     let mut buffer = new();
     for ch in s.chars() {
         if !ch.is_ascii() { continue; }
@@ -29,17 +29,17 @@ pub fn from_str(s: &str) -> Astr{
 }
 
 pub trait ToAstr{
-    fn to_astr(self) -> Astr;
+    fn to_astr(&self) -> Astr;
 }
 
 impl ToAstr for String{
-    fn to_astr(self) -> Astr{
+    fn to_astr(&self) -> Astr{
         return from_string(self);
     }
 }
 
 impl ToAstr for &'static str{
-    fn to_astr(self) -> Astr{
+    fn to_astr(&self) -> Astr{
         return from_str(self);
     }
 }

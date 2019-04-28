@@ -15,7 +15,7 @@ pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
     pprint_type!(&dt.str_datetime(), conz::MsgType::Value);
     pprint!(&" ");
-    pprint_type!(&dt.str_dayname(), conz::MsgType::Value);
+    pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
 pub fn help(state: &mut state::State, args: astr::AstrVec){

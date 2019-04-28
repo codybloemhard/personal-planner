@@ -271,8 +271,10 @@ impl PointType{
         }
         return PointType::None;
     }
+}
 
-    pub fn to_astr(&self) -> astr::Astr{
+impl astr::ToAstr for PointType{
+    fn to_astr(&self) -> astr::Astr{
         astr::from_str(match self{
             PointType::None => "None",
             PointType::Deadline => "Deadline",
@@ -404,8 +406,10 @@ impl TodoType{
         }
         return TodoType::Todo;
     }
+}
 
-    pub fn to_astr(&self) -> astr::Astr{
+impl astr::ToAstr for TodoType{
+    fn to_astr(&self) -> astr::Astr{
         astr::from_str(match self{
             TodoType::Todo => "Todo",
             TodoType::Longterm => "Longterm",
