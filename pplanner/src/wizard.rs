@@ -125,7 +125,7 @@ impl WizardRes{
 
     pub fn extract_point(&mut self) -> Option<data::Point>{
         loop{
-            if self.all_text.len() < 1 {break;}
+            if self.all_text.len() < 2 {break;}
             if self.all_datetime.len() < 1 {break;}
             let dt_res = self.all_datetime.pop_front();
             if dt_res.is_none() {break;}
@@ -142,7 +142,16 @@ impl WizardRes{
 
     pub fn extract_todo(&mut self) -> Option<data::Todo>{
         loop{
-            
+            if self.all_text.len() < 2 {break;}
+            if self.all_u16s.len() < 1 {break;}
+            let title_res = self.all_text.pop_front();
+            if title_res.is_none() {break;}
+            let urgency = self.all_u16s.pop_front();
+            if urgency.is_none() {break;}
+            let ttype_res = self.all_text.pop_front();
+            if ttype_res.is_none() {break;}
+            let ret = data::Todo::new(title_res.unwrap(), ttype_res.unwrap(), urgency.unwrap());
+            return Option::Some(ret);
         }
         pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
         return Option::None;

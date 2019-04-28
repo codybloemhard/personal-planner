@@ -378,9 +378,47 @@ impl conz::Printable for Point{
 
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
 pub enum TodoType{
-    Todo,
-    Longterm,
-    Idea,
+    Todo = 0,
+    Longterm = 1,
+    Idea = 2,
+    DefaultValue = 255,
+}
+
+impl TodoType{
+    pub fn from_astr(string: &astr::Astr, partial: bool) -> TodoType{
+        let string = string.to_lower();
+        if string.len() == 0 && partial{
+            return TodoType::DefaultValue;
+        }
+        if string.len() < 1{
+            return TodoType::Todo;
+        }
+        if string[0] == 't' as u8{
+            return TodoType::Todo;
+        }
+        if string[0] == 'l' as u8{
+            return TodoType::Longterm;
+        }
+        if string[0] == 'i' as u8{
+            return TodoType::Idea;
+        }
+        return TodoType::Todo;
+    }
+
+    pub fn to_astr(&self) -> astr::Astr{
+        astr::from_str(match self{
+            TodoType::Todo => "Todo",
+            TodoType::Longterm => "Longterm",
+            TodoType::Idea => "Idea",
+            TodoType::DefaultValue => "Error",
+        })
+    }
+}
+
+impl DefaultValue for TodoType{
+    fn default_val() -> Self{
+        return TodoType::DefaultValue;
+    }
 }
 
 impl PartialEq for TodoType {
@@ -397,10 +435,10 @@ pub struct Todo{
 }
 
 impl Todo{
-    pub fn new(title: astr::Astr, ttype: TodoType, urgency: u16) -> Todo{
+    pub fn new(title: astr::Astr, ttype: astr::Astr, urgency: u16) -> Todo{
         Todo{
             title: title,
-            ttype: ttype,
+            ttype: TodoType::from_astr(&ttype, false),
             urgency: urgency,
         }
     }

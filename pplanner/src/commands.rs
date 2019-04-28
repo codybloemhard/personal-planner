@@ -243,9 +243,9 @@ pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
     let mut res = res.unwrap();
     let todo = res.extract_todo();
     if todo.is_none() {return;}
-    //state.points.add_item(point.unwrap());
-    //if !state.points.write() {return;}
-    //pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
+    state.todos.add_item(todo.unwrap());
+    if !state.todos.write() {return;}
+    pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){
