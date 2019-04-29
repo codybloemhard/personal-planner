@@ -6,10 +6,11 @@ use super::conz::PrinterFunctions;
 use super::conz::Printable;
 use super::data;
 use super::astr;
-use super::astr::{AStr,TOSTRING};
+use super::astr::{AStr};
 use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
+use super::wizard;
 
 pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
@@ -237,15 +238,40 @@ pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
 
 pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
-    let fields = support::get_todo_fields(false);
+    let mut fields = support::get_todo_fields(false);
+    fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Reprompt);
     let res = fields.execute();
     if res.is_none() {return;}
     let mut res = res.unwrap();
     let todo = res.extract_todo();
     if todo.is_none() {return;}
-    state.todos.add_item(todo.unwrap());
-    if !state.todos.write() {return;}
+    let typestr = res.get_text();
+    if typestr.is_none() {return;}
+    let typestr = typestr.unwrap();
+    if typestr.len() < 1{
+        pprintln_type!(&"Error: type length is zero.", conz::MsgType::Error);
+        return;
+    }
+    if typestr[0] == 'l' as u8{
+        state.todos_long.add_item(todo.unwrap());
+        if !state.todos_long.write() {return;}
+    }else if typestr[0] == 'i' as u8{
+        state.todos_idea.add_item(todo.unwrap());
+        if !state.todos_idea.write() {return;}
+    }else{
+        state.todos_todos.add_item(todo.unwrap());
+        if !state.todos_todos.write() {return;}
+    }
     pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
+}
+
+pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
+    pprintln_type!(&"Todo:", conz::MsgType::Normal);
+    support::pretty_print(state.todos_todos.get_items(), 0);
+    pprintln_type!(&"Longterm:", conz::MsgType::Normal);
+    support::pretty_print(state.todos_long.get_items(), 0);
+    pprintln_type!(&"Ideas:", conz::MsgType::Normal);
+    support::pretty_print(state.todos_idea.get_items(), 0);
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

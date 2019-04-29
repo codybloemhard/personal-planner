@@ -25,11 +25,9 @@ pub fn get_todo_fields(partial: bool) -> wizard::FieldVec{
     let mut fields = wizard::FieldVec::new();
     if partial{
         fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
         fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Partial);
     }else{
         fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
         fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
     }
     return fields;
@@ -147,6 +145,9 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: T::ArgType)
     for x in datavec{
         divider_ver_edge();
         let (texts,types) = x.pretty_print(&arg);
+        if texts.len() != types.len(){
+            panic!("Panic: pretty_print: texts.len() != types.len().");
+        }
         for i in 0..texts.len() - 1{
             pprint_type!(
                 &texts[i].pad_after(lengths[i]),

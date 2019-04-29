@@ -410,71 +410,16 @@ impl conz::PrettyPrintable for Point{
     }
 }
 
-#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
-pub enum TodoType{
-    Todo = 0,
-    Longterm = 1,
-    Idea = 2,
-    DefaultValue = 255,
-}
-
-impl TodoType{
-    pub fn from_astr(string: &astr::Astr, partial: bool) -> TodoType{
-        let string = string.to_lower();
-        if string.len() == 0 && partial{
-            return TodoType::DefaultValue;
-        }
-        if string.len() < 1{
-            return TodoType::Todo;
-        }
-        if string[0] == 't' as u8{
-            return TodoType::Todo;
-        }
-        if string[0] == 'l' as u8{
-            return TodoType::Longterm;
-        }
-        if string[0] == 'i' as u8{
-            return TodoType::Idea;
-        }
-        return TodoType::Todo;
-    }
-}
-
-impl astr::ToAstr for TodoType{
-    fn to_astr(&self) -> astr::Astr{
-        astr::from_str(match self{
-            TodoType::Todo => "Todo",
-            TodoType::Longterm => "Longterm",
-            TodoType::Idea => "Idea",
-            TodoType::DefaultValue => "Error",
-        })
-    }
-}
-
-impl DefaultValue for TodoType{
-    fn default_val() -> Self{
-        return TodoType::DefaultValue;
-    }
-}
-
-impl PartialEq for TodoType {
-    fn eq(&self, other: &TodoType) -> bool {
-        ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
-    }
-}
-
 #[derive(Eq)]
 pub struct Todo{
     title: astr::Astr,
-    ttype: TodoType,
     urgency: u16,
 }
 
 impl Todo{
-    pub fn new(title: astr::Astr, ttype: astr::Astr, urgency: u16) -> Todo{
+    pub fn new(title: astr::Astr, urgency: u16) -> Todo{
         Todo{
             title: title,
-            ttype: TodoType::from_astr(&ttype, false),
             urgency: urgency,
         }
     }
@@ -484,13 +429,6 @@ impl save::Bufferable for Todo{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.urgency.into_buffer(vec);
-        let primtype = ToPrimitive::to_u8(&self.ttype);
-        if primtype.is_none() {
-            pprintln_type!(&"Error: Could not convert TodoType to u8.", conz::MsgType::Error);
-            (0 as u8).into_buffer(vec);
-        }else{
-            primtype.unwrap().into_buffer(vec);
-        }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
@@ -498,15 +436,32 @@ impl save::Bufferable for Todo{
         if res_title.is_none() {return Option::None;}
         let res_urg = u16::from_buffer(vec, iter);
         if res_urg.is_none() {return Option::None;}
-        let res_ttype = u8::from_buffer(vec, iter);
-        if res_ttype.is_none() {return Option::None;}
-        let res_ttype = FromPrimitive::from_u8(res_ttype.unwrap());
-        if res_ttype.is_none() {return Option::None;}
         return Option::Some(Todo{
             title: res_title.unwrap(),
             urgency: res_urg.unwrap(),
-            ttype: res_ttype.unwrap(),
-        }); 
+        });
+    }
+}
+
+impl conz::PrettyPrintable for Todo{
+    type ArgType = u8;
+    fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+        let mut text = Vec::new();
+        let mut types = Vec::new();
+        text.push(self.title.clone());
+        text.push(self.urgency.to_string().to_astr());
+        types.push(conz::MsgType::Normal);
+        types.push(conz::MsgType::Value);
+        return (text,types);
+    }
+    
+    fn lengths() -> Vec<u16>{
+        vec![32,8]
+    }
+
+    fn titles() -> Vec<astr::Astr>{
+        vec![astr::from_str("Title:"),
+            astr::from_str("Urgency:")]
     }
 }
 
@@ -525,7 +480,6 @@ impl std::cmp::PartialOrd for Todo {
 impl std::cmp::PartialEq for Todo {
     fn eq(&self, other: &Todo) -> bool {
         self.title == other.title &&
-        self.ttype == other.ttype &&
         self.urgency == other.urgency
     }
 }
@@ -534,7 +488,6 @@ impl std::clone::Clone for Todo{
     fn clone(&self) -> Self{
         Todo{
             title: self.title.clone(),
-            ttype: self.ttype.clone(),
             urgency: self.urgency.clone(),
         }
     }

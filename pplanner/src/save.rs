@@ -8,8 +8,9 @@ use super::misc;
 pub const DATA_DIR: &'static str = ".config/pplanner";
 pub const POINT_DIR: &'static str = "points";
 pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
-pub const TODO_DIR: &'static str = "todo";
-pub const TODO_ARCHIVE_DIR: &'static str = "todo_archive";
+pub const TODO_TODO_DIR: &'static str = "todo_todo";
+pub const TODO_LONG_DIR: &'static str = "todo_long";
+pub const TODO_IDEA_DIR: &'static str = "todo_idea";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let hd = dirs::home_dir();
@@ -69,8 +70,9 @@ pub fn setup_config_dir() -> bool{
     }
     setup_file(POINT_DIR);
     setup_file(POINT_ARCHIVE_DIR);
-    setup_file(TODO_DIR);
-    setup_file(TODO_ARCHIVE_DIR);
+    setup_file(TODO_TODO_DIR);
+    setup_file(TODO_LONG_DIR);
+    setup_file(TODO_IDEA_DIR);
     return true;
 }
 
