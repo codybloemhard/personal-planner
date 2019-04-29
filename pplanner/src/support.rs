@@ -111,60 +111,51 @@ pub fn diff_color(diff: &data::Span) -> conz::MsgType{
     }
 }
 
-pub fn print_points(points: &Vec<data::Point>){
-    let count = points.len();
-    let len_title = 32; let len_relative = 14; let len_dt = 23; let len_type = 11;
+pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: T::ArgType){
+    let count = datavec.len();
+    let lengths = T::lengths();
+    let titles = T::titles();
+    if lengths.len() != titles.len() {
+        panic!("Panic: pretty_print: lengths.len() != titles.len().");
+    }
+    let mut lensum = 0;
+    for len in &lengths{
+        lensum += len;
+    }
     pprint_type!(&"Found ", conz::MsgType::Normal);
     pprint_type!(&format!("{}", count), conz::MsgType::Value);
-    pprintln_type!(&" points.", conz::MsgType::Normal);
+    pprintln_type!(&" items.", conz::MsgType::Normal);
     let divider_ver = || {pprint_type!(&" | ", conz::MsgType::Highlight);};
     let divider_ver_edge = || {pprint_type!(&"|", conz::MsgType::Highlight);};
     let divider_hor = |a| {astr::from_str("|")
-        .concat(astr::from_str(a).repeat(len_title + len_relative + len_dt + len_type + (3*3)))
+        .concat(astr::from_str(a).repeat(lensum + ((lengths.len()-1)*3) as u16))
         .concat(astr::from_str("|"))};
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
     divider_ver_edge();
-    pprint_type!(
-        &astr::from_str("title:").pad_after(len_title), 
-        conz::MsgType::Normal);
-    divider_ver();
-    pprint_type!(
-        &astr::from_str("relative:").pad_after(len_relative), 
-        conz::MsgType::Normal);
-    divider_ver();
-    pprint_type!(
-        &astr::from_str("time date:").pad_after(len_dt),
-        conz::MsgType::Normal);
+    for i in 0..titles.len() - 1{
+        pprint_type!(
+            &titles[i].pad_after(lengths[i]), 
+            conz::MsgType::Normal);
         divider_ver();
+    }
     pprint_type!(
-        &astr::from_str("type:").pad_after(len_type),
+        &titles[titles.len() - 1].pad_after(lengths[titles.len() - 1]), 
         conz::MsgType::Normal);
     divider_ver_edge();
     pprintln!(&"");
     pprintln_type!(&divider_hor("-"), conz::MsgType::Highlight);
-    let now = data::DT::new();
-    for x in points{
-        let diff = now.diff(&x.dt);
-        let timecol = diff_color(&diff);
+    for x in datavec{
         divider_ver_edge();
+        let (texts,types) = x.pretty_print(&arg);
+        for i in 0..texts.len() - 1{
+            pprint_type!(
+                &texts[i].pad_after(lengths[i]),
+                types[i].clone());
+            divider_ver();
+        }
         pprint_type!(
-            &x.title.pad_after(len_title),
-            conz::MsgType::Normal);
-        divider_ver();
-        pprint_type!(
-            &diff.string_significant()
-                .to_astr()
-                .pad_after(len_relative),
-            timecol);
-        divider_ver();
-        pprint_type!(
-            &x.dt.str_datetime().concat(astr::from_str(" "))
-                .concat(x.dt.str_dayname_short()).pad_after(len_dt),
-            conz::MsgType::Value);
-        divider_ver();
-        pprint_type!(
-            &x.ptype.to_astr().pad_after(len_type),
-            conz::MsgType::Normal);
+            &texts[texts.len() - 1].pad_after(lengths[texts.len() - 1]),
+            types[texts.len() - 1].clone());
         divider_ver_edge();
         pprintln!(&"");
     }

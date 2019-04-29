@@ -11,6 +11,7 @@ use super::save;
 use super::astr::AStr;
 use super::astr::ToAstr;
 use super::misc::{DefaultValue};
+use super::support;
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -375,6 +376,37 @@ impl conz::Printable for Point{
         pprint_type!(&self.dt.str_datetime(), conz::MsgType::Value);
         pprint!(&" ");
         pprintln_type!(&self.dt.str_dayname(), conz::MsgType::Value);
+    }
+}
+
+impl conz::PrettyPrintable for Point{
+    type ArgType = DT;
+    fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+        let mut text = Vec::new();
+        let mut types = Vec::new();
+        let diff = arg.diff(&self.dt);
+        text.push(self.title.clone());
+        text.push(diff.string_significant().to_astr());
+        text.push(self.dt.str_datetime()
+            .concat(astr::from_str(" "))
+            .concat(self.dt.str_dayname_short()));
+        text.push(self.ptype.to_astr());
+        types.push(conz::MsgType::Normal);
+        types.push(support::diff_color(&diff));
+        types.push(conz::MsgType::Value);
+        types.push(conz::MsgType::Normal);
+        return (text,types);
+    }
+    
+    fn lengths() -> Vec<u16>{
+        vec![32,14,23,11]
+    }
+
+    fn titles() -> Vec<astr::Astr>{
+        vec![astr::from_str("Title:"),
+            astr::from_str("Relative:"),
+            astr::from_str("Time Date:"),
+            astr::from_str("Type:"),]
     }
 }
 

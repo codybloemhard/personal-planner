@@ -203,12 +203,12 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
-    support::print_points(state.points.get_items());
+    support::pretty_print(state.points.get_items(), data::DT::new());
 }
 
 pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec){
     let res = state.points_archive.read();
-    support::print_points(&res);
+    support::pretty_print(&res, data::DT::new());
 }
 
 pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){

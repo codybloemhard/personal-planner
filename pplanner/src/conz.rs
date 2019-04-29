@@ -7,6 +7,7 @@ use std::sync::Mutex;
 
 use super::astr;
 
+#[derive(Clone)]
 pub enum MsgType {
     Normal,
     Error,
@@ -76,6 +77,13 @@ pub trait Printable{
     fn print(&self);
 }
 
+pub trait PrettyPrintable{
+    type ArgType;
+    fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<MsgType>);
+    fn lengths() -> Vec<u16>;
+    fn titles() -> Vec<astr::Astr>;
+}
+
 pub struct Printer{
     pub stream: StandardStream,
     pub col_map: HashMap<u32, Color>,
@@ -93,7 +101,7 @@ pub trait PrinterFunctions<T>{
     fn println_error(&mut self, prefix: &T, middle: &T, postfix: &T);
 }
 
-impl Printer {
+impl Printer{
     pub fn new() -> Printer {
         let mut color_map: HashMap<u32, Color> = HashMap::new();
         let normal_color = Color::Green;
