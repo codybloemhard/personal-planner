@@ -492,3 +492,55 @@ impl std::clone::Clone for Todo{
         }
     }
 }
+
+#[derive(FromPrimitive,ToPrimitive)]
+pub enum TodoType{
+    Todo,
+    Long,
+    Idea,
+}
+
+pub struct TodoArchived{
+    title: astr::Astr,
+    urgency: u16,
+    ttype: TodoType,
+}
+
+impl TodoArchived{
+    pub fn new(title: astr::Astr, urgency: u16, ttype: TodoType) -> TodoArchived{
+        TodoArchived{
+            title: title,
+            urgency: urgency,
+            ttype: ttype,
+        }
+    }
+}
+
+impl save::Bufferable for TodoArchived{
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        self.title.into_buffer(vec);
+        self.urgency.into_buffer(vec);
+        let res = ToPrimitive::to_u8(&self.ttype);
+        if res.is_none(){
+            (0 as u8).into_buffer(vec);
+        }else{
+            res.unwrap().into_buffer(vec);
+        }
+    }
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+        let res_title = astr::Astr::from_buffer(vec, iter);
+        if res_title.is_none() {return Option::None;}
+        let res_urg = u16::from_buffer(vec, iter);
+        if res_urg.is_none() {return Option::None;}
+        let res_typ = u8::from_buffer(vec, iter);
+        if res_typ.is_none() {return Option::None;}
+        let res_typ = FromPrimitive::from_u8(res_typ.unwrap());
+        if res_typ.is_none() {return Option::None;}
+        return Option::Some(TodoArchived{
+            title: res_title.unwrap(),
+            urgency: res_urg.unwrap(),
+            ttype: res_typ.unwrap(),
+        });
+    }
+}

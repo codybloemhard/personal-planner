@@ -11,6 +11,7 @@ pub struct State{
     pub todos_todos: save::BufferFile<data::Todo>,
     pub todos_long: save::BufferFile<data::Todo>,
     pub todos_idea: save::BufferFile<data::Todo>,
+    pub todos_archive: save::ArchiveFile<data::TodoArchived>,
 }
 
 impl State{
@@ -23,6 +24,7 @@ impl State{
         let todo_todo_path = save::get_data_dir_path(save::TODO_TODO_DIR).expect(msg);
         let todo_long_path = save::get_data_dir_path(save::TODO_LONG_DIR).expect(msg);
         let todo_idea_path = save::get_data_dir_path(save::TODO_IDEA_DIR).expect(msg);
+        let todo_archive_path = save::get_data_dir_path(save::TODO_ARCHIVE_DIR).expect(msg);
         Option::Some(State{
             fset: HashSet::new(),
             points: save::BufferFile::new(points_path),
@@ -30,6 +32,7 @@ impl State{
             todos_todos: save::BufferFile::new(todo_todo_path),
             todos_long: save::BufferFile::new(todo_long_path),
             todos_idea: save::BufferFile::new(todo_idea_path),
+            todos_archive: save::ArchiveFile::new(todo_archive_path),
         })
     }
 
