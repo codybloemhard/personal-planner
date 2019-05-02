@@ -1,37 +1,11 @@
-use super::wizard;
 use super::astr;
-use super::astr::{AStr,ToAstr};
+use super::astr::{AStr};
 use super::data;
 use super::misc::{UnwrapDefault};
 use super::save;
 use super::conz;
 use super::conz::{PrinterFunctions};
-
-pub fn get_point_fields(partial: bool) -> wizard::FieldVec{
-    let mut fields = wizard::FieldVec::new();
-    if partial{
-        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Partial);
-    }else{
-        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Reprompt);
-    }
-    return fields;
-}
-
-pub fn get_todo_fields(partial: bool) -> wizard::FieldVec{
-    let mut fields = wizard::FieldVec::new();
-    if partial{
-        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
-        fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Partial);
-    }else{
-        fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
-        fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
-    }
-    return fields;
-}
+use super::wizard::{Wizardable};
 
 #[derive(PartialEq)]
 pub enum MatchResult{
@@ -40,7 +14,7 @@ pub enum MatchResult{
 }
 
 pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
-    let fields = get_point_fields(true);
+    let fields = data::Point::get_fields(true);
     let res = fields.execute();
     if res.is_none() {
         return (MatchResult::None, Vec::new());
@@ -81,6 +55,10 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     //should not be reachable
     return (MatchResult::None, vec);
 }
+
+/*pub fn proto_get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
+
+}*/
 
 pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save::ArchiveFile<data::Point>, 
     vec: Vec<usize>, points: &Vec<data::Point>){

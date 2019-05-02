@@ -11,6 +11,7 @@ use super::state;
 use super::misc::{UnwrapDefault};
 use super::support;
 use super::wizard;
+use super::wizard::{Wizardable};
 
 pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
@@ -75,11 +76,11 @@ pub fn ls_commands(state: &mut state::State, _: astr::AstrVec){
 
 pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Add point: ", conz::MsgType::Normal);
-    let fields = support::get_point_fields(false);
+    let fields = data::Point::get_fields(false);
     let res = fields.execute();
     if res.is_none() {return;}
     let mut res = res.unwrap();
-    let point = res.extract_point();
+    let point = data::Point::extract(&mut res);
     if point.is_none() {return;}
     state.points.add_item(point.unwrap());
     if !state.points.write() {return;}
@@ -142,7 +143,7 @@ pub fn clean_points(state: &mut state::State, _: astr::AstrVec){
 
 pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Edit point(search first): ", conz::MsgType::Normal);
-    let fields = support::get_point_fields(true);
+    let fields = data::Point::get_fields(true);
     let points = state.points.get_items();
     loop{
         let (match_res, vec) = support::get_matches(points);
@@ -238,12 +239,12 @@ pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
 
 pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
-    let mut fields = support::get_todo_fields(false);
+    let mut fields = data::Todo::get_fields(false);
     fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Reprompt);
     let res = fields.execute();
     if res.is_none() {return;}
     let mut res = res.unwrap();
-    let todo = res.extract_todo();
+    let todo = data::Todo::extract(&mut res);
     if todo.is_none() {return;}
     let typestr = res.get_text();
     if typestr.is_none() {return;}
@@ -272,6 +273,10 @@ pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
     support::pretty_print(state.todos_long.get_items(), 0);
     pprintln_type!(&"Ideas:", conz::MsgType::Normal);
     support::pretty_print(state.todos_idea.get_items(), 0);
+}
+
+pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){
+
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

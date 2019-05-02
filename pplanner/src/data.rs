@@ -12,6 +12,7 @@ use super::astr::AStr;
 use super::astr::ToAstr;
 use super::misc::{DefaultValue};
 use super::support;
+use super::wizard;
 
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
@@ -410,6 +411,37 @@ impl conz::PrettyPrintable for Point{
     }
 }
 
+impl wizard::Wizardable for Point{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Point>{
+        loop{
+            let dt_res = wres.get_dt();
+            if dt_res.is_none() {break;}
+            let title_res = wres.get_text();
+            if title_res.is_none() {break;}
+            let isdead_res = wres.get_text();
+            if isdead_res.is_none() {break;}
+            let ret = Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
+            return Option::Some(ret);
+        }
+        pprintln_type!(&"Error: could not build point.", conz::MsgType::Error);
+        return Option::None;
+    }
+
+    fn get_fields(partial: bool) -> wizard::FieldVec{
+        let mut fields = wizard::FieldVec::new();
+        if partial{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Partial);
+        }else{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Reprompt);
+        }
+        return fields;
+    }
+}
+
 #[derive(Eq)]
 pub struct Todo{
     title: astr::Astr,
@@ -542,5 +574,32 @@ impl save::Bufferable for TodoArchived{
             urgency: res_urg.unwrap(),
             ttype: res_typ.unwrap(),
         });
+    }
+}
+
+impl wizard::Wizardable for Todo{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Todo>{
+        loop{
+            let title_res = wres.get_text();
+            if title_res.is_none() {break;}
+            let urgency = wres.get_u16();
+            if urgency.is_none() {break;}
+            let ret = Todo::new(title_res.unwrap(), urgency.unwrap());
+            return Option::Some(ret);
+        }
+        pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
+        return Option::None;
+    }
+
+    fn get_fields(partial: bool) -> wizard::FieldVec{
+        let mut fields = wizard::FieldVec::new();
+        if partial{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Partial);
+        }else{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
+        }
+        return fields;
     }
 }

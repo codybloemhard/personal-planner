@@ -124,38 +124,6 @@ impl WizardRes{
         }
     }
 
-    pub fn extract_point(&mut self) -> Option<data::Point>{
-        loop{
-            if self.all_text.len() < 2 {break;}
-            if self.all_datetime.len() < 1 {break;}
-            let dt_res = self.all_datetime.pop_front();
-            if dt_res.is_none() {break;}
-            let title_res = self.all_text.pop_front();
-            if title_res.is_none() {break;}
-            let isdead_res = self.all_text.pop_front();
-            if isdead_res.is_none() {break;}
-            let ret = data::Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
-            return Option::Some(ret);
-        }
-        pprintln_type!(&"Error: could not build point.", conz::MsgType::Error);
-        return Option::None;
-    }
-
-    pub fn extract_todo(&mut self) -> Option<data::Todo>{
-        loop{
-            if self.all_text.len() < 1 {break;}
-            if self.all_u16s.len() < 1 {break;}
-            let title_res = self.all_text.pop_front();
-            if title_res.is_none() {break;}
-            let urgency = self.all_u16s.pop_front();
-            if urgency.is_none() {break;}
-            let ret = data::Todo::new(title_res.unwrap(), urgency.unwrap());
-            return Option::Some(ret);
-        }
-        pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
-        return Option::None;
-    }
-
     pub fn get_text(&mut self) -> Option<astr::Astr>{
         let res = self.all_text.pop_front();
         if res.is_none() {return Option::None}
@@ -173,4 +141,9 @@ impl WizardRes{
         if res.is_none() {return Option::None;}
         return Option::Some(res.unwrap());
     }
+}
+
+pub trait Wizardable where Self: std::marker::Sized{
+    fn get_fields(partial: bool) -> FieldVec;
+    fn extract(wres: &mut WizardRes) -> Option<Self>;
 }
