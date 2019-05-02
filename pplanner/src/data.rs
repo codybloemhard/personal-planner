@@ -10,7 +10,7 @@ use super::astr;
 use super::save;
 use super::astr::AStr;
 use super::astr::ToAstr;
-use super::misc::{DefaultValue};
+use super::misc::{DefaultValue,UnwrapDefault};
 use super::support;
 use super::wizard;
 
@@ -412,7 +412,7 @@ impl conz::PrettyPrintable for Point{
 }
 
 impl wizard::Wizardable for Point{
-    fn extract(wres: &mut wizard::WizardRes) -> Option<Point>{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Self>{
         loop{
             let dt_res = wres.get_dt();
             if dt_res.is_none() {break;}
@@ -439,6 +439,31 @@ impl wizard::Wizardable for Point{
             fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Reprompt);
         }
         return fields;
+    }
+
+    fn get_partial(wres: &mut wizard::WizardRes) -> Self{
+        let ptitle = astr::Astr::unwrap_default(wres.get_text());
+        let ptype = PointType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
+        let pdt = DT::unwrap_default(wres.get_dt());
+        return Point{
+            dt: pdt,
+            title: ptitle,
+            ptype: ptype,
+        }
+    }
+
+    fn score_againts(&self, other: &Self) -> i32{
+        let mut curr_score = 0;
+        if self.title == other.title{
+            curr_score += 1;
+        }
+        if self.ptype == other.ptype{
+            curr_score += 1;
+        }
+        if self.dt == other.dt{
+            curr_score += 1;
+        }
+        return curr_score;
     }
 }
 
@@ -601,5 +626,25 @@ impl wizard::Wizardable for Todo{
             fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
         }
         return fields;
+    }
+
+    fn get_partial(wres: &mut wizard::WizardRes) -> Self{
+        let ttitle = astr::Astr::unwrap_default(wres.get_text());
+        let turgency = u16::unwrap_default(wres.get_u16());
+        return Todo{
+            title: ttitle,
+            urgency: turgency,
+        }
+    }
+
+    fn score_againts(&self, other: &Self) -> i32{
+        let mut curr_score = 0;
+        if self.title == other.title{
+            curr_score += 1;
+        }
+        if self.urgency == other.urgency{
+            curr_score += 1;
+        }
+        return curr_score;
     }
 }

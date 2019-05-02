@@ -2,6 +2,12 @@ pub trait DefaultValue{
     fn default_val() -> Self;
 }
 
+impl DefaultValue for u16{
+    fn default_val() -> Self{
+        return 0;
+    }
+}
+
 pub trait UnwrapDefault<T>{
     fn unwrap_default(res: Option<T>) -> T;
     fn replace_if_not_default(&mut self, new: T);

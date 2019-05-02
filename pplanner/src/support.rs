@@ -13,30 +13,19 @@ pub enum MatchResult{
     Some,
 }
 
-pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
-    let fields = data::Point::get_fields(true);
+pub fn get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
+    let fields = T::get_fields(true);
     let res = fields.execute();
-    if res.is_none() {
+    if res.is_none(){
         return (MatchResult::None, Vec::new());
     }
     let mut res = res.unwrap();
-    let ptitle = astr::Astr::unwrap_default(res.get_text());
-    let ptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()), true);
-    let pdt = data::DT::unwrap_default(res.get_dt());
+    let partial = T::get_partial(&mut res);
     let mut score = 0;
     let mut vec = Vec::new();
-    for i in 0..points.len(){
-        let current = &points[i];
-        let mut curr_score = 0;
-        if ptitle == current.title{
-            curr_score += 1;
-        }
-        if ptype == current.ptype{
-            curr_score += 1;
-        }
-        if pdt == current.dt{
-            curr_score += 1;
-        }
+    for i in 0..data.len(){
+        let current = &data[i];
+        let curr_score = partial.score_againts(current);
         if curr_score > score{
             score = curr_score;
             vec.clear();
@@ -55,10 +44,6 @@ pub fn get_matches(points: &Vec<data::Point>) -> (MatchResult,Vec<usize>){
     //should not be reachable
     return (MatchResult::None, vec);
 }
-
-/*pub fn proto_get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
-
-}*/
 
 pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save::ArchiveFile<data::Point>, 
     vec: Vec<usize>, points: &Vec<data::Point>){

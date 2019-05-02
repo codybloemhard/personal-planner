@@ -146,4 +146,6 @@ impl WizardRes{
 pub trait Wizardable where Self: std::marker::Sized{
     fn get_fields(partial: bool) -> FieldVec;
     fn extract(wres: &mut WizardRes) -> Option<Self>;
+    fn get_partial(wres: &mut WizardRes) -> Self;
+    fn score_againts(&self, other: &Self) -> i32;
 }
