@@ -8,10 +8,8 @@ pub struct State{
     pub fset: HashSet<astr::Astr>,
     pub points: save::BufferFile<data::Point>,
     pub points_archive: save::ArchiveFile<data::Point>,
-    pub todos_todos: save::BufferFile<data::Todo>,
-    pub todos_long: save::BufferFile<data::Todo>,
-    pub todos_idea: save::BufferFile<data::Todo>,
-    pub todos_archive: save::ArchiveFile<data::TodoArchived>,
+    pub todos: save::BufferFile<data::Todo>,
+    pub todos_archive: save::ArchiveFile<data::Todo>,
 }
 
 impl State{
@@ -21,17 +19,13 @@ impl State{
         //save::setup_config_dir fails should return false if not all files are there
         let points_path = save::get_data_dir_path(save::POINT_DIR).expect(msg);
         let points_archive_path = save::get_data_dir_path(save::POINT_ARCHIVE_DIR).expect(msg);
-        let todo_todo_path = save::get_data_dir_path(save::TODO_TODO_DIR).expect(msg);
-        let todo_long_path = save::get_data_dir_path(save::TODO_LONG_DIR).expect(msg);
-        let todo_idea_path = save::get_data_dir_path(save::TODO_IDEA_DIR).expect(msg);
+        let todo_path = save::get_data_dir_path(save::TODO_DIR).expect(msg);
         let todo_archive_path = save::get_data_dir_path(save::TODO_ARCHIVE_DIR).expect(msg);
         Option::Some(State{
             fset: HashSet::new(),
             points: save::BufferFile::new(points_path),
             points_archive: save::ArchiveFile::new(points_archive_path),
-            todos_todos: save::BufferFile::new(todo_todo_path),
-            todos_long: save::BufferFile::new(todo_long_path),
-            todos_idea: save::BufferFile::new(todo_idea_path),
+            todos: save::BufferFile::new(todo_path),
             todos_archive: save::ArchiveFile::new(todo_archive_path),
         })
     }

@@ -292,7 +292,7 @@ impl DefaultValue for PointType{
     }
 }
 
-#[derive(Eq)]
+#[derive(Eq,Clone)]
 pub struct Point{
     pub dt: DT,
     pub title: astr::Astr,
@@ -354,16 +354,6 @@ impl std::cmp::PartialOrd for Point {
 impl std::cmp::PartialEq for Point {
     fn eq(&self, other: &Point) -> bool {
         return self.dt == other.dt;
-    }
-}
-
-impl std::clone::Clone for Point{
-    fn clone(&self) -> Self{
-        Point{
-            dt: self.dt.clone(),
-            title: self.title.clone(),
-            ptype: self.ptype.clone(),
-        }
     }
 }
 
@@ -467,17 +457,78 @@ impl wizard::Wizardable for Point{
     }
 }
 
-#[derive(Eq)]
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+pub enum TodoType{
+    Todo,
+    Long,
+    Idea,
+    DefaultValue,
+}
+
+impl PartialEq for TodoType {
+    fn eq(&self, other: &TodoType) -> bool {
+        ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
+    }
+}
+
+impl TodoType{
+    pub fn from_astr(string: &astr::Astr, partial: bool) -> TodoType{
+        let string = string.to_lower();
+        if string.len() == 0 && partial{
+            return TodoType::DefaultValue;
+        }
+        if string[0] == 'l' as u8{
+            return TodoType::Long;
+        }
+        if string[0] == 'i' as u8{
+            return TodoType::Idea;
+        }
+        return TodoType::Todo;
+    }
+}
+
+impl astr::ToAstr for TodoType{
+    fn to_astr(&self) -> astr::Astr{
+        astr::from_str(match self{
+            TodoType::Todo => "Todo",
+            TodoType::Long => "Longterm",
+            TodoType::Idea => "Idea",
+            TodoType::DefaultValue => "Error",
+        })
+    }
+}
+
+impl DefaultValue for TodoType{
+    fn default_val() -> Self{
+        return TodoType::DefaultValue;
+    }
+}
+
+impl std::cmp::PartialOrd for TodoType{
+    fn partial_cmp(&self, other: &TodoType) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::cmp::Ord for TodoType{
+    fn cmp(&self, other: &TodoType) -> std::cmp::Ordering {
+        ToPrimitive::to_u8(self).cmp(&ToPrimitive::to_u8(other))
+    }
+}
+
+#[derive(Eq,Clone)]
 pub struct Todo{
     title: astr::Astr,
     urgency: u16,
+    pub ttype: TodoType,
 }
 
 impl Todo{
-    pub fn new(title: astr::Astr, urgency: u16) -> Todo{
+    pub fn new(title: astr::Astr, urgency: u16, strtype: astr::Astr) -> Todo{
         Todo{
             title: title,
             urgency: urgency,
+            ttype: TodoType::from_astr(&strtype, false),
         }
     }
 }
@@ -486,6 +537,13 @@ impl save::Bufferable for Todo{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.urgency.into_buffer(vec);
+        let primtype = ToPrimitive::to_u8(&self.ttype);
+        if primtype.is_none() {
+            pprintln_type!(&"Error: Could not convert TodoType to u8.", conz::MsgType::Error);
+            (0 as u8).into_buffer(vec);
+        }else{
+            primtype.unwrap().into_buffer(vec);
+        }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
@@ -493,9 +551,14 @@ impl save::Bufferable for Todo{
         if res_title.is_none() {return Option::None;}
         let res_urg = u16::from_buffer(vec, iter);
         if res_urg.is_none() {return Option::None;}
+        let res_ttype = u8::from_buffer(vec, iter);
+        if res_ttype.is_none() {return Option::None;}
+        let res_ttype = FromPrimitive::from_u8(res_ttype.unwrap());
+        if res_ttype.is_none() {return Option::None;}
         return Option::Some(Todo{
             title: res_title.unwrap(),
             urgency: res_urg.unwrap(),
+            ttype: res_ttype.unwrap(),
         });
     }
 }
@@ -524,6 +587,10 @@ impl conz::PrettyPrintable for Todo{
 
 impl std::cmp::Ord for Todo {
     fn cmp(&self, other: &Todo) -> std::cmp::Ordering {
+        let ontype = self.ttype.cmp(&other.ttype);
+        if ontype != std::cmp::Ordering::Equal{
+            return ontype;
+        }
         self.urgency.cmp(&other.urgency)
     }
 }
@@ -537,68 +604,8 @@ impl std::cmp::PartialOrd for Todo {
 impl std::cmp::PartialEq for Todo {
     fn eq(&self, other: &Todo) -> bool {
         self.title == other.title &&
-        self.urgency == other.urgency
-    }
-}
-
-impl std::clone::Clone for Todo{
-    fn clone(&self) -> Self{
-        Todo{
-            title: self.title.clone(),
-            urgency: self.urgency.clone(),
-        }
-    }
-}
-
-#[derive(FromPrimitive,ToPrimitive)]
-pub enum TodoType{
-    Todo,
-    Long,
-    Idea,
-}
-
-pub struct TodoArchived{
-    title: astr::Astr,
-    urgency: u16,
-    ttype: TodoType,
-}
-
-impl TodoArchived{
-    pub fn new(title: astr::Astr, urgency: u16, ttype: TodoType) -> TodoArchived{
-        TodoArchived{
-            title: title,
-            urgency: urgency,
-            ttype: ttype,
-        }
-    }
-}
-
-impl save::Bufferable for TodoArchived{
-    fn into_buffer(&self, vec: &mut Vec<u8>){
-        self.title.into_buffer(vec);
-        self.urgency.into_buffer(vec);
-        let res = ToPrimitive::to_u8(&self.ttype);
-        if res.is_none(){
-            (0 as u8).into_buffer(vec);
-        }else{
-            res.unwrap().into_buffer(vec);
-        }
-    }
-
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
-        let res_title = astr::Astr::from_buffer(vec, iter);
-        if res_title.is_none() {return Option::None;}
-        let res_urg = u16::from_buffer(vec, iter);
-        if res_urg.is_none() {return Option::None;}
-        let res_typ = u8::from_buffer(vec, iter);
-        if res_typ.is_none() {return Option::None;}
-        let res_typ = FromPrimitive::from_u8(res_typ.unwrap());
-        if res_typ.is_none() {return Option::None;}
-        return Option::Some(TodoArchived{
-            title: res_title.unwrap(),
-            urgency: res_urg.unwrap(),
-            ttype: res_typ.unwrap(),
-        });
+        self.urgency == other.urgency &&
+        self.ttype == other.ttype
     }
 }
 
@@ -609,7 +616,9 @@ impl wizard::Wizardable for Todo{
             if title_res.is_none() {break;}
             let urgency = wres.get_u16();
             if urgency.is_none() {break;}
-            let ret = Todo::new(title_res.unwrap(), urgency.unwrap());
+            let ttype = wres.get_text();
+            if ttype.is_none() {break;}
+            let ret = Todo::new(title_res.unwrap(), urgency.unwrap(), ttype.unwrap());
             return Option::Some(ret);
         }
         pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
@@ -621,9 +630,11 @@ impl wizard::Wizardable for Todo{
         if partial{
             fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
             fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
         }else{
             fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
             fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
         }
         return fields;
     }
@@ -631,9 +642,11 @@ impl wizard::Wizardable for Todo{
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
         let ttitle = astr::Astr::unwrap_default(wres.get_text());
         let turgency = u16::unwrap_default(wres.get_u16());
+        let ttype = TodoType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
         return Todo{
             title: ttitle,
             urgency: turgency,
+            ttype: ttype,
         }
     }
 
@@ -643,6 +656,9 @@ impl wizard::Wizardable for Todo{
             curr_score += 1;
         }
         if self.urgency == other.urgency{
+            curr_score += 1;
+        }
+        if self.ttype == other.ttype{
             curr_score += 1;
         }
         return curr_score;
@@ -655,5 +671,7 @@ impl conz::Printable for Todo{
         pprintln_type!(&self.title, conz::MsgType::Highlight);
         pprint_type!(&"Urgency: ", conz::MsgType::Normal);
         pprintln_type!(&format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
+        pprint_type!(&"Type: ", conz::MsgType::Normal);
+        pprintln_type!(&self.ttype.to_astr(), conz::MsgType::Highlight);
     }
 }

@@ -161,3 +161,28 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
         }
     }
 }
+
+pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,Vec<data::Todo>){
+    let mut to = Vec::new();
+    let mut lo = Vec::new();
+    let mut id = Vec::new();
+    let mut index = 0;
+    for i in 0..todos.len(){
+        if todos[i].ttype == data::TodoType::Long{
+            index = i;
+            break;
+        }
+        to.push(todos[i].clone());
+    }
+    for i in index..todos.len(){
+        if todos[i].ttype == data::TodoType::Idea{
+            index = i;
+            break;
+        }
+        lo.push(todos[i].clone());
+    }
+    for i in index..todos.len(){
+        id.push(todos[i].clone());
+    }
+    return (to,lo,id);
+}

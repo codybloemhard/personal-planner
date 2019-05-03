@@ -208,40 +208,25 @@ pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
 
 pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
-    let mut fields = data::Todo::get_fields(false);
-    fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Reprompt);
+    let fields = data::Todo::get_fields(false);
     let res = fields.execute();
     if res.is_none() {return;}
     let mut res = res.unwrap();
     let todo = data::Todo::extract(&mut res);
     if todo.is_none() {return;}
-    let typestr = res.get_text();
-    if typestr.is_none() {return;}
-    let typestr = typestr.unwrap();
-    if typestr.len() < 1{
-        pprintln_type!(&"Error: type length is zero.", conz::MsgType::Error);
-        return;
-    }
-    if typestr[0] == 'l' as u8{
-        state.todos_long.add_item(todo.unwrap());
-        if !state.todos_long.write() {return;}
-    }else if typestr[0] == 'i' as u8{
-        state.todos_idea.add_item(todo.unwrap());
-        if !state.todos_idea.write() {return;}
-    }else{
-        state.todos_todos.add_item(todo.unwrap());
-        if !state.todos_todos.write() {return;}
-    }
+    state.todos.add_item(todo.unwrap());
+    if !state.todos.write() {return;}
     pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
 }
 
 pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
+    let (to,lo,id) = support::split_todos(state.todos.get_items());
     pprintln_type!(&"Todo:", conz::MsgType::Normal);
-    support::pretty_print(state.todos_todos.get_items(), 0);
+    support::pretty_print(&to, 0);
     pprintln_type!(&"Longterm:", conz::MsgType::Normal);
-    support::pretty_print(state.todos_long.get_items(), 0);
-    pprintln_type!(&"Ideas:", conz::MsgType::Normal);
-    support::pretty_print(state.todos_idea.get_items(), 0);
+    support::pretty_print(&lo, 0);
+    pprintln_type!(&"Idea:", conz::MsgType::Normal);
+    support::pretty_print(&id, 0);
 }
 
 pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){
