@@ -5,6 +5,7 @@ use super::data;
 use super::conz;
 use super::conz::PrinterFunctions;
 use super::astr::*;
+use super::misc::{DefaultValue};
 
 //use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -67,6 +68,11 @@ impl FieldVec{
                         if redo == "n" {return Option::None;}
                     }
                     PromptType::Partial =>{
+                        match instr.field_type{
+                            InputType::Text => texts.push_back(astr::Astr::default_val()),
+                            InputType::DateTime => datetimes.push_back(data::DT::default_val()),
+                            InputType::U16 => u16s.push_back(u16::default_val()),
+                        }
                         break;
                     }
                 }

@@ -230,7 +230,8 @@ pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){
-
+    let items = state.todos.get_items().clone();
+    support::rm_items(items, &mut state.todos, &mut state.todos_archive);
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

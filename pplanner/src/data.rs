@@ -642,7 +642,8 @@ impl wizard::Wizardable for Todo{
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
         let ttitle = astr::Astr::unwrap_default(wres.get_text());
         let turgency = u16::unwrap_default(wres.get_u16());
-        let ttype = TodoType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
+        let x = wres.get_text();
+        let ttype = TodoType::from_astr(&astr::Astr::unwrap_default(x), true);
         return Todo{
             title: ttitle,
             urgency: turgency,
