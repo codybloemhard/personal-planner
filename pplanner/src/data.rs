@@ -648,3 +648,12 @@ impl wizard::Wizardable for Todo{
         return curr_score;
     }
 }
+
+impl conz::Printable for Todo{
+    fn print(&self){
+        pprint_type!(&"Title: ", conz::MsgType::Normal);
+        pprintln_type!(&self.title, conz::MsgType::Highlight);
+        pprint_type!(&"Urgency: ", conz::MsgType::Normal);
+        pprintln_type!(&format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
+    }
+}

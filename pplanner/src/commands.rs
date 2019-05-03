@@ -88,39 +88,8 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
-    pprintln_type!(&"Remove point(search first): ", conz::MsgType::Normal);
-    loop{
-        let points = state.points.get_items().clone();
-        let (match_res, vec) = support::get_matches(&points);
-        match match_res{
-            support::MatchResult::None =>{
-                pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool(&"Try again?: "){
-                    true =>{continue;}
-                    false =>{return;}
-                }
-            }
-            support::MatchResult::Some =>{
-                pprint_type!(&"Found ", conz::MsgType::Normal);
-                pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
-                pprintln_type!(&" items.", conz::MsgType::Normal);
-                for i in &vec{
-                    points[*i].print();
-                }
-                match conz::read_bool(&"Delete all?: "){
-                    true =>{}
-                    false =>{
-                        match conz::read_bool(&"Try again?: "){
-                            true =>{continue;}
-                            false =>{return;}
-                        }
-                    }
-                }
-                support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, &points);
-                return;
-            }
-        }
-    }
+    let items = state.points.get_items().clone();
+    support::rm_items(items, &mut state.points, &mut state.points_archive);
 }
 
 pub fn clean_points(state: &mut state::State, _: astr::AstrVec){

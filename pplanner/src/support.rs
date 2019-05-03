@@ -1,7 +1,6 @@
 use super::astr;
 use super::astr::{AStr};
 use super::data;
-use super::misc::{UnwrapDefault};
 use super::save;
 use super::conz;
 use super::conz::{PrinterFunctions};
@@ -45,8 +44,9 @@ pub fn get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
     return (MatchResult::None, vec);
 }
 
-pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save::ArchiveFile<data::Point>, 
-    vec: Vec<usize>, points: &Vec<data::Point>){
+pub fn remove_and_archive<T: save::Bufferable + std::cmp::Ord + Clone>
+    (bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>, 
+    vec: Vec<usize>, data: &Vec<T>){
     let ok = bf.remove_indices(vec.clone());
     if ok {
         pprintln_type!(&"Success: Items removed.", conz::MsgType::Highlight);
@@ -55,7 +55,7 @@ pub fn remove_and_archive(bf: &mut save::BufferFile<data::Point>, af: &mut save:
         return;
     }
     for i in &vec{
-        af.add_item(points[*i].clone());
+        af.add_item(data[*i].clone());
     }
     if !af.write(){
         pprintln_type!(&"Error: Could not write items to archive.", conz::MsgType::Error);
@@ -124,4 +124,40 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: T::ArgType)
         pprintln!(&"");
     }
     pprintln_type!(&divider_hor("="), conz::MsgType::Highlight);
+}
+
+pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
+    (items: Vec<T>, bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>){
+    pprintln_type!(&"Remove point(search first): ", conz::MsgType::Normal);
+    loop{
+        let (match_res, vec) = get_matches(&items);
+        match match_res{
+            MatchResult::None =>{
+                pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
+                match conz::read_bool(&"Try again?: "){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+            MatchResult::Some =>{
+                pprint_type!(&"Found ", conz::MsgType::Normal);
+                pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
+                pprintln_type!(&" items.", conz::MsgType::Normal);
+                for i in &vec{
+                    items[*i].print();
+                }
+                match conz::read_bool(&"Delete all?: "){
+                    true =>{}
+                    false =>{
+                        match conz::read_bool(&"Try again?: "){
+                            true =>{continue;}
+                            false =>{return;}
+                        }
+                    }
+                }
+                remove_and_archive(bf, af, vec, &items);
+                return;
+            }
+        }
+    }
 }
