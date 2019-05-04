@@ -102,6 +102,7 @@ impl Parser {
         Parser::add("edit point", commands::edit_point, &mut ftree, &mut fset);
         Parser::add("mk todo", commands::mk_todo, &mut ftree, &mut fset);
         Parser::add("ls todos", commands::ls_todos, &mut ftree, &mut fset);
+        Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
         Parser::add("rm todo", commands::rm_todos, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
 

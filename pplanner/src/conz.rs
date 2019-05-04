@@ -80,8 +80,8 @@ pub trait Printable{
 pub trait PrettyPrintable{
     type ArgType;
     fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<MsgType>);
-    fn lengths() -> Vec<u16>;
-    fn titles() -> Vec<astr::Astr>;
+    fn lengths(arg: &Self::ArgType) -> Vec<u16>;
+    fn titles(arg: &Self::ArgType) -> Vec<astr::Astr>;
 }
 
 pub struct Printer{

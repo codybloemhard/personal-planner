@@ -72,10 +72,10 @@ pub fn diff_color(diff: &data::Span) -> conz::MsgType{
     }
 }
 
-pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: T::ArgType){
+pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType){
     let count = datavec.len();
-    let lengths = T::lengths();
-    let titles = T::titles();
+    let lengths = T::lengths(arg);
+    let titles = T::titles(arg);
     if lengths.len() != titles.len() {
         panic!("Panic: pretty_print: lengths.len() != titles.len().");
     }
@@ -107,7 +107,7 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: T::ArgType)
     pprintln_type!(&divider_hor("-"), conz::MsgType::Highlight);
     for x in datavec{
         divider_ver_edge();
-        let (texts,types) = x.pretty_print(&arg);
+        let (texts,types) = x.pretty_print(arg);
         if texts.len() != types.len(){
             panic!("Panic: pretty_print: texts.len() != types.len().");
         }

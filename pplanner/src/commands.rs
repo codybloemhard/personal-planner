@@ -174,12 +174,12 @@ pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
 }
 
 pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
-    support::pretty_print(state.points.get_items(), data::DT::new());
+    support::pretty_print(state.points.get_items(), &data::DT::new());
 }
 
 pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec){
     let res = state.points_archive.read();
-    support::pretty_print(&res, data::DT::new());
+    support::pretty_print(&res, &data::DT::new());
 }
 
 pub fn inspect_point(state: &mut state::State, _: astr::AstrVec){
@@ -221,12 +221,17 @@ pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
 
 pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
     let (to,lo,id) = support::split_todos(state.todos.get_items());
-    pprintln_type!(&"Todo:", conz::MsgType::Normal);
-    support::pretty_print(&to, 0);
-    pprintln_type!(&"Longterm:", conz::MsgType::Normal);
-    support::pretty_print(&lo, 0);
-    pprintln_type!(&"Idea:", conz::MsgType::Normal);
-    support::pretty_print(&id, 0);
+    pprint_type!(&"Todo: ", conz::MsgType::Normal);
+    support::pretty_print(&to, &false);
+    pprint_type!(&"Longterm: ", conz::MsgType::Normal);
+    support::pretty_print(&lo, &false);
+    pprint_type!(&"Idea: ", conz::MsgType::Normal);
+    support::pretty_print(&id, &false);
+}
+
+pub fn ls_todos_archive(state: &mut state::State, _: astr::AstrVec){
+    let res = state.todos_archive.read();
+    support::pretty_print(&res, &true);
 }
 
 pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){

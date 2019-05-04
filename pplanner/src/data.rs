@@ -389,11 +389,11 @@ impl conz::PrettyPrintable for Point{
         return (text,types);
     }
     
-    fn lengths() -> Vec<u16>{
+    fn lengths(_: &Self::ArgType) -> Vec<u16>{
         vec![32,14,23,11]
     }
 
-    fn titles() -> Vec<astr::Astr>{
+    fn titles(_: &Self::ArgType) -> Vec<astr::Astr>{
         vec![astr::from_str("Title:"),
             astr::from_str("Relative:"),
             astr::from_str("Time Date:"),
@@ -564,24 +564,33 @@ impl save::Bufferable for Todo{
 }
 
 impl conz::PrettyPrintable for Todo{
-    type ArgType = u8;
-    fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+    type ArgType = bool;
+    fn pretty_print(&self, print_type: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         let mut text = Vec::new();
         let mut types = Vec::new();
         text.push(self.title.clone());
         text.push(self.urgency.to_string().to_astr());
         types.push(conz::MsgType::Normal);
         types.push(conz::MsgType::Value);
+        if *print_type{
+            text.push(self.ttype.to_astr());
+            types.push(conz::MsgType::Normal);
+        }
         return (text,types);
     }
     
-    fn lengths() -> Vec<u16>{
-        vec![32,8]
+    fn lengths(print_type: &Self::ArgType) -> Vec<u16>{
+        if !*print_type {vec![48,8]}
+        else {vec![48,8,8]}
     }
 
-    fn titles() -> Vec<astr::Astr>{
-        vec![astr::from_str("Title:"),
-            astr::from_str("Urgency:")]
+    fn titles(print_type: &Self::ArgType) -> Vec<astr::Astr>{
+        let mut res = vec![astr::from_str("Title:"),
+            astr::from_str("Urgency:")];
+        if *print_type {
+            res.push(astr::from_str("Type:"));
+        }
+        return res;
     }
 }
 
