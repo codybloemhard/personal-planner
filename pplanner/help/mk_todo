@@ -1,0 +1,5 @@
+Add a new todo.
+A todo has a title, urgency and type.
+Type is either todo,longterm,idea.
+Urgency is a unsigned 16 bits int.
+Todos are sorted by urgency, lower is more urgent.
