@@ -162,6 +162,66 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     }
 }
 
+pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
+    (bf: &mut save::BufferFile<T>){
+    pprintln_type!(&"Edit point(search first): ", conz::MsgType::Normal);
+    let fields = T::get_fields(true);
+    let items = bf.get_items();
+    loop{
+        let (match_res, vec) = get_matches(items);
+        match match_res{
+            MatchResult::None =>{
+                pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
+                match conz::read_bool(&"Try again?: "){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+            MatchResult::Some =>{
+                pprint_type!(&"Found ", conz::MsgType::Normal);
+                pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
+                pprintln_type!(&" items.", conz::MsgType::Normal);
+                for i in &vec{
+                    items[*i].print();
+                }
+                match conz::read_bool(&"Edit all?: "){
+                    true =>{
+                        let mut replacements = Vec::new();
+                        let mut indices = Vec::new();
+                        for i in &vec{
+                            let mut npoint = items[*i].clone();
+                            npoint.print();
+                            let res = fields.execute();
+                            if res.is_none() {return;}
+                            let mut res = res.unwrap();
+                            let partial = T::get_partial(&mut res);
+                            npoint.replace_parts(&partial);
+                            pprintln_type!(&"New item: ", conz::MsgType::Normal);
+                            npoint.print();
+                            let ok = conz::read_bool("Apply edit?: ");
+                            if !ok {continue;}
+                            indices.push(*i);
+                            replacements.push(npoint);
+                        }
+                        let ok = bf.replace(indices, replacements);
+                        if ok {
+                            pprintln_type!(&"Success: Items edited.", conz::MsgType::Highlight);
+                        }else{
+                            pprintln_type!(&"Error: Items editing failed.", conz::MsgType::Highlight);
+                        }
+                        return;
+                    }
+                    false =>{}
+                }
+                match conz::read_bool(&"Try again?: "){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+        }
+    }
+}
+
 pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,Vec<data::Todo>){
     let mut to = Vec::new();
     let mut lo = Vec::new();

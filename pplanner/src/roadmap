@@ -1,6 +1,5 @@
 short:
 FIX: freeze(printer mutex deadlock?)
-ls todos archive
 edit todo
 command history, arrows to select
 appl. argument: run command with args and output stdout

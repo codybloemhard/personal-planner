@@ -87,7 +87,7 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_point(state: &mut state::State, _: astr::AstrVec){
+pub fn rm_points(state: &mut state::State, _: astr::AstrVec){
     let items = state.points.get_items().clone();
     support::rm_items(items, &mut state.points, &mut state.points_archive);
 }
@@ -110,67 +110,8 @@ pub fn clean_points(state: &mut state::State, _: astr::AstrVec){
     support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, &points);
 }
 
-pub fn edit_point(state: &mut state::State, _: astr::AstrVec){
-    pprintln_type!(&"Edit point(search first): ", conz::MsgType::Normal);
-    let fields = data::Point::get_fields(true);
-    let points = state.points.get_items();
-    loop{
-        let (match_res, vec) = support::get_matches(points);
-        match match_res{
-            support::MatchResult::None =>{
-                pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool(&"Try again?: "){
-                    true =>{continue;}
-                    false =>{return;}
-                }
-            }
-            support::MatchResult::Some =>{
-                pprint_type!(&"Found ", conz::MsgType::Normal);
-                pprint_type!(&format!("{}", vec.len()), conz::MsgType::Value);
-                pprintln_type!(&" items.", conz::MsgType::Normal);
-                for i in &vec{
-                    points[*i].print();
-                }
-                match conz::read_bool(&"Edit all?: "){
-                    true =>{
-                        let mut replacements = Vec::new();
-                        let mut indices = Vec::new();
-                        for i in &vec{
-                            let mut npoint = points[*i].clone();
-                            npoint.print();
-                            let res = fields.execute();
-                            if res.is_none() {return;}
-                            let mut res = res.unwrap();
-                            let nptitle = astr::Astr::unwrap_default(res.get_text());
-                            let nptype = data::PointType::from_astr(&astr::Astr::unwrap_default(res.get_text()), true);
-                            let npdt = data::DT::unwrap_default(res.get_dt());
-                            npoint.title.replace_if_not_default(nptitle);
-                            npoint.ptype.replace_if_not_default(nptype);
-                            npoint.dt.replace_if_not_default(npdt);
-                            pprintln_type!(&"New item: ", conz::MsgType::Normal);
-                            npoint.print();
-                            let ok = conz::read_bool("Apply edit?: ");
-                            if !ok {continue;}
-                            indices.push(*i);
-                            replacements.push(npoint);
-                        }
-                        let ok = state.points.replace(indices, replacements);
-                        if ok {
-                            pprintln_type!(&"Success: Items edited.", conz::MsgType::Highlight);
-                        }else{
-                            pprintln_type!(&"Error: Items editing failed.", conz::MsgType::Highlight);
-                        }
-                        return;
-                    }
-                    false =>{}
-                }
-                match conz::read_bool(&"Try again?: "){
-                    true =>{continue;}
-                    false =>{return;}
-                }
-            }
-        }
-    }
+pub fn edit_points(state: &mut state::State, _: astr::AstrVec){
+    support::edit_items(&mut state.points);
 }
 
 pub fn ls_points(state: &mut state::State, _: astr::AstrVec){
@@ -219,6 +160,15 @@ pub fn mk_todo(state: &mut state::State, _: astr::AstrVec){
     pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
 }
 
+pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){
+    let items = state.todos.get_items().clone();
+    support::rm_items(items, &mut state.todos, &mut state.todos_archive);
+}
+
+pub fn edit_todos(state: &mut state::State, _: astr::AstrVec){
+    support::edit_items(&mut state.todos);
+}
+
 pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
     let (to,lo,id) = support::split_todos(state.todos.get_items());
     pprint_type!(&"Todo: ", conz::MsgType::Normal);
@@ -232,11 +182,6 @@ pub fn ls_todos(state: &mut state::State, _: astr::AstrVec){
 pub fn ls_todos_archive(state: &mut state::State, _: astr::AstrVec){
     let res = state.todos_archive.read();
     support::pretty_print(&res, &true);
-}
-
-pub fn rm_todos(state: &mut state::State, _: astr::AstrVec){
-    let items = state.todos.get_items().clone();
-    support::rm_items(items, &mut state.todos, &mut state.todos_archive);
 }
 
 pub fn flush_files(state: &mut state::State, _: astr::AstrVec){

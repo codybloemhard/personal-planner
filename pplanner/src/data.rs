@@ -442,6 +442,12 @@ impl wizard::Wizardable for Point{
         }
     }
 
+    fn replace_parts(&mut self, replacements: &Self){
+        self.title.replace_if_not_default(replacements.title.clone());
+        self.dt.replace_if_not_default(replacements.dt.clone());
+        self.ptype.replace_if_not_default(replacements.ptype.clone());
+    }
+
     fn score_againts(&self, other: &Self) -> i32{
         let mut curr_score = 0;
         if self.title == other.title{
@@ -658,6 +664,12 @@ impl wizard::Wizardable for Todo{
             urgency: turgency,
             ttype: ttype,
         }
+    }
+
+    fn replace_parts(&mut self, replacements: &Self){
+        self.title.replace_if_not_default(replacements.title.clone());
+        self.urgency.replace_if_not_default(replacements.urgency.clone());
+        self.ttype.replace_if_not_default(replacements.ttype.clone());
     }
 
     fn score_againts(&self, other: &Self) -> i32{

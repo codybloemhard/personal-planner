@@ -97,13 +97,14 @@ impl Parser {
         Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);
         Parser::add("ls points archive", commands::ls_points_archive, &mut ftree, &mut fset);
         Parser::add("inspect point", commands::inspect_point, &mut ftree, &mut fset);
-        Parser::add("rm point", commands::rm_point, &mut ftree, &mut fset);
+        Parser::add("rm points", commands::rm_points, &mut ftree, &mut fset);
         Parser::add("clean points", commands::clean_points, &mut ftree, &mut fset);
-        Parser::add("edit point", commands::edit_point, &mut ftree, &mut fset);
+        Parser::add("edit points", commands::edit_points, &mut ftree, &mut fset);
         Parser::add("mk todo", commands::mk_todo, &mut ftree, &mut fset);
         Parser::add("ls todos", commands::ls_todos, &mut ftree, &mut fset);
         Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
-        Parser::add("rm todo", commands::rm_todos, &mut ftree, &mut fset);
+        Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
+        Parser::add("edit todos", commands::edit_todos, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
 
         state.fset = fset;
