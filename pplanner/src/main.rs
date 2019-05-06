@@ -29,14 +29,8 @@ fn main() {
     }
     let mut parser = parser::Parser::new(state.unwrap());
     let args: Vec<String> = std::env::args().collect();
-    if args.len() >= 2 {
-        let arg: &str = args[1].as_ref();
-        if arg == "--help" ||
-            arg == "help" {
-            commands::help_cli();
-        }else{
-            parser.parse_and_run(arg);
-        }
+    if args.len() > 1 {
+        parser::process_cli_args(args, &mut parser);
     }else{
         parser.start_loop();
     }

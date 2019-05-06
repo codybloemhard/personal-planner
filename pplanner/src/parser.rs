@@ -182,3 +182,30 @@ impl Parser {
         return true;
     }
 }
+
+pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
+    let mut i = 1;
+    let mut to_exec = "";
+    while i < args.len(){
+        let arg: &str = args[i].as_ref();
+        let last = i == args.len() - 1;
+        if arg == "--help" ||
+            arg == "help" {
+            commands::help_cli();
+            i += 1;
+        }
+        else if arg == "-e"{
+            if last{
+                pprintln_type!(&"Error: -e is the last argument, it needs a follow up argument with the command to execute.",
+                    conz::MsgType::Error);
+                return;
+            }
+            to_exec = args[i + 1].as_ref();
+            i += 2;
+        }
+    }
+    //Execute at the end, for (future) other args that need to apply first.    
+    if to_exec != ""{
+        parser.parse_and_run(to_exec);
+    }
+}
