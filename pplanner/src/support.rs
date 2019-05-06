@@ -14,7 +14,7 @@ pub enum MatchResult{
 
 pub fn get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
     let fields = T::get_fields(true);
-    let res = fields.execute();
+    let res = fields.execute(Vec::new());
     if res.is_none(){
         return (MatchResult::None, Vec::new());
     }
@@ -191,7 +191,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                         for i in &vec{
                             let mut npoint = items[*i].clone();
                             npoint.print();
-                            let res = fields.execute();
+                            let res = fields.execute(Vec::new());
                             if res.is_none() {return;}
                             let mut res = res.unwrap();
                             let partial = T::get_partial(&mut res);

@@ -46,16 +46,29 @@ impl FieldVec{
         });
     }
 
-    pub fn execute(&self) -> Option<WizardRes>{
+    pub fn execute(&self, inputs: Vec<astr::Astr>) -> Option<WizardRes>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         let mut u16s: VecDeque<u16> = VecDeque::new();
+        let ask = inputs.len() < 1;
+        let mut index = 0;
         for instr in &self.vec{
-            loop {           
+            loop {
+                let line = if ask{
+                    conz::prompt(&instr.prompt_msg.to_string()).to_astr()
+                }else{
+                    if index >= inputs.len(){
+                        pprintln_type!(&"Error: Not enough inputs provided for command!", 
+                            conz::MsgType::Error);
+                        return Option::None;
+                    }
+                    index += 1;
+                    inputs[index-1].clone()
+                };
                 let is_ok = match instr.field_type{
-                    InputType::Text => Self::handle_text(&mut texts, &instr),
-                    InputType::DateTime => Self::handle_datetime(&mut datetimes, &instr),
-                    InputType::U16 => Self::handle_u16(&mut u16s, &instr),
+                    InputType::Text => Self::handle_text(&mut texts, line),
+                    InputType::DateTime => Self::handle_datetime(&mut datetimes, line),
+                    InputType::U16 => Self::handle_u16(&mut u16s, line),
                 };
                 if is_ok {break;}
                 match instr.prompt_type{
@@ -82,10 +95,9 @@ impl FieldVec{
         return Option::Some(res);
     }
 
-    fn handle_text(texts: &mut VecDeque<astr::Astr>, field: &Field) -> bool{
+    fn handle_text(texts: &mut VecDeque<astr::Astr>, line: astr::Astr) -> bool{
         //check if freeze is in stdin
         //let start = SystemTime::now();
-        let line = conz::prompt(&field.prompt_msg.to_string()).to_astr();
         if line.len() < 1 {return false;}
         //let end = SystemTime::now();
         //let dur = end.duration_since(start);
@@ -94,8 +106,8 @@ impl FieldVec{
         return true;
     }
 
-    fn handle_datetime(datetimes: &mut VecDeque<data::DT>, field: &Field) -> bool{
-        let lines = astr::from_str(&conz::prompt(&field.prompt_msg.to_string())).split_str(&astr::astr_whitespace());
+    fn handle_datetime(datetimes: &mut VecDeque<data::DT>, line: astr::Astr) -> bool{
+        let lines = line.split_str(&astr::astr_whitespace());
         if lines.len() != 2 {return false;}
         let tri0 = data::parse_dmy_or_hms(&lines[0]);
         let tri1 = data::parse_dmy_or_hms(&lines[1]);
@@ -107,8 +119,8 @@ impl FieldVec{
         return true;
     }
 
-    fn handle_u16(u16s: &mut VecDeque<u16>, field: &Field) -> bool{
-        let asu32 = astr::to_u32_unchecked(&conz::prompt(&field.prompt_msg.to_string()).to_astr());
+    fn handle_u16(u16s: &mut VecDeque<u16>, line: astr::Astr) -> bool{
+        let asu32 = astr::to_u32_unchecked(&line);
         if asu32 > std::u16::MAX as u32 {return false;}
         u16s.push_back(asu32 as u16);
         return true;

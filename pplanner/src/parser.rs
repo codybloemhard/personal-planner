@@ -7,10 +7,10 @@ use super::state;
 use super::conz;
 use super::conz::PrinterFunctions;
 use super::astr;
-use super::astr::{AStr};
+use super::astr::{AStr,ToAstr};
 use super::commands;
 
-type Func = fn(&mut state::State, astr::AstrVec);
+type Func = fn(&mut state::State, astr::AstrVec, astr::AstrVec);
 
 pub struct FuncTree{
     tree: HashMap<astr::Astr, Box<FuncTree>>,
@@ -105,6 +105,7 @@ impl Parser {
         Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
         Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
         Parser::add("edit todos", commands::edit_todos, &mut ftree, &mut fset);
+        Parser::add("status", commands::status, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
 
         state.fset = fset;
@@ -160,14 +161,14 @@ impl Parser {
                 "q" => if self.do_quit() {break;},
                 "quit" => if self.do_quit() {break;},
                 _ => {
-                    if self.parse_and_run(y) {continue;}
+                    if self.parse_and_run(y, Vec::new()) {continue;}
                 }
             }
         }
         pprintln_color!(&"Bye!", Color::Cyan);
     }
 
-    pub fn parse_and_run(&mut self, rawstr: &str) -> bool{
+    pub fn parse_and_run(&mut self, rawstr: &str, inputs: Vec<astr::Astr>) -> bool{
         let (com,arg) = Parser::extract_args(astr::from_str(rawstr));
         let command = com.split_str(&astr::astr_whitespace());
         let args = arg.split_str(&astr::from_str(","));
@@ -177,7 +178,7 @@ impl Parser {
                 pprintln_error!(&"Fail: Command not found: \"", &rawstr, &"\"!");
                 return false;
             },
-            Option::Some(x) => x(&mut self.state, args),
+            Option::Some(x) => x(&mut self.state, args, inputs),
         }
         return true;
     }
@@ -186,6 +187,7 @@ impl Parser {
 pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
     let mut i = 1;
     let mut to_exec = "";
+    let mut inputs = Vec::new();
     while i < args.len(){
         let arg: &str = args[i].as_ref();
         let last = i == args.len() - 1;
@@ -203,9 +205,25 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
             to_exec = args[i + 1].as_ref();
             i += 2;
         }
+        else if arg == "-i"{
+            if last{
+                pprintln_type!(&"Error: -i is the last argument, it needs a follow up argument with the inputs to the command.",
+                    conz::MsgType::Error);
+                return;
+            }
+            inputs = args[i + 1].to_astr().split_str(&astr::astr_whitespace());
+            i += 2;
+        }
     }
-    //Execute at the end, for (future) other args that need to apply first.    
     if to_exec != ""{
-        parser.parse_and_run(to_exec);
+        parser.parse_and_run(to_exec, inputs);
+    }
+    else{
+        if inputs.len() < 1{
+            pprint_type!(&"Warning: There were inputs provided using flag ", conz::MsgType::Error);
+            pprint_type!(&"-i", conz::MsgType::Highlight);
+            pprint_type!(&" while there was no command given to execute using ", conz::MsgType::Error);
+            pprintln_type!(&"-e", conz::MsgType::Highlight);
+        }
     }
 }
