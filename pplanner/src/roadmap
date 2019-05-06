@@ -1,9 +1,9 @@
 short:
 FIX: freeze(printer mutex deadlock?)
 command history, arrows to select
-appl. argument: run command with args and output stdout
+arguments: use flags
 clean up
-documentation, help, manpages
+documentation, manpages
 release first version
 
 slice type

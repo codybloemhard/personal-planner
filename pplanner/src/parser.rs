@@ -152,6 +152,7 @@ impl Parser {
         pprintln_type!(&"Henlo Fren!", conz::MsgType::Prompt);
         pprintln_type!(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
         pprintln_type!(&"Made by Cody Bloemhard.", conz::MsgType::Prompt);
+        pprintln_type!(&"Type help for help on commands.", conz::MsgType::Prompt);
         loop{
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
@@ -159,22 +160,23 @@ impl Parser {
                 "q" => if self.do_quit() {break;},
                 "quit" => if self.do_quit() {break;},
                 _ => {
-                    let (com,arg) = Parser::extract_args(astr::from_str(y));
-                    let found_cmd = self.parse_and_run(com, arg);
-                    if found_cmd { continue; }
-                    pprintln_error!(&"Fail: Command not found: \"", &y, &"\"!");
+                    if self.parse_and_run(y) {continue;}
                 }
             }
         }
         pprintln_color!(&"Bye!", Color::Cyan);
     }
 
-    fn parse_and_run(&mut self, command: astr::Astr, args: astr::Astr) -> bool{
-        let command = command.split_str(&astr::astr_whitespace());
-        let args = args.split_str(&astr::from_str(","));
+    pub fn parse_and_run(&mut self, rawstr: &str) -> bool{
+        let (com,arg) = Parser::extract_args(astr::from_str(rawstr));
+        let command = com.split_str(&astr::astr_whitespace());
+        let args = arg.split_str(&astr::from_str(","));
         let search = self.ftree.find(&command);
         match search {
-            Option::None => return false,
+            Option::None => {
+                pprintln_error!(&"Fail: Command not found: \"", &rawstr, &"\"!");
+                return false;
+            },
             Option::Some(x) => x(&mut self.state, args),
         }
         return true;

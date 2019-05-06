@@ -13,6 +13,19 @@ use super::support;
 use super::wizard;
 use super::wizard::{Wizardable};
 
+pub fn help_cli(){
+    pprintln_type!(&"pplanner is an TUI/CLI program to manage your time.", conz::MsgType::Normal);
+    pprintln_type!(&"To use it, start it and type commands in its prompt.", conz::MsgType::Normal);
+    pprint_type!(&"Type ", conz::MsgType::Normal);
+    pprint_type!(&"help", conz::MsgType::Highlight);
+    pprintln_type!(&" in its prompt to get help on commands.", conz::MsgType::Normal);
+    pprintln_type!(&"Give a pplanner command as cli argument to run it directly from the terminal.", conz::MsgType::Normal);
+    pprint_type!(&"For example: ", conz::MsgType::Normal);
+    pprintln_type!(&"pplanner \'ls todos\'", conz::MsgType::Highlight);
+    pprint_type!(&"pplanner is made by ", conz::MsgType::Normal);
+    pprintln_type!(&"Cody Bloemhard.", conz::MsgType::Prompt);
+}
+
 pub fn now(_: &mut state::State, _: astr::AstrVec){
     let dt = data::DT::new();
     pprint_type!(&dt.str_datetime(), conz::MsgType::Value);

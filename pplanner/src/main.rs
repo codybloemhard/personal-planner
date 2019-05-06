@@ -28,5 +28,16 @@ fn main() {
         return;
     }
     let mut parser = parser::Parser::new(state.unwrap());
-    parser.start_loop();
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() >= 2 {
+        let arg: &str = args[1].as_ref();
+        if arg == "--help" ||
+            arg == "help" {
+            commands::help_cli();
+        }else{
+            parser.parse_and_run(arg);
+        }
+    }else{
+        parser.start_loop();
+    }
 }
