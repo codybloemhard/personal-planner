@@ -211,7 +211,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
                     conz::MsgType::Error);
                 return;
             }
-            inputs = args[i + 1].to_astr().split_str(&astr::astr_whitespace());
+            inputs = args[i + 1].to_astr().split_str(&astr::from_str(","));
             i += 2;
         }
     }
@@ -219,7 +219,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
         parser.parse_and_run(to_exec, inputs);
     }
     else{
-        if inputs.len() < 1{
+        if inputs.len() > 0{
             pprint_type!(&"Warning: There were inputs provided using flag ", conz::MsgType::Error);
             pprint_type!(&"-i", conz::MsgType::Highlight);
             pprint_type!(&" while there was no command given to execute using ", conz::MsgType::Error);

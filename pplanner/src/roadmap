@@ -3,7 +3,7 @@ FIX: freeze(printer mutex deadlock?)
 command history, arrows to select
 arguments: support more commands for cli inputs
 fix: todo urgency accepts chars
-fix: cant have titles with spaces when mk from cli
+fix: freeze when to much arguments without flags
 clean up
 documentation, manpages
 release first version
