@@ -108,18 +108,16 @@ pub fn mk_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
     pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_points(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn rm_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    check_unsupported_inputs!(inputs);
     let items = state.points.get_items().clone();
-    support::rm_items(items, &mut state.points, &mut state.points_archive);
+    support::rm_items(items, &mut state.points, &mut state.points_archive, &mut inputs);
 }
 
-pub fn clean_points(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn clean_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    check_unsupported_inputs!(inputs);
     pprintln_type!(&"Remove all points that are in the past: ", conz::MsgType::Normal);
-    match conz::read_bool(&"Sure to remove them?: "){
+    match conz::read_bool(&"Sure to remove them?: ", &mut inputs){
         true =>{}
         false =>{return;}
     }
@@ -154,20 +152,20 @@ pub fn ls_points_archive(state: &mut state::State, args: astr::AstrVec, inputs: 
     support::pretty_print(&res, &data::DT::new());
 }
 
-pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    check_unsupported_inputs!(inputs);
     pprintln_type!(&"Inspect point(search first): ", conz::MsgType::Normal);
     loop{
         let points = state.points.get_items();
-        let (match_res, vec) = support::get_matches(&points);
+        let (match_res, vec) = support::get_matches(&points,&mut inputs);
         if match_res == support::MatchResult::None || vec.len() > 1{
             if vec.len() > 1{
                 pprintln_type!(&"Fail: more than one result.", conz::MsgType::Error);
             }else{
                 pprintln_type!(&"Fail: no results found.", conz::MsgType::Error);
             }
-            match conz::read_bool(&"Try again?: "){
+            if inputs.is_some() {return;}
+            match conz::read_bool(&"Try again?: ", &mut Option::None){
                 true =>{continue;}
                 false =>{return;}
             }
@@ -194,11 +192,10 @@ pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option
     pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    check_unsupported_inputs!(inputs);
     let items = state.todos.get_items().clone();
-    support::rm_items(items, &mut state.todos, &mut state.todos_archive);
+    support::rm_items(items, &mut state.todos, &mut state.todos_archive, &mut inputs);
 }
 
 pub fn edit_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){

@@ -1,11 +1,13 @@
 use std::io;
 use std::io::Write; //flush stdout
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use termcolor::{ Color, ColorChoice, ColorSpec, StandardStream, WriteColor };
 use std::sync::Mutex;
 
 use super::astr;
+use super::astr::{TOSTRING};
 
 #[derive(Clone)]
 pub enum MsgType {
@@ -190,8 +192,14 @@ pub fn prompt(msg : &str) -> String{
     return read_inp();
 }
 
-pub fn read_bool(msg: &str) -> bool{
-    let line = prompt(&msg);
+pub fn read_bool(msg: &str, inputs: &mut Option<VecDeque<astr::Astr>>) -> bool{
+    let line;
+    if inputs.is_none(){line = prompt(&msg);}
+    else{
+        let res = inputs.as_mut().unwrap().pop_front();
+        if res.is_none(){line = prompt(&msg);}
+        else {line = res.unwrap().tostring();}
+    }
     match line.as_ref(){
         "y" => true,
         "ye" => true,

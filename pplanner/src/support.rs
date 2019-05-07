@@ -14,9 +14,9 @@ pub enum MatchResult{
     Some,
 }
 
-pub fn get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
+pub fn get_matches<T: Wizardable>(data: &Vec<T>, inputs: &mut Option<VecDeque<astr::Astr>>) -> (MatchResult,Vec<usize>){
     let fields = T::get_fields(true);
-    let res = fields.execute(&mut Option::None);
+    let res = fields.execute(inputs);
     if res.is_none(){
         return (MatchResult::None, Vec::new());
     }
@@ -129,14 +129,17 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType
 }
 
 pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
-    (items: Vec<T>, bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>){
+    (items: Vec<T>, bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>,
+    inputs: &mut Option<VecDeque<astr::Astr>>){
     pprintln_type!(&"Remove point(search first): ", conz::MsgType::Normal);
+    let cli = inputs.is_some();
     loop{
-        let (match_res, vec) = get_matches(&items);
+        let (match_res, vec) = get_matches(&items, inputs);
         match match_res{
             MatchResult::None =>{
                 pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool(&"Try again?: "){
+                if cli {return;}
+                match conz::read_bool(&"Try again?: ", inputs){
                     true =>{continue;}
                     false =>{return;}
                 }
@@ -148,12 +151,14 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                 for i in &vec{
                     items[*i].print();
                 }
-                match conz::read_bool(&"Delete all?: "){
-                    true =>{}
-                    false =>{
-                        match conz::read_bool(&"Try again?: "){
-                            true =>{continue;}
-                            false =>{return;}
+                if !cli{
+                    match conz::read_bool(&"Delete all?: ", inputs){
+                        true =>{}
+                        false =>{
+                            match conz::read_bool(&"Try again?: ", inputs){
+                                true =>{continue;}
+                                false =>{return;}
+                            }
                         }
                     }
                 }
@@ -170,11 +175,11 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     let fields = T::get_fields(true);
     let items = bf.get_items();
     loop{
-        let (match_res, vec) = get_matches(items);
+        let (match_res, vec) = get_matches(items, &mut Option::None);
         match match_res{
             MatchResult::None =>{
                 pprintln_type!(&"Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool(&"Try again?: "){
+                match conz::read_bool(&"Try again?: ", &mut Option::None){
                     true =>{continue;}
                     false =>{return;}
                 }
@@ -186,7 +191,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                 for i in &vec{
                     items[*i].print();
                 }
-                match conz::read_bool(&"Edit all?: "){
+                match conz::read_bool(&"Edit all?: ", &mut Option::None){
                     true =>{
                         let mut replacements = Vec::new();
                         let mut indices = Vec::new();
@@ -200,7 +205,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                             npoint.replace_parts(&partial);
                             pprintln_type!(&"New item: ", conz::MsgType::Normal);
                             npoint.print();
-                            let ok = conz::read_bool("Apply edit?: ");
+                            let ok = conz::read_bool("Apply edit?: ", &mut Option::None);
                             if !ok {continue;}
                             indices.push(*i);
                             replacements.push(npoint);
@@ -215,7 +220,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                     }
                     false =>{}
                 }
-                match conz::read_bool(&"Try again?: "){
+                match conz::read_bool(&"Try again?: ", &mut Option::None){
                     true =>{continue;}
                     false =>{return;}
                 }

@@ -51,17 +51,23 @@ impl FieldVec{
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         let mut u16s: VecDeque<u16> = VecDeque::new();
         let ask = inputs.is_none();
-        let inputs = inputs.as_mut().unwrap();
         for instr in &self.vec{
             loop {
                 let line = if ask{
                     conz::prompt(&instr.prompt_msg.to_string()).to_astr()
                 }else{
-                    let res = inputs.pop_front();
+                    let mut res = inputs.as_mut().unwrap().pop_front();
                     if res.is_none(){
-                        pprintln_type!(&"Error: Not enough inputs provided for command!", 
-                            conz::MsgType::Error);
-                        return Option::None;
+                        match instr.prompt_type{
+                            PromptType::Partial =>{
+                                res = Option::Some(astr::from_str(""));
+                            }
+                            _ =>{
+                                pprintln_type!(&"Error: Not enough inputs provided for command!", 
+                                    conz::MsgType::Error);
+                                return Option::None;
+                            }
+                        }
                     }
                     res.unwrap()
                 };
