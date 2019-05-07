@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use termcolor::{ Color };
 
@@ -10,7 +11,7 @@ use super::astr;
 use super::astr::{AStr,ToAstr};
 use super::commands;
 
-type Func = fn(&mut state::State, astr::AstrVec, astr::AstrVec);
+type Func = fn(&mut state::State, astr::AstrVec, Option<VecDeque<astr::Astr>>);
 
 pub struct FuncTree{
     tree: HashMap<astr::Astr, Box<FuncTree>>,
@@ -161,14 +162,14 @@ impl Parser {
                 "q" => if self.do_quit() {break;},
                 "quit" => if self.do_quit() {break;},
                 _ => {
-                    if self.parse_and_run(y, Vec::new()) {continue;}
+                    if self.parse_and_run(y, Option::None) {continue;}
                 }
             }
         }
         pprintln_color!(&"Bye!", Color::Cyan);
     }
 
-    pub fn parse_and_run(&mut self, rawstr: &str, inputs: Vec<astr::Astr>) -> bool{
+    pub fn parse_and_run(&mut self, rawstr: &str, inputs: Option<VecDeque<astr::Astr>>) -> bool{
         let (com,arg) = Parser::extract_args(astr::from_str(rawstr));
         let command = com.split_str(&astr::astr_whitespace());
         let args = arg.split_str(&astr::from_str(","));
@@ -187,7 +188,7 @@ impl Parser {
 pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
     let mut i = 1;
     let mut to_exec = "";
-    let mut inputs = Vec::new();
+    let mut inputs = Option::None;
     while i < args.len(){
         let arg: &str = args[i].as_ref();
         let last = i == args.len() - 1;
@@ -211,7 +212,12 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
                     conz::MsgType::Error);
                 return;
             }
-            inputs = args[i + 1].to_astr().split_str(&astr::from_str(","));
+            let splitted = args[i + 1].to_astr().split_str(&astr::from_str(","));
+            let mut res = VecDeque::new();
+            for s in splitted{
+                res.push_back(s);
+            }
+            inputs = Option::Some(res);
             i += 2;
         }else{
             pprint_type!(&"Warning: redundant/unused argument: ", conz::MsgType::Error);
@@ -223,7 +229,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
         parser.parse_and_run(to_exec, inputs);
     }
     else{
-        if inputs.len() > 0{
+        if inputs.is_some(){
             pprint_type!(&"Warning: There were inputs provided using flag ", conz::MsgType::Error);
             pprint_type!(&"-i", conz::MsgType::Highlight);
             pprint_type!(&" while there was no command given to execute using ", conz::MsgType::Error);

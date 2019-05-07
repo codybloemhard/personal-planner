@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use super::astr;
 use super::astr::{AStr};
 use super::data;
@@ -14,7 +16,7 @@ pub enum MatchResult{
 
 pub fn get_matches<T: Wizardable>(data: &Vec<T>) -> (MatchResult,Vec<usize>){
     let fields = T::get_fields(true);
-    let res = fields.execute(Vec::new());
+    let res = fields.execute(&mut Option::None);
     if res.is_none(){
         return (MatchResult::None, Vec::new());
     }
@@ -191,7 +193,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                         for i in &vec{
                             let mut npoint = items[*i].clone();
                             npoint.print();
-                            let res = fields.execute(Vec::new());
+                            let res = fields.execute(&mut Option::None);
                             if res.is_none() {return;}
                             let mut res = res.unwrap();
                             let partial = T::get_partial(&mut res);
@@ -247,12 +249,23 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
     return (to,lo,id);
 }
 
-pub fn warn_unused_inputs(inputs: &Vec<astr::Astr>){
-    if inputs.len() < 1 {return;}
+pub fn warn_unused_inputs(inputs: &Option<VecDeque<astr::Astr>>){
+    if inputs.is_none() {return;}
     pprintln_type!(&"Warning: Inputs for this command where specified but this command does not use any.", conz::MsgType::Error);
 }
 
 pub fn warn_unused_arguments(args: &Vec<astr::Astr>){
     if args.len() < 1 {return;}
     pprintln_type!(&"Warning: Arguments for this command where specified but this command does not use any.", conz::MsgType::Error);
+}
+
+#[macro_export]
+macro_rules! check_unsupported_inputs{
+    ($inputs:expr) => {
+        if $inputs.is_some() {
+            pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
+                conz::MsgType::Error);
+            return;
+        }
+    };
 }

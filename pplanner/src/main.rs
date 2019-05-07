@@ -7,6 +7,8 @@ extern crate num_derive;
 
 #[macro_use]
 mod conz;
+#[macro_use]
+mod support;
 mod parser;
 mod data;
 mod astr;
@@ -15,7 +17,6 @@ mod wizard;
 mod state;
 mod commands;
 mod misc;
-mod support;
 
 use conz::PrinterFunctions;
 

@@ -46,24 +46,24 @@ impl FieldVec{
         });
     }
 
-    pub fn execute(&self, inputs: Vec<astr::Astr>) -> Option<WizardRes>{
+    pub fn execute(&self, inputs: &mut Option<VecDeque<astr::Astr>>) -> Option<WizardRes>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
         let mut datetimes: VecDeque<data::DT> = VecDeque::new();
         let mut u16s: VecDeque<u16> = VecDeque::new();
-        let ask = inputs.len() < 1;
-        let mut index = 0;
+        let ask = inputs.is_none();
+        let inputs = inputs.as_mut().unwrap();
         for instr in &self.vec{
             loop {
                 let line = if ask{
                     conz::prompt(&instr.prompt_msg.to_string()).to_astr()
                 }else{
-                    if index >= inputs.len(){
+                    let res = inputs.pop_front();
+                    if res.is_none(){
                         pprintln_type!(&"Error: Not enough inputs provided for command!", 
                             conz::MsgType::Error);
                         return Option::None;
                     }
-                    index += 1;
-                    inputs[index-1].clone()
+                    res.unwrap()
                 };
                 let is_ok = match instr.field_type{
                     InputType::Text => Self::handle_text(&mut texts, line),
