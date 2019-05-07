@@ -277,6 +277,17 @@ pub fn to_u32_unchecked(string: &Astr) -> u32{
     return u;
 }
 
+pub fn to_u32(string: &Astr) -> Option<u32>{
+    let mut u: u32 = 0;
+    for ch in string{
+        if !char_is_num(*ch){
+            return Option::None;
+        }
+        u = u * 10 + ((ch - 48) as u32);
+    }
+    return Option::Some(u);
+}
+
 pub fn to_u16_unchecked(string: &Astr) -> u16{
     let mut u: u16 = 0;
     for ch in string{

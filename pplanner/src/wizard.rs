@@ -120,7 +120,9 @@ impl FieldVec{
     }
 
     fn handle_u16(u16s: &mut VecDeque<u16>, line: astr::Astr) -> bool{
-        let asu32 = astr::to_u32_unchecked(&line);
+        let asu32 = astr::to_u32(&line);
+        if asu32.is_none() {return false;}
+        let asu32 = asu32.unwrap();
         if asu32 > std::u16::MAX as u32 {return false;}
         u16s.push_back(asu32 as u16);
         return true;
