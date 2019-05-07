@@ -213,6 +213,10 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
             }
             inputs = args[i + 1].to_astr().split_str(&astr::from_str(","));
             i += 2;
+        }else{
+            pprint_type!(&"Warning: redundant/unused argument: ", conz::MsgType::Error);
+            pprintln_type!(&arg, conz::MsgType::Highlight);
+            i += 1;
         }
     }
     if to_exec != ""{

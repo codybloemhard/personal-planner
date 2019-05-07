@@ -26,7 +26,8 @@ pub fn help_cli(){
     pprintln_type!(&"Cody Bloemhard.", conz::MsgType::Prompt);
 }
 
-pub fn now(_: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn now(_: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     pprintln_type!(&"Today:", conz::MsgType::Normal);
     let dt = data::DT::new();
     pprint_type!(&dt.str_datetime(), conz::MsgType::Value);
@@ -34,7 +35,8 @@ pub fn now(_: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
     pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
-pub fn help(state: &mut state::State, args: astr::AstrVec, _: astr::AstrVec){
+pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     if args.len() == 0{
         pprint_type!(&"Help, type ", conz::MsgType::Normal);
         pprint_type!(&"help(command) ", conz::MsgType::Highlight);
@@ -81,7 +83,8 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, _: astr::AstrVec){
     pprintln_type!(&string, conz::MsgType::Normal);
 }
 
-pub fn ls_commands(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn ls_commands(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     pprintln_type!(&"All commands: ", conz::MsgType::Normal);
     for f in &state.fset{
         pprintln_type!(f, conz::MsgType::Normal);
@@ -143,11 +146,13 @@ pub fn edit_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::Ast
     support::edit_items(&mut state.points);
 }
 
-pub fn ls_points(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn ls_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     support::pretty_print(state.points.get_items(), &data::DT::new());
 }
 
-pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     let res = state.points_archive.read();
     support::pretty_print(&res, &data::DT::new());
 }
@@ -213,7 +218,8 @@ pub fn edit_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::Astr
     support::edit_items(&mut state.todos);
 }
 
-pub fn ls_todos(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn ls_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     let (to,lo,id) = support::split_todos(state.todos.get_items());
     pprint_type!(&"Todo: ", conz::MsgType::Normal);
     support::pretty_print(&to, &false);
@@ -223,7 +229,8 @@ pub fn ls_todos(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
     support::pretty_print(&id, &false);
 }
 
-pub fn ls_todos_archive(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn ls_todos_archive(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     let res = state.todos_archive.read();
     support::pretty_print(&res, &true);
 }
@@ -234,7 +241,8 @@ pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrV
     ls_todos(state, args.clone(), inputs.clone());
 }
 
-pub fn flush_files(state: &mut state::State, _: astr::AstrVec, _: astr::AstrVec){
+pub fn flush_files(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_inputs(&inputs);
     if state.is_clean() {
         pprintln_type!(&"All files clean, nothing to do.", conz::MsgType::Highlight);
         return;

@@ -246,3 +246,8 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
     }
     return (to,lo,id);
 }
+
+pub fn warn_unused_inputs(inputs: &Vec<astr::Astr>){
+    if inputs.len() < 1 {return;}
+    pprintln_type!(&"Warning: Inputs for this command where specified but this command does not use any.", conz::MsgType::Error);
+}
