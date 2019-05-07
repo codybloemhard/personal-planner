@@ -251,3 +251,8 @@ pub fn warn_unused_inputs(inputs: &Vec<astr::Astr>){
     if inputs.len() < 1 {return;}
     pprintln_type!(&"Warning: Inputs for this command where specified but this command does not use any.", conz::MsgType::Error);
 }
+
+pub fn warn_unused_arguments(args: &Vec<astr::Astr>){
+    if args.len() < 1 {return;}
+    pprintln_type!(&"Warning: Arguments for this command where specified but this command does not use any.", conz::MsgType::Error);
+}

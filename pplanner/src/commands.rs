@@ -26,7 +26,8 @@ pub fn help_cli(){
     pprintln_type!(&"Cody Bloemhard.", conz::MsgType::Prompt);
 }
 
-pub fn now(_: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     pprintln_type!(&"Today:", conz::MsgType::Normal);
     let dt = data::DT::new();
@@ -83,7 +84,8 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec
     pprintln_type!(&string, conz::MsgType::Normal);
 }
 
-pub fn ls_commands(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     pprintln_type!(&"All commands: ", conz::MsgType::Normal);
     for f in &state.fset{
@@ -91,7 +93,8 @@ pub fn ls_commands(state: &mut state::State, _: astr::AstrVec, inputs: astr::Ast
     }
 }
 
-pub fn mk_point(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn mk_point(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     pprintln_type!(&"Add point: ", conz::MsgType::Normal);
     let fields = data::Point::get_fields(false);
     let res = fields.execute(inputs);
@@ -104,7 +107,8 @@ pub fn mk_point(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVe
     pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn rm_points(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -114,7 +118,8 @@ pub fn rm_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrV
     support::rm_items(items, &mut state.points, &mut state.points_archive);
 }
 
-pub fn clean_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn clean_points(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -137,7 +142,8 @@ pub fn clean_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::As
     support::remove_and_archive(&mut state.points, &mut state.points_archive, vec, &points);
 }
 
-pub fn edit_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn edit_points(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -146,18 +152,21 @@ pub fn edit_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::Ast
     support::edit_items(&mut state.points);
 }
 
-pub fn ls_points(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn ls_points(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     support::pretty_print(state.points.get_items(), &data::DT::new());
 }
 
-pub fn ls_points_archive(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn ls_points_archive(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let res = state.points_archive.read();
     support::pretty_print(&res, &data::DT::new());
 }
 
-pub fn inspect_point(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -186,7 +195,8 @@ pub fn inspect_point(state: &mut state::State, _: astr::AstrVec, inputs: astr::A
     }
 }
 
-pub fn mk_todo(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
     let fields = data::Todo::get_fields(false);
     let res = fields.execute(inputs);
@@ -199,7 +209,8 @@ pub fn mk_todo(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec
     pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
 }
 
-pub fn rm_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -209,7 +220,8 @@ pub fn rm_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVe
     support::rm_items(items, &mut state.todos, &mut state.todos_archive);
 }
 
-pub fn edit_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn edit_todos(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     if inputs.len() > 0 {
         pprintln_type!(&"Error: this command does not support execution with givin inputs fro the cli.",
             conz::MsgType::Error);
@@ -218,7 +230,8 @@ pub fn edit_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::Astr
     support::edit_items(&mut state.todos);
 }
 
-pub fn ls_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let (to,lo,id) = support::split_todos(state.todos.get_items());
     pprint_type!(&"Todo: ", conz::MsgType::Normal);
@@ -229,7 +242,8 @@ pub fn ls_todos(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVe
     support::pretty_print(&id, &false);
 }
 
-pub fn ls_todos_archive(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn ls_todos_archive(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let res = state.todos_archive.read();
     support::pretty_print(&res, &true);
@@ -241,7 +255,8 @@ pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrV
     ls_todos(state, args.clone(), inputs.clone());
 }
 
-pub fn flush_files(state: &mut state::State, _: astr::AstrVec, inputs: astr::AstrVec){
+pub fn flush_files(state: &mut state::State, args: astr::AstrVec, inputs: astr::AstrVec){
+    support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     if state.is_clean() {
         pprintln_type!(&"All files clean, nothing to do.", conz::MsgType::Highlight);
