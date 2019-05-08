@@ -247,11 +247,6 @@ pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
 
 pub const CHAR_START_NUM: u8 = 48;
 pub const CHAR_START_UPPER: u8 = 65;
-pub const CHAR_START_LOWER: u8 = 96;
-
-pub fn char_is_normal(ch: u8) -> bool{
-    return (ch >= 32 && ch <= 126) || ch == 9 || ch == 10;
-}
 
 pub fn char_is_num(ch: u8) -> bool{
     return ch >= CHAR_START_NUM && ch <= 57;
@@ -259,14 +254,6 @@ pub fn char_is_num(ch: u8) -> bool{
 
 pub fn char_is_letter_upper(ch: u8) -> bool{
     return ch >= CHAR_START_UPPER && ch <= 90;
-}
-
-pub fn char_is_letter_lower(ch: u8) -> bool{
-    return ch >= CHAR_START_LOWER && ch <= 122;
-}
-
-pub fn char_is_letter(ch: u8) -> bool{
-    return char_is_letter_lower(ch) || char_is_letter_upper(ch);
 }
 
 pub fn to_u32_unchecked(string: &Astr) -> u32{
@@ -286,14 +273,6 @@ pub fn to_u32(string: &Astr) -> Option<u32>{
         u = u * 10 + ((ch - 48) as u32);
     }
     return Option::Some(u);
-}
-
-pub fn to_u16_unchecked(string: &Astr) -> u16{
-    let mut u: u16 = 0;
-    for ch in string{
-        u = u * 10 + ((ch - 48) as u16);
-    }
-    return u;
 }
 
 pub fn astr_whitespace() -> Astr{

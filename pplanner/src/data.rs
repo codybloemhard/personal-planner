@@ -33,10 +33,6 @@ impl Span {
     pub const SECS_HOUR: u64 = 3600;
     pub const SECS_DAY: u64 = 86400;
 
-    pub fn string_normal(&self) -> String{
-        return format!("{}s:{}m:{}h-{}d", self.secs, self.mins, self.hours, self.days);
-    }
-
     pub fn string_significant(&self) -> String{
         let prefix = match self.neg{
             true => "past ",
@@ -94,12 +90,6 @@ impl DT {
         }
     }
 
-    pub fn make_date(dmy: DMY) -> Option<Self>{
-        let date = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(0, 0, 0);
-        if date == chrono::LocalResult::None {return Option::None;}
-        return Option::Some(DT{ dt: date.unwrap(), });
-    }
-
     pub fn make_datetime(dmy: DMY, hms: HMS) -> Option<Self>{
         let datetime = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(hms.0, hms.1, hms.2);
         if datetime == chrono::LocalResult::None {return Option::None;}
@@ -132,10 +122,6 @@ impl DT {
             chrono::Weekday::Sat => "Sat",
             chrono::Weekday::Sun => "Sun",
         })
-    }
-
-    pub fn add(&mut self, days: i64, months: i64, years: i64){
-        self.dt = self.dt + chrono::Duration::days(days + (months * 30) + (years * 365));
     }
 
     pub fn diff(&self, other: &DT) -> Span{

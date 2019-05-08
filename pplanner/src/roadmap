@@ -1,7 +1,6 @@
 short:
 FIX: freeze(printer mutex deadlock?)
 command history, arrows to select
-arguments: support more commands for cli inputs
 clean up
 documentation, manpages
 release first version

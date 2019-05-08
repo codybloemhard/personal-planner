@@ -9,9 +9,7 @@ use super::data;
 use super::astr;
 use super::astr::{AStr};
 use super::state;
-use super::misc::{UnwrapDefault};
 use super::support;
-use super::wizard;
 use super::wizard::{Wizardable};
 
 pub fn help_cli(){
