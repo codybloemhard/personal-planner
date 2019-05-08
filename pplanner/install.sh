@@ -4,8 +4,10 @@ cargo build --release
 sudo cp -f target/release/pplanner /usr/local/bin
 sudo chmod 755 /usr/local/bin/pplanner
 # install other files
-mkdir -p ~/.config/pplanner
-sudo cp -r help ~/.config/pplanner/help
+sudo mkdir -p ~/.config/pplanner
+sudo rm -rf ~/.config/pplanner/help
+sudo cp -rf help ~/.config/pplanner/help
+sudo cp LICENSE ~/.config/pplanner/LICENSE
 # install manpage
 sudo mkdir -p /usr/local/share/man/man1
 sudo cp -f pplanner.ms /usr/local/share/man/man1/pplanner.1

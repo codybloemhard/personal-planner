@@ -93,6 +93,7 @@ impl Parser {
         let mut fset = HashSet::new();
         Parser::add("now", commands::now, &mut ftree, &mut fset);
         Parser::add("help", commands::help, &mut ftree, &mut fset);
+        Parser::add("license", commands::license, &mut ftree, &mut fset);
         Parser::add("ls commands", commands::ls_commands, &mut ftree, &mut fset);
         Parser::add("mk point", commands::mk_point, &mut ftree, &mut fset);
         Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);

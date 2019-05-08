@@ -36,6 +36,35 @@ pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<as
     pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
 }
 
+pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    let path = save::get_data_dir_path("LICENSE");
+    if path.is_none(){
+        pprintln_type!(&"Error: Could not find license file.", conz::MsgType::Error);
+        return;
+    }
+    let path = path.unwrap();
+    let metatdata = std::fs::metadata(path.as_path());
+    if metatdata.is_err(){
+        pprintln_type!(&"Error: Could not find license file.", conz::MsgType::Error);
+        return;
+    }
+    let f = File::open(path.as_path());
+    if f.is_err(){
+        pprintln_type!(&"Error: could not open file.", conz::MsgType::Error);
+        return;
+    }
+    let mut f = f.unwrap();
+    let mut string = String::new();
+    let ok = f.read_to_string(&mut string);
+    if ok.is_err(){
+        pprintln_type!(&"Error: could not read file.", conz::MsgType::Error);
+        return;
+    }
+    pprintln_type!(&string, conz::MsgType::Normal);
+}
+
 pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_inputs(&inputs);
     if args.len() == 0{
