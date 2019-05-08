@@ -1,7 +1,6 @@
 short:
 FIX: freeze(printer mutex deadlock?)
 command history, arrows to select
-clean up
 documentation, manpages
 release first version
 
