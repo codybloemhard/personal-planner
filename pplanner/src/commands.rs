@@ -11,6 +11,7 @@ use super::astr::{AStr};
 use super::state;
 use super::support;
 use super::wizard::{Wizardable};
+use super::save;
 
 pub fn help_cli(){
     pprintln_type!(&"pplanner is an TUI/CLI program to manage your time.", conz::MsgType::Normal);
@@ -50,7 +51,14 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
         return;
     }
     let mut path = std::path::PathBuf::from("./help");
-    let metatdata = std::fs::metadata(path.as_path());
+    let mut metatdata = std::fs::metadata(path.as_path());
+    if metatdata.is_err(){
+        let res = save::get_data_dir_path("help");
+        if res.is_some(){
+            path = res.unwrap();
+            metatdata = std::fs::metadata(path.as_path());
+        }
+    }
     if metatdata.is_err(){
         pprintln_type!(&"Error: Help directory not found.", conz::MsgType::Error);
         return;

@@ -1,6 +1,8 @@
 short:
 FIX: freeze(printer mutex deadlock?)
 command history, arrows to select
+fix: help files when installed
+fix: license when installed
 release first version
 
 slice type
