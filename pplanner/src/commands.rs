@@ -3,7 +3,6 @@ use std::fs::File;
 use std::collections::VecDeque;
 
 use super::conz;
-use super::conz::PrinterFunctions;
 use super::conz::Printable;
 use super::data;
 use super::astr;
@@ -14,26 +13,26 @@ use super::wizard::{Wizardable};
 use super::save;
 
 pub fn help_cli(){
-    pprintln_type!(&"pplanner is an TUI/CLI program to manage your time.", conz::MsgType::Normal);
-    pprintln_type!(&"To use it, start it and type commands in its prompt.", conz::MsgType::Normal);
-    pprint_type!(&"Type ", conz::MsgType::Normal);
-    pprint_type!(&"help", conz::MsgType::Highlight);
-    pprintln_type!(&" in its prompt to get help on commands.", conz::MsgType::Normal);
-    pprintln_type!(&"Give a pplanner command as cli argument to run it directly from the terminal.", conz::MsgType::Normal);
-    pprint_type!(&"For example: ", conz::MsgType::Normal);
-    pprintln_type!(&"pplanner \'ls todos\'", conz::MsgType::Highlight);
-    pprint_type!(&"pplanner is made by ", conz::MsgType::Normal);
-    pprintln_type!(&"Cody Bloemhard.", conz::MsgType::Prompt);
+    conz::println_type("pplanner is an TUI/CLI program to manage your time.", conz::MsgType::Normal);
+    conz::println_type("To use it, start it and type commands in its prompt.", conz::MsgType::Normal);
+    conz::print_type("Type ", conz::MsgType::Normal);
+    conz::print_type("help", conz::MsgType::Highlight);
+    conz::println_type(" in its prompt to get help on commands.", conz::MsgType::Normal);
+    conz::println_type("Give a pplanner command as cli argument to run it directly from the terminal.", conz::MsgType::Normal);
+    conz::print_type("For example: ", conz::MsgType::Normal);
+    conz::println_type("pplanner \'ls todos\'", conz::MsgType::Highlight);
+    conz::print_type("pplanner is made by ", conz::MsgType::Normal);
+    conz::println_type("Cody Bloemhard.", conz::MsgType::Prompt);
 }
 
 pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    pprintln_type!(&"Today:", conz::MsgType::Normal);
+    conz::println_type("Today:", conz::MsgType::Normal);
     let dt = data::DT::new();
-    pprint_type!(&dt.str_datetime(), conz::MsgType::Value);
-    pprint!(&" ");
-    pprintln_type!(&dt.str_dayname(), conz::MsgType::Value);
+    conz::print_type(dt.str_datetime(), conz::MsgType::Value);
+    conz::print(" ");
+    conz::println_type(dt.str_dayname(), conz::MsgType::Value);
 }
 
 pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
@@ -41,42 +40,42 @@ pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDequ
     support::warn_unused_inputs(&inputs);
     let path = save::get_data_dir_path("LICENSE");
     if path.is_none(){
-        pprintln_type!(&"Error: Could not find license file.", conz::MsgType::Error);
+        conz::println_type("Error: Could not find license file.", conz::MsgType::Error);
         return;
     }
     let path = path.unwrap();
     let metatdata = std::fs::metadata(path.as_path());
     if metatdata.is_err(){
-        pprintln_type!(&"Error: Could not find license file.", conz::MsgType::Error);
+        conz::println_type("Error: Could not find license file.", conz::MsgType::Error);
         return;
     }
     let f = File::open(path.as_path());
     if f.is_err(){
-        pprintln_type!(&"Error: could not open file.", conz::MsgType::Error);
+        conz::println_type("Error: could not open file.", conz::MsgType::Error);
         return;
     }
     let mut f = f.unwrap();
     let mut string = String::new();
     let ok = f.read_to_string(&mut string);
     if ok.is_err(){
-        pprintln_type!(&"Error: could not read file.", conz::MsgType::Error);
+        conz::println_type("Error: could not read file.", conz::MsgType::Error);
         return;
     }
-    pprintln_type!(&string, conz::MsgType::Normal);
+    conz::println_type(string, conz::MsgType::Normal);
 }
 
 pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_inputs(&inputs);
     if args.len() == 0{
-        pprint_type!(&"Help, type ", conz::MsgType::Normal);
-        pprint_type!(&"help(command) ", conz::MsgType::Highlight);
-        pprintln_type!(&"to find help.", conz::MsgType::Normal);
-        pprint_type!(&"For example: ", conz::MsgType::Normal);
-        pprint_type!(&"help (mk point)", conz::MsgType::Highlight);
-        pprintln_type!(&".", conz::MsgType::Normal);
-        pprint_type!(&"To list all commands use ", conz::MsgType::Normal);
-        pprint_type!(&"ls commands", conz::MsgType::Highlight);
-        pprintln_type!(&".", conz::MsgType::Normal);
+        conz::print_type("Help, type ", conz::MsgType::Normal);
+        conz::print_type("help(command) ", conz::MsgType::Highlight);
+        conz::println_type("to find help.", conz::MsgType::Normal);
+        conz::print_type("For example: ", conz::MsgType::Normal);
+        conz::print_type("help (mk point)", conz::MsgType::Highlight);
+        conz::println_type(".", conz::MsgType::Normal);
+        conz::print_type("To list all commands use ", conz::MsgType::Normal);
+        conz::print_type("ls commands", conz::MsgType::Highlight);
+        conz::println_type(".", conz::MsgType::Normal);
         return;
     }
     let mut path = std::path::PathBuf::from("./help");
@@ -89,49 +88,49 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
         }
     }
     if metatdata.is_err(){
-        pprintln_type!(&"Error: Help directory not found.", conz::MsgType::Error);
+        conz::println_type("Error: Help directory not found.", conz::MsgType::Error);
         return;
     }
     let res = state.fset.contains(&args[0]);
     if !res {
-        pprintln_type!(&"Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
+        conz::println_type("Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
         return;
     }
     path.push(astr::unsplit(&args[0].split_str(&astr::astr_whitespace()), '_' as u8).to_string());
     let res = std::fs::metadata(path.clone());
     if res.is_err(){
-        pprintln_type!(&"Error: help file not found.", conz::MsgType::Error);
+        conz::println_type("Error: help file not found.", conz::MsgType::Error);
         return;
     }
     let f = File::open(path.as_path());
     if f.is_err(){
-        pprintln_type!(&"Error: could not open file.", conz::MsgType::Error);
+        conz::println_type("Error: could not open file.", conz::MsgType::Error);
         return;
     }
     let mut f = f.unwrap();
     let mut string = String::new();
     let ok = f.read_to_string(&mut string);
     if ok.is_err(){
-        pprintln_type!(&"Error: could not read file.", conz::MsgType::Error);
+        conz::println_type("Error: could not read file.", conz::MsgType::Error);
         return;
     }
-    pprint_type!(&"Command: ", conz::MsgType::Normal);
-    pprintln_type!(&astr::unsplit(&args, ' ' as u8).to_string(), conz::MsgType::Highlight);
-    pprintln_type!(&string, conz::MsgType::Normal);
+    conz::print_type("Command: ", conz::MsgType::Normal);
+    conz::println_type(astr::unsplit(&args, ' ' as u8).to_string(), conz::MsgType::Highlight);
+    conz::println_type(string, conz::MsgType::Normal);
 }
 
 pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    pprintln_type!(&"All commands: ", conz::MsgType::Normal);
-    for f in &state.fset{
-        pprintln_type!(f, conz::MsgType::Normal);
+    conz::println_type("All commands: ", conz::MsgType::Normal);
+    for f in state.fset.clone(){
+        conz::println_type(f, conz::MsgType::Normal);
     }
 }
 
 pub fn mk_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    pprintln_type!(&"Add point: ", conz::MsgType::Normal);
+    conz::println_type("Add point: ", conz::MsgType::Normal);
     let fields = data::Point::get_fields(false);
     let res = fields.execute(&mut inputs);
     if res.is_none() {return;}
@@ -140,7 +139,7 @@ pub fn mk_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
     if point.is_none() {return;}
     state.points.add_item(point.unwrap());
     if !state.points.write() {return;}
-    pprintln_type!(&"Success: Point saved.", conz::MsgType::Highlight);
+    conz::println_type("Success: Point saved.", conz::MsgType::Highlight);
 }
 
 pub fn rm_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -151,8 +150,8 @@ pub fn rm_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Opti
 
 pub fn clean_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    pprintln_type!(&"Remove all points that are in the past: ", conz::MsgType::Normal);
-    match conz::read_bool(&"Sure to remove them?: ", &mut inputs){
+    conz::println_type("Remove all points that are in the past: ", conz::MsgType::Normal);
+    match conz::read_bool("Sure to remove them?: ", &mut inputs){
         true =>{}
         false =>{return;}
     }
@@ -189,18 +188,18 @@ pub fn ls_points_archive(state: &mut state::State, args: astr::AstrVec, inputs: 
 
 pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    pprintln_type!(&"Inspect point(search first): ", conz::MsgType::Normal);
+    conz::println_type("Inspect point(search first): ", conz::MsgType::Normal);
     loop{
         let points = state.points.get_items();
         let (match_res, vec) = support::get_matches(&points,&mut inputs);
         if match_res == support::MatchResult::None || vec.len() > 1{
             if vec.len() > 1{
-                pprintln_type!(&"Fail: more than one result.", conz::MsgType::Error);
+                conz::println_type("Fail: more than one result.", conz::MsgType::Error);
             }else{
-                pprintln_type!(&"Fail: no results found.", conz::MsgType::Error);
+                conz::println_type("Fail: no results found.", conz::MsgType::Error);
             }
             if inputs.is_some() {return;}
-            match conz::read_bool(&"Try again?: ", &mut Option::None){
+            match conz::read_bool("Try again?: ", &mut Option::None){
                 true =>{continue;}
                 false =>{return;}
             }
@@ -215,7 +214,7 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
 
 pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    pprintln_type!(&"Add todo: ", conz::MsgType::Normal);
+    conz::println_type("Add todo: ", conz::MsgType::Normal);
     let fields = data::Todo::get_fields(false);
     let res = fields.execute(&mut inputs);
     if res.is_none() {return;}
@@ -224,7 +223,7 @@ pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option
     if todo.is_none() {return;}
     state.todos.add_item(todo.unwrap());
     if !state.todos.write() {return;}
-    pprintln_type!(&"Success: Todo saved.", conz::MsgType::Highlight);
+    conz::println_type("Success: Todo saved.", conz::MsgType::Highlight);
 }
 
 pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -243,11 +242,11 @@ pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<Ve
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let (to,lo,id) = support::split_todos(state.todos.get_items());
-    pprint_type!(&"Todo: ", conz::MsgType::Normal);
+    conz::print_type("Todo: ", conz::MsgType::Normal);
     support::pretty_print(&to, &false);
-    pprint_type!(&"Longterm: ", conz::MsgType::Normal);
+    conz::print_type("Longterm: ", conz::MsgType::Normal);
     support::pretty_print(&lo, &false);
-    pprint_type!(&"Idea: ", conz::MsgType::Normal);
+    conz::print_type("Idea: ", conz::MsgType::Normal);
     support::pretty_print(&id, &false);
 }
 
@@ -268,13 +267,13 @@ pub fn flush_files(state: &mut state::State, args: astr::AstrVec, inputs: Option
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     if state.is_clean() {
-        pprintln_type!(&"All files clean, nothing to do.", conz::MsgType::Highlight);
+        conz::println_type("All files clean, nothing to do.", conz::MsgType::Highlight);
         return;
     }
     let res = state.flush_files();
     if res {
-        pprintln_type!(&"Success: Flushed all dirty files.", conz::MsgType::Highlight);
+        conz::println_type("Success: Flushed all dirty files.", conz::MsgType::Highlight);
     }else{
-        pprintln_type!(&"Error: Could not flush all dirty files.", conz::MsgType::Error);
+        conz::println_type("Error: Could not flush all dirty files.", conz::MsgType::Error);
     }
 }

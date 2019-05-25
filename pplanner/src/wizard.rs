@@ -3,7 +3,6 @@ use std::collections::VecDeque;
 use super::astr;
 use super::data;
 use super::conz;
-use super::conz::PrinterFunctions;
 use super::astr::*;
 use super::misc::{DefaultValue};
 
@@ -63,7 +62,7 @@ impl FieldVec{
                                 res = Option::Some(astr::from_str(""));
                             }
                             _ =>{
-                                pprintln_type!(&"Error: Not enough inputs provided for command!", 
+                                conz::println_type("Error: Not enough inputs provided for command!", 
                                     conz::MsgType::Error);
                                 return Option::None;
                             }
@@ -79,7 +78,7 @@ impl FieldVec{
                 if is_ok {break;}
                 match instr.prompt_type{
                     PromptType::Once =>{
-                        pprintln_type!(&"Fail: could not parse.", conz::MsgType::Error);
+                        conz::println_type("Fail: could not parse.", conz::MsgType::Error);
                         return Option::None;
                     }
                     PromptType::Reprompt =>{

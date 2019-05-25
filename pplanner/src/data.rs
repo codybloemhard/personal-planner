@@ -5,7 +5,6 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 
 use super::conz;
-use super::conz::PrinterFunctions;
 use super::astr;
 use super::save;
 use super::astr::AStr;
@@ -53,28 +52,28 @@ impl Span {
 
 impl conz::Printable for Span{
     fn print(&self){
-        pprint_type!(&"In the past: ", conz::MsgType::Normal);
+        conz::print_type("In the past: ", conz::MsgType::Normal);
         if self.neg{
-            pprintln_type!(&"Yes", conz::MsgType::Highlight);
+            conz::println_type("Yes", conz::MsgType::Highlight);
         }else{
-            pprintln_type!(&"No", conz::MsgType::Highlight);
+            conz::println_type("No", conz::MsgType::Highlight);
         }
-        pprint_type!(&"Significant: ", conz::MsgType::Normal);
-        pprintln_type!(&self.string_significant(), conz::MsgType::Highlight);
-        pprint_type!(&"In Seconds: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_secs), conz::MsgType::Highlight);
-        pprint_type!(&"In Minutes: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_mins), conz::MsgType::Highlight);
-        pprint_type!(&"In Hours: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_hours), conz::MsgType::Highlight);
-        pprint_type!(&"In Days: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_hours / 24), conz::MsgType::Highlight);
-        pprint_type!(&"In Weeks: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_hours / 168), conz::MsgType::Highlight);
-        pprint_type!(&"In Months: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_hours / 720), conz::MsgType::Highlight);
-        pprint_type!(&"In Years: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.total_hours / 8760), conz::MsgType::Highlight);
+        conz::print_type("Significant: ", conz::MsgType::Normal);
+        conz::println_type(self.string_significant(), conz::MsgType::Highlight);
+        conz::print_type("In Seconds: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_secs), conz::MsgType::Highlight);
+        conz::print_type("In Minutes: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_mins), conz::MsgType::Highlight);
+        conz::print_type("In Hours: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours), conz::MsgType::Highlight);
+        conz::print_type("In Days: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 24), conz::MsgType::Highlight);
+        conz::print_type("In Weeks: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 168), conz::MsgType::Highlight);
+        conz::print_type("In Months: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 720), conz::MsgType::Highlight);
+        conz::print_type("In Years: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 8760), conz::MsgType::Highlight);
     }
 }
 
@@ -301,7 +300,7 @@ impl save::Bufferable for Point{
         self.dt.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ptype);
         if primtype.is_none() {
-            pprintln_type!(&"Error: Could not convert PointType to u8.", conz::MsgType::Error);
+            conz::println_type("Error: Could not convert PointType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
         }else{
             primtype.unwrap().into_buffer(vec);
@@ -345,14 +344,14 @@ impl std::cmp::PartialEq for Point {
 
 impl conz::Printable for Point{
     fn print(&self){
-        pprint_type!(&"Title: ", conz::MsgType::Normal);
-        pprintln_type!(&self.title, conz::MsgType::Highlight);
-        pprint_type!(&"Type: ", conz::MsgType::Normal);
-        pprintln_type!(&self.ptype.to_astr(), conz::MsgType::Highlight);
-        pprint_type!(&"time date: ", conz::MsgType::Normal);
-        pprint_type!(&self.dt.str_datetime(), conz::MsgType::Value);
-        pprint!(&" ");
-        pprintln_type!(&self.dt.str_dayname(), conz::MsgType::Value);
+        conz::print_type("Title: ", conz::MsgType::Normal);
+        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::print_type("Type: ", conz::MsgType::Normal);
+        conz::println_type(self.ptype.to_astr(), conz::MsgType::Highlight);
+        conz::print_type("time date: ", conz::MsgType::Normal);
+        conz::print_type(self.dt.str_datetime(), conz::MsgType::Value);
+        conz::print(" ");
+        conz::println_type(self.dt.str_dayname(), conz::MsgType::Value);
     }
 }
 
@@ -399,7 +398,7 @@ impl wizard::Wizardable for Point{
             let ret = Point::new(dt_res.unwrap(), title_res.unwrap(), isdead_res.unwrap());
             return Option::Some(ret);
         }
-        pprintln_type!(&"Error: could not build point.", conz::MsgType::Error);
+        conz::println_type("Error: could not build point.", conz::MsgType::Error);
         return Option::None;
     }
 
@@ -531,7 +530,7 @@ impl save::Bufferable for Todo{
         self.urgency.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ttype);
         if primtype.is_none() {
-            pprintln_type!(&"Error: Could not convert TodoType to u8.", conz::MsgType::Error);
+            conz::println_type("Error: Could not convert TodoType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
         }else{
             primtype.unwrap().into_buffer(vec);
@@ -622,7 +621,7 @@ impl wizard::Wizardable for Todo{
             let ret = Todo::new(title_res.unwrap(), urgency.unwrap(), ttype.unwrap());
             return Option::Some(ret);
         }
-        pprintln_type!(&"Error: could not build todo.", conz::MsgType::Error);
+        conz::println_type("Error: could not build todo.", conz::MsgType::Error);
         return Option::None;
     }
 
@@ -675,11 +674,11 @@ impl wizard::Wizardable for Todo{
 
 impl conz::Printable for Todo{
     fn print(&self){
-        pprint_type!(&"Title: ", conz::MsgType::Normal);
-        pprintln_type!(&self.title, conz::MsgType::Highlight);
-        pprint_type!(&"Urgency: ", conz::MsgType::Normal);
-        pprintln_type!(&format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
-        pprint_type!(&"Type: ", conz::MsgType::Normal);
-        pprintln_type!(&self.ttype.to_astr(), conz::MsgType::Highlight);
+        conz::print_type("Title: ", conz::MsgType::Normal);
+        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::print_type("Urgency: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
+        conz::print_type("Type: ", conz::MsgType::Normal);
+        conz::println_type(self.ttype.to_astr(), conz::MsgType::Highlight);
     }
 }

@@ -2,11 +2,8 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 
-use termcolor::{ Color };
-
 use super::state;
 use super::conz;
-use super::conz::PrinterFunctions;
 use super::astr;
 use super::astr::{AStr,ToAstr};
 use super::commands;
@@ -125,7 +122,7 @@ impl Parser {
 
     fn do_quit(&self) -> bool{
         if self.state.is_clean() {return true;}
-        pprintln_type!(&"Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
+        conz::println_type("Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
         match x.as_ref(){
             "y" => return true,
@@ -152,10 +149,10 @@ impl Parser {
     }
 
     pub fn start_loop(&mut self) {
-        pprintln_type!(&"Henlo Fren!", conz::MsgType::Prompt);
-        pprintln_type!(&"pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
-        pprintln_type!(&"Made by Cody Bloemhard.", conz::MsgType::Prompt);
-        pprintln_type!(&"Type help for help on commands.", conz::MsgType::Prompt);
+        conz::println_type("Henlo Fren!", conz::MsgType::Prompt);
+        conz::println_type("pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
+        conz::println_type("Made by Cody Bloemhard.", conz::MsgType::Prompt);
+        conz::println_type("Type help for help on commands.", conz::MsgType::Prompt);
         loop{
             let x = conz::prompt("cmd > ");
             let y = x.as_ref();
@@ -167,7 +164,7 @@ impl Parser {
                 }
             }
         }
-        pprintln_color!(&"Bye!", Color::Cyan);
+        conz::println_type("Bye!", conz::MsgType::Prompt);
     }
 
     pub fn parse_and_run(&mut self, rawstr: &str, inputs: Option<VecDeque<astr::Astr>>) -> bool{
@@ -177,7 +174,7 @@ impl Parser {
         let search = self.ftree.find(&command);
         match search {
             Option::None => {
-                pprintln_error!(&"Fail: Command not found: \"", &rawstr, &"\"!");
+                conz::println_error("Fail: Command not found: \"", &rawstr, "\"!");
                 return false;
             },
             Option::Some(x) => x(&mut self.state, args, inputs),
@@ -200,7 +197,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
         }
         else if arg == "-e"{
             if last{
-                pprintln_type!(&"Error: -e is the last argument, it needs a follow up argument with the command to execute.",
+                conz::println_type("Error: -e is the last argument, it needs a follow up argument with the command to execute.",
                     conz::MsgType::Error);
                 return;
             }
@@ -209,7 +206,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
         }
         else if arg == "-i"{
             if last{
-                pprintln_type!(&"Error: -i is the last argument, it needs a follow up argument with the inputs to the command.",
+                conz::println_type("Error: -i is the last argument, it needs a follow up argument with the inputs to the command.",
                     conz::MsgType::Error);
                 return;
             }
@@ -221,8 +218,8 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
             inputs = Option::Some(res);
             i += 2;
         }else{
-            pprint_type!(&"Warning: redundant/unused argument: ", conz::MsgType::Error);
-            pprintln_type!(&arg, conz::MsgType::Highlight);
+            conz::print_type("Warning: redundant/unused argument: ", conz::MsgType::Error);
+            conz::println_type(arg, conz::MsgType::Highlight);
             i += 1;
         }
     }
@@ -231,10 +228,10 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
     }
     else{
         if inputs.is_some(){
-            pprint_type!(&"Warning: There were inputs provided using flag ", conz::MsgType::Error);
-            pprint_type!(&"-i", conz::MsgType::Highlight);
-            pprint_type!(&" while there was no command given to execute using ", conz::MsgType::Error);
-            pprintln_type!(&"-e", conz::MsgType::Highlight);
+            conz::print_type("Warning: There were inputs provided using flag ", conz::MsgType::Error);
+            conz::print_type("-i", conz::MsgType::Highlight);
+            conz::print_type(" while there was no command given to execute using ", conz::MsgType::Error);
+            conz::println_type("-e", conz::MsgType::Highlight);
         }
     }
 }
