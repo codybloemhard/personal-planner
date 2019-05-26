@@ -1,6 +1,5 @@
 short:
 FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
-release first version
 
 slice type
 mk slice
@@ -11,8 +10,7 @@ inspect slice
 edit point: replace some fields of many items by that of one
 command history, arrows to select
 long:
-points and slices
-todos
+slices
 timeslots and sequential planner
 scriptableness
 auto scheduling(AI)
