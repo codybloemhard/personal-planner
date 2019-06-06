@@ -3,6 +3,7 @@ use std::io::Write; //flush stdout
 use std::collections::VecDeque;
 use std::io::Read;
 use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
+use std::cmp::{ max, min };
 
 use super::astr;
 use super::astr::{TOSTRING};
@@ -99,13 +100,16 @@ fn getch() -> u8{
 }*/
 
 fn custom_inp() -> astr::Astr{
-    fn typed_char(ch: u8, buff: &mut Vec<u8>, astate: &mut u8){
+    fn typed_char(ch: u8, buff: &mut Vec<u8>, astate: &mut u8, pos: &mut usize){
         print!("{}", ch as char);
-        buff.push(ch);
+        buff.insert(*pos, ch);
         *astate = 0;
+        *pos += 1;
     }
     let mut res = astr::new();
     let mut arrow_state: u8 = 0;
+    let mut pos = 0;
+
     set_colour(MsgType::Normal);
     loop {
         match getch(){
@@ -122,26 +126,35 @@ fn custom_inp() -> astr::Astr{
                 print!("{}", 8 as char);
                 //print!("\x1B[1D"); //also works
                 arrow_state = 0;
+                pos = res.len();
             }
             27 => { arrow_state = 1; } //first char in arrow code
             91 => { if arrow_state == 1 { arrow_state = 2; } } //2nd char in arrow code
             65 => { //up arrow 
                 if arrow_state == 2 {}
-                else { typed_char(65, &mut res, &mut arrow_state); }
+                else { typed_char(65, &mut res, &mut arrow_state, &mut pos); }
             }
             66 => { //down arrow 
                 if arrow_state == 2 {}
-                else { typed_char(66, &mut res, &mut arrow_state); }
+                else { typed_char(66, &mut res, &mut arrow_state, &mut pos); }
             }
             67 => {  //right arrow
-                if arrow_state == 2 { print!("\x1B[1C"); arrow_state = 0; }
-                else { typed_char(67, &mut res, &mut arrow_state); }
+                if arrow_state == 2 {
+                    print!("\x1B[1C");
+                    arrow_state = 0;
+                    pos = min(pos + 1, res.len());
+                }
+                else { typed_char(67, &mut res, &mut arrow_state, &mut pos); }
             }
             68 => {  //left arrow
-                if arrow_state == 2 { print!("{}", 8 as char); arrow_state = 0; }
-                else { typed_char(68, &mut res, &mut arrow_state); }
+                if arrow_state == 2 {
+                    print!("{}", 8 as char);
+                    arrow_state = 0;
+                    pos = max(pos as i32 - 1, 0 as i32) as usize;
+                }
+                else { typed_char(68, &mut res, &mut arrow_state, &mut pos); }
             }
-            x => { typed_char(x, &mut res, &mut arrow_state); }
+            x => { typed_char(x, &mut res, &mut arrow_state, &mut pos); }
         }
     }
     return res;
