@@ -101,8 +101,17 @@ fn getch() -> u8{
 
 fn custom_inp() -> astr::Astr{
     fn typed_char(ch: u8, buff: &mut Vec<u8>, astate: &mut u8, pos: &mut usize){
-        print!("{}", ch as char);
         buff.insert(*pos, ch);
+        if *pos != buff.len() - 1{
+            for i in *pos..buff.len(){
+                print!("{}", buff[i] as char);
+            }
+            for _ in  *pos..buff.len()-1{
+                print!("{}", 8 as char);
+            }
+        }else{
+            print!("{}", ch as char);
+        }
         *astate = 0;
         *pos += 1;
     }
@@ -140,7 +149,7 @@ fn custom_inp() -> astr::Astr{
             }
             67 => {  //right arrow
                 if arrow_state == 2 {
-                    print!("\x1B[1C");
+                    if pos < res.len() { print!("\x1B[1C"); }
                     arrow_state = 0;
                     pos = min(pos + 1, res.len());
                 }
@@ -148,7 +157,7 @@ fn custom_inp() -> astr::Astr{
             }
             68 => {  //left arrow
                 if arrow_state == 2 {
-                    print!("{}", 8 as char);
+                    if pos > 0 { print!("{}", 8 as char); }
                     arrow_state = 0;
                     pos = max(pos as i32 - 1, 0 as i32) as usize;
                 }
