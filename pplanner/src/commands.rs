@@ -28,11 +28,15 @@ pub fn help_cli(){
 pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    conz::println_type("Today:", conz::MsgType::Normal);
     let dt = data::DT::new();
-    conz::print_type(dt.str_datetime(), conz::MsgType::Value);
-    conz::print(" ");
+    conz::print_type("Time: ", conz::MsgType::Normal);
+    conz::println_type(dt.str_time(), conz::MsgType::Value);
+    conz::print_type("Date: ", conz::MsgType::Normal);
+    conz::println_type(dt.str_date(), conz::MsgType::Value);
+    conz::print_type("Day:  ", conz::MsgType::Normal);
     conz::println_type(dt.str_dayname(), conz::MsgType::Value);
+    conz::print_type("Week: ", conz::MsgType::Normal);
+    conz::println_type(dt.str_weeknr(), conz::MsgType::Value);
 }
 
 pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){

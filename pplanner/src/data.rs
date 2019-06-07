@@ -99,6 +99,27 @@ impl DT {
         return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")).to_astr();
     }
 
+    pub fn str_date(&self) -> astr::Astr{    
+        return format!("{}", self.dt.format("%d-%m-%Y")).to_astr();
+    }
+
+    pub fn str_time(&self) -> astr::Astr{    
+        return format!("{}", self.dt.format("%H:%M:%S")).to_astr();
+    }
+
+    pub fn weeknr(&self) -> u8{
+        let datetime = Self::make_datetime((1, 1, self.dt.year() as u32), (0, 0, 0));//first day this year
+        if datetime.is_none() { return 0; }
+        let datetime = datetime.unwrap();
+        let since = self.diff(&datetime);
+        let weeks = since.days / 7;
+        return (weeks + 1) as u8; //year starts with week 1 not week 0
+    }
+
+    pub fn str_weeknr(&self) -> astr::Astr{
+        return format!("{}", self.weeknr()).to_astr();
+    }
+
     pub fn str_dayname(&self) -> astr::Astr{
         astr::from_str(match self.dt.weekday(){
             chrono::Weekday::Mon => "Monday",
