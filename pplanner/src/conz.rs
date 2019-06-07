@@ -93,11 +93,11 @@ fn getch() -> u8{
     return buffer[0];
 }
 
-/*fn test_chars(){
+pub fn test_chars(){
     loop {
-        print!("{:?}", getch());
+        print!("{:?}\n", getch());
     }
-}*/
+}
 
 fn custom_inp() -> astr::Astr{
     fn typed_char(ch: u8, buff: &mut Vec<u8>, astate: &mut u8, pos: &mut usize){

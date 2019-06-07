@@ -277,3 +277,10 @@ pub fn flush_files(state: &mut state::State, args: astr::AstrVec, inputs: Option
         conz::println_type("Error: Could not flush all dirty files.", conz::MsgType::Error);
     }
 }
+
+pub fn test_keys(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    conz::println_type("Testing keys, press any key to get id, exit program to stop.", conz::MsgType::Normal);
+    conz::test_chars();
+}

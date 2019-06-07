@@ -106,6 +106,7 @@ impl Parser {
         Parser::add("edit todos", commands::edit_todos, &mut ftree, &mut fset);
         Parser::add("status", commands::status, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
+        Parser::add("test keys", commands::test_keys, &mut ftree, &mut fset);
 
         state.fset = fset;
         return Parser {
