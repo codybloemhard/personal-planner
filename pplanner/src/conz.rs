@@ -117,6 +117,7 @@ fn custom_inp() -> astr::Astr{
     }
     let mut res = astr::new();
     let mut arrow_state: u8 = 0;
+    let mut hoen_state: u8 = 0;
     let mut pos = 0;
 
     set_colour(MsgType::Normal);
@@ -137,8 +138,14 @@ fn custom_inp() -> astr::Astr{
                 arrow_state = 0;
                 pos = res.len();
             }
-            27 => { arrow_state = 1; } //first char in arrow code
-            91 => { if arrow_state == 1 { arrow_state = 2; } } //2nd char in arrow code
+            27 => { //first char in arrow code and home/end code
+                arrow_state = 1;
+                hoen_state = 1;
+            } 
+            91 => { //2nd char in arrow code and home/end code
+                if arrow_state == 1 { arrow_state = 2; }
+                if hoen_state == 1 { hoen_state = 2; }
+            }
             65 => { //up arrow 
                 if arrow_state == 2 {}
                 else { typed_char(65, &mut res, &mut arrow_state, &mut pos); }
@@ -146,6 +153,25 @@ fn custom_inp() -> astr::Astr{
             66 => { //down arrow 
                 if arrow_state == 2 {}
                 else { typed_char(66, &mut res, &mut arrow_state, &mut pos); }
+            }
+            72 => { //home key
+                if hoen_state != 2 { continue; }
+                for _ in 0..pos {
+                    print!("{}", 8 as char);
+                }
+                pos = 0;
+                hoen_state = 0;
+            }
+            52 => { //end key 3e char
+                if hoen_state == 2 { hoen_state = 3; }
+            }
+            126 => { //end key
+                if hoen_state != 3 { continue; }
+                for _ in pos..res.len() {
+                    print!("\x1B[1C");
+                }
+                pos = res.len();
+                hoen_state = 0;
             }
             67 => {  //right arrow
                 if arrow_state == 2 {
