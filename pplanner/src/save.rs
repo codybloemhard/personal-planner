@@ -9,6 +9,8 @@ pub const POINT_DIR: &'static str = "points";
 pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
 pub const TODO_DIR: &'static str = "todos";
 pub const TODO_ARCHIVE_DIR: &'static str = "todos_archive";
+pub const SLICE_DIR: &'static str = "slices";
+pub const SLICE_ARCHIVE_DIR: &'static str = "slices_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let hd = dirs::home_dir();

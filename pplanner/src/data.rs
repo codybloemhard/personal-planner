@@ -696,31 +696,74 @@ impl conz::Printable for Todo{
     }
 }
 
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+pub enum SliceType{
+    None = 0,
+    Deadline = 1,
+    Goto = 2,
+    Activity = 3,
+    DefaultValue = 255,
+}
+
+impl PartialEq for SliceType {
+    fn eq(&self, other: &Self) -> bool {
+        ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
+    }
+}
+
+impl SliceType {
+    pub fn from_astr(string: &astr::Astr, partial: bool) -> Self{
+        let string = string.to_lower();
+        if string.len() == 0 && partial{
+            return SliceType::DefaultValue;
+        }
+        if string.cut(1) == astr::from_str("d"){
+            return SliceType::Deadline;
+        }
+        if string.cut(1) == astr::from_str("g"){
+            return SliceType::Goto;
+        }
+        if string.cut(1) == astr::from_str("a"){
+            return SliceType::Activity;
+        }
+        return SliceType::None;
+    }
+}
+
+impl astr::ToAstr for SliceType {
+    fn to_astr(&self) -> astr::Astr{
+        astr::from_str(match self{
+            SliceType::None => "None",
+            SliceType::Deadline => "Deadline",
+            SliceType::Goto => "Goto",
+            SliceType::Activity => "Activity",
+            SliceType::DefaultValue => "Error",
+        })
+    }
+}
+
+impl DefaultValue for SliceType {
+    fn default_val() -> Self{
+        return SliceType::DefaultValue;
+    }
+}
+
 #[derive(Eq, Clone)]
 pub struct Slice {
     pub start: DT,
     pub end: DT,
+    title: astr::Astr,
+    stype: SliceType,
 }
 
 impl Slice {
-    pub fn from(start: DT, end: DT) -> Self{
+    pub fn from(start: DT, end: DT, title: astr::Astr, stype: SliceType) -> Self{
         Self{
             start: start,
             end: end,
+            title: title,
+            stype: stype,
         }
-    }
-
-    pub fn make_datetime(dmy_start: DMY, hms_start: HMS, dmy_end: DMY, hms_end: HMS) -> Option<Self>{
-        let start = DT::make_datetime(dmy_start, hms_start);
-        if start.is_none() { return Option::None };
-        let end = DT::make_datetime(dmy_end, hms_end);
-        if end.is_none() { return Option::None };
-        return Option::Some(
-            Slice{
-                start: start.unwrap(),
-                end: end.unwrap(),
-            }
-        );
     }
 }
 
@@ -728,6 +771,14 @@ impl save::Bufferable for Slice {
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.start.into_buffer(vec);
         self.end.into_buffer(vec);
+        self.title.into_buffer(vec);
+        let primtype = ToPrimitive::to_u8(&self.stype);
+        if primtype.is_none() {
+            conz::println_type("Error: Could not convert SliceType to u8.", conz::MsgType::Error);
+            (0 as u8).into_buffer(vec);
+        }else{
+            primtype.unwrap().into_buffer(vec);
+        }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
@@ -736,7 +787,13 @@ impl save::Bufferable for Slice {
         if start.is_none() { return Option::None; }
         let end = DT::from_buffer(vec, iter);
         if end.is_none() { return Option::None; }
-        return Option::Some(Self::from(start.unwrap(), end.unwrap()));
+        let title = astr::Astr::from_buffer(vec, iter);
+        if title.is_none() {return Option::None;}
+        let res_stype = u8::from_buffer(vec, iter);
+        if res_stype.is_none() {return Option::None;}
+        let res_stype = FromPrimitive::from_u8(res_stype.unwrap());
+        if res_stype.is_none() {return Option::None;}
+        return Option::Some(Self::from(start.unwrap(), end.unwrap(), title.unwrap(), res_stype.unwrap()));
     }
 }
 
@@ -763,6 +820,127 @@ impl std::cmp::PartialEq for Slice {
 impl DefaultValue for Slice{
     fn default_val() -> Self{
         let defdt = DT::make_datetime((1,1,1900), (0,0,0)).expect("Expect: DefaultValue for DT");
-        Self::from(defdt.clone(), defdt)
+        Self::from(defdt.clone(), defdt, astr::new(), SliceType::DefaultValue)
+    }
+}
+
+impl conz::Printable for Slice{
+    fn print(&self){
+        conz::print_type("Title: ", conz::MsgType::Normal);
+        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::print_type("Type: ", conz::MsgType::Normal);
+        conz::println_type(self.stype.to_astr(), conz::MsgType::Highlight);
+        conz::print_type("Start: ", conz::MsgType::Normal);
+        conz::print_type(self.start.str_datetime(), conz::MsgType::Value);
+        conz::print(" ");
+        conz::println_type(self.start.str_dayname(), conz::MsgType::Value);
+        conz::print_type("End: ", conz::MsgType::Normal);
+        conz::print_type(self.end.str_datetime(), conz::MsgType::Value);
+        conz::print(" ");
+        conz::println_type(self.end.str_dayname(), conz::MsgType::Value);
+    }
+}
+
+impl conz::PrettyPrintable for Slice{
+    type ArgType = DT;
+    fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+        let mut text = Vec::new();
+        let mut types = Vec::new();
+        let diff = arg.diff(&self.start);
+        text.push(self.title.clone());
+        text.push(diff.string_significant().to_astr());
+        text.push(self.start.str_datetime()
+            .concat(astr::from_str(" "))
+            .concat(self.start.str_dayname_short()));
+        text.push(self.stype.to_astr());
+        types.push(conz::MsgType::Normal);
+        types.push(support::diff_color(&diff));
+        types.push(conz::MsgType::Value);
+        types.push(conz::MsgType::Normal);
+        return (text,types);
+    }
+    
+    fn lengths(_: &Self::ArgType) -> Vec<u16>{
+        vec![32,14,23,11]
+    }
+
+    fn titles(_: &Self::ArgType) -> Vec<astr::Astr>{
+        vec![astr::from_str("Title:"),
+            astr::from_str("Relative:"),
+            astr::from_str("Time Date:"),
+            astr::from_str("Type:"),]
+    }
+}
+
+impl wizard::Wizardable for Slice{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Self>{
+        loop{
+            let start_res = wres.get_dt();
+            if start_res.is_none() {break;}
+            let end_res = wres.get_dt();
+            if end_res.is_none() {break;}
+            let title_res = wres.get_text();
+            if title_res.is_none() {break;}
+            let stype_res = wres.get_text();
+            if stype_res.is_none() {break;}
+            let ret = Slice::from(start_res.unwrap(), end_res.unwrap(), title_res.unwrap(), 
+                SliceType::from_astr(&stype_res.unwrap(), false));
+            return Option::Some(ret);
+        }
+        conz::println_type("Error: could not build slice.", conz::MsgType::Error);
+        return Option::None;
+    }
+
+    fn get_fields(partial: bool) -> wizard::FieldVec{
+        let mut fields = wizard::FieldVec::new();
+        if partial{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::DateTime, astr::from_str("Start time date: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::DateTime, astr::from_str("End time date: "), wizard::PromptType::Partial);
+        }else{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::DateTime, astr::from_str("Start time date: "), wizard::PromptType::Reprompt);
+            fields.add(wizard::InputType::DateTime, astr::from_str("End time date: "), wizard::PromptType::Reprompt);
+        }
+        return fields;
+    }
+
+    fn get_partial(wres: &mut wizard::WizardRes) -> Self{
+        let stitle = astr::Astr::unwrap_default(wres.get_text());
+        let stype = SliceType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
+        let sstart = DT::unwrap_default(wres.get_dt());
+        let send = DT::unwrap_default(wres.get_dt());
+        return Slice{
+            start: sstart,
+            end: send,
+            title: stitle,
+            stype: stype,
+        }
+    }
+
+    fn replace_parts(&mut self, replacements: &Self){
+        self.title.replace_if_not_default(replacements.title.clone());
+        self.start.replace_if_not_default(replacements.start.clone());
+        self.end.replace_if_not_default(replacements.end.clone());
+        self.stype.replace_if_not_default(replacements.stype.clone());
+    }
+
+    fn score_againts(&self, other: &Self) -> i32{
+        let mut curr_score = 0;
+        if self.title == other.title{
+            curr_score += 1;
+        }
+        if self.stype == other.stype{
+            curr_score += 1;
+        }
+        if self.start == other.start{
+            curr_score += 1;
+        }
+        if self.end == other.end{
+            curr_score += 1;
+        }
+        return curr_score;
     }
 }
