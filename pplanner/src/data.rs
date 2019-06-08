@@ -77,7 +77,7 @@ impl conz::Printable for Span{
     }
 }
 
-#[derive(Eq)]
+#[derive(Eq, Clone)]
 pub struct DT {
     pub dt: chrono::DateTime<Local>,
 }
@@ -224,14 +224,6 @@ impl std::cmp::PartialOrd for DT {
 impl std::cmp::PartialEq for DT {
     fn eq(&self, other: &DT) -> bool {
         return self.dt == other.dt;
-    }
-}
-
-impl std::clone::Clone for DT{
-    fn clone(&self) -> Self{
-        DT{
-            dt: self.dt.clone(),
-        }
     }
 }
 
@@ -701,5 +693,76 @@ impl conz::Printable for Todo{
         conz::println_type(format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
         conz::print_type("Type: ", conz::MsgType::Normal);
         conz::println_type(self.ttype.to_astr(), conz::MsgType::Highlight);
+    }
+}
+
+#[derive(Eq, Clone)]
+pub struct Slice {
+    pub start: DT,
+    pub end: DT,
+}
+
+impl Slice {
+    pub fn from(start: DT, end: DT) -> Self{
+        Self{
+            start: start,
+            end: end,
+        }
+    }
+
+    pub fn make_datetime(dmy_start: DMY, hms_start: HMS, dmy_end: DMY, hms_end: HMS) -> Option<Self>{
+        let start = DT::make_datetime(dmy_start, hms_start);
+        if start.is_none() { return Option::None };
+        let end = DT::make_datetime(dmy_end, hms_end);
+        if end.is_none() { return Option::None };
+        return Option::Some(
+            Slice{
+                start: start.unwrap(),
+                end: end.unwrap(),
+            }
+        );
+    }
+}
+
+impl save::Bufferable for Slice {
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        self.start.into_buffer(vec);
+        self.end.into_buffer(vec);
+    }
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 18 { return Option::None; }
+        let start = DT::from_buffer(vec, iter);
+        if start.is_none() { return Option::None; }
+        let end = DT::from_buffer(vec, iter);
+        if end.is_none() { return Option::None; }
+        return Option::Some(Self::from(start.unwrap(), end.unwrap()));
+    }
+}
+
+impl std::cmp::Ord for Slice {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.start.cmp(&other.start);
+    }
+}
+
+impl std::cmp::PartialOrd for Slice {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl std::cmp::PartialEq for Slice {
+    fn eq(&self, other: &Self) -> bool {
+        return 
+            self.start == other.start &&
+            self.end == other.end;
+    }
+}
+
+impl DefaultValue for Slice{
+    fn default_val() -> Self{
+        let defdt = DT::make_datetime((1,1,1900), (0,0,0)).expect("Expect: DefaultValue for DT");
+        Self::from(defdt.clone(), defdt)
     }
 }

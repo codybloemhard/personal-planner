@@ -9,6 +9,7 @@ edit slice
 inspect slice
 edit point: replace some fields of many items by that of one
 command history, arrows to select
+
 long:
 slices
 timeslots and sequential planner
