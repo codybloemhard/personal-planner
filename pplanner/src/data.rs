@@ -846,28 +846,29 @@ impl conz::PrettyPrintable for Slice{
     fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         let mut text = Vec::new();
         let mut types = Vec::new();
-        let diff = arg.diff(&self.start);
         text.push(self.title.clone());
-        text.push(diff.string_significant().to_astr());
         text.push(self.start.str_datetime()
             .concat(astr::from_str(" "))
             .concat(self.start.str_dayname_short()));
+        text.push(self.end.str_datetime()
+            .concat(astr::from_str(" "))
+            .concat(self.end.str_dayname_short()));
         text.push(self.stype.to_astr());
         types.push(conz::MsgType::Normal);
-        types.push(support::diff_color(&diff));
+        types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Normal);
         return (text,types);
     }
     
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
-        vec![32,14,23,11]
+        vec![32,23,23,11]
     }
 
     fn titles(_: &Self::ArgType) -> Vec<astr::Astr>{
         vec![astr::from_str("Title:"),
-            astr::from_str("Relative:"),
-            astr::from_str("Time Date:"),
+            astr::from_str("Start Time Date:"),
+            astr::from_str("End Time Date:"),
             astr::from_str("Type:"),]
     }
 }

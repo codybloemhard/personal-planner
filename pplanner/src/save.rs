@@ -72,6 +72,8 @@ pub fn setup_config_dir() -> bool{
     setup_file(POINT_ARCHIVE_DIR);
     setup_file(TODO_DIR);
     setup_file(TODO_ARCHIVE_DIR);
+    setup_file(SLICE_DIR);
+    setup_file(SLICE_ARCHIVE_DIR);
     return true;
 }
 

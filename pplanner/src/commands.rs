@@ -267,6 +267,90 @@ pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecD
     ls_todos(state, args.clone(), inputs.clone());
 }
 
+pub fn mk_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::println_type("Add slice: ", conz::MsgType::Normal);
+    let fields = data::Slice::get_fields(false);
+    let res = fields.execute(&mut inputs);
+    if res.is_none() {return;}
+    let mut res = res.unwrap();
+    let slice = data::Slice::extract(&mut res);
+    if slice.is_none() {return;}
+    state.slices.add_item(slice.unwrap());
+    if !state.slices.write() {return;}
+    conz::println_type("Success: Slice saved.", conz::MsgType::Highlight);
+}
+
+pub fn rm_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    let items = state.slices.get_items().clone();
+    support::rm_items(items, &mut state.slices, &mut state.slices_archive, &mut inputs);
+}
+
+pub fn clean_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::println_type("Remove all slices that are in the past: ", conz::MsgType::Normal);
+    match conz::read_bool("Sure to remove them?: ", &mut inputs){
+        true =>{}
+        false =>{return;}
+    }
+    let slices = state.slices.get_items().clone();
+    let mut vec = Vec::new();
+    let now = data::DT::new();
+    for i in 0..slices.len(){
+        if !now.diff(&slices[i].start).neg{
+            break;
+        }
+        vec.push(i);
+    }
+    support::remove_and_archive(&mut state.slices, &mut state.slices_archive, vec, &slices);
+}
+
+pub fn edit_slices(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    check_unsupported_inputs!(inputs);
+    support::edit_items(&mut state.slices);
+}
+
+pub fn ls_slices(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    support::pretty_print(state.slices.get_items(), &data::DT::new());
+}
+
+pub fn ls_slices_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    let res = state.slices_archive.read();
+    support::pretty_print(&res, &data::DT::new());
+}
+
+pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::println_type("Inspect slice(search first): ", conz::MsgType::Normal);
+    loop{
+        let slices = state.slices.get_items();
+        let (match_res, vec) = support::get_matches(&slices,&mut inputs);
+        if match_res == support::MatchResult::None || vec.len() > 1{
+            if vec.len() > 1{
+                conz::println_type("Fail: more than one result.", conz::MsgType::Error);
+            }else{
+                conz::println_type("Fail: no results found.", conz::MsgType::Error);
+            }
+            if inputs.is_some() {return;}
+            match conz::read_bool("Try again?: ", &mut Option::None){
+                true =>{continue;}
+                false =>{return;}
+            }
+        }
+        slices[vec[0]].print();
+        let now = data::DT::new();
+        let diff = now.diff(&slices[vec[0]].start);
+        diff.print();
+        return;
+    }
+}
+
 pub fn flush_files(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
