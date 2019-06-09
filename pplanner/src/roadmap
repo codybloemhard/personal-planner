@@ -1,5 +1,6 @@
 short:
 FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
+refactor out some dupkicate code in the commands(slice ect)
 
 slice type
 mk slice

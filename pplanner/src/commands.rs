@@ -315,14 +315,14 @@ pub fn edit_slices(state: &mut state::State, args: astr::AstrVec, inputs: Option
 pub fn ls_slices(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    support::pretty_print(state.slices.get_items(), &data::DT::new());
+    support::pretty_print(state.slices.get_items(), &0);
 }
 
 pub fn ls_slices_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let res = state.slices_archive.read();
-    support::pretty_print(&res, &data::DT::new());
+    support::pretty_print(&res, &0);
 }
 
 pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -343,9 +343,17 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
                 false =>{return;}
             }
         }
-        slices[vec[0]].print();
+        let slice = &slices[vec[0]]; 
+        slice.print();
         let now = data::DT::new();
-        let diff = now.diff(&slices[vec[0]].start);
+        conz::println_type("Duration: ", conz::MsgType::Highlight);
+        let diff = slice.end.diff(&slice.start);
+        diff.print_as_duration();
+        conz::println_type("Start:", conz::MsgType::Highlight);
+        let diff = now.diff(&slice.start);
+        diff.print();
+        conz::println_type("End:", conz::MsgType::Highlight);
+        let diff = now.diff(&slice.end);
         diff.print();
         return;
     }

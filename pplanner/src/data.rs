@@ -32,11 +32,14 @@ impl Span {
     pub const SECS_HOUR: u64 = 3600;
     pub const SECS_DAY: u64 = 86400;
 
-    pub fn string_significant(&self) -> String{
-        let prefix = match self.neg{
+    pub fn string_significant(&self, as_dur: bool) -> String{
+        let mut prefix = match self.neg{
             true => "past ",
             false => "in ",
         };
+        if as_dur {
+            prefix = "";
+        }
         if self.total_hours > 48 {
             return format!("{}{} days", prefix, self.days);
         }
@@ -48,32 +51,42 @@ impl Span {
         }
         return format!("{}{} secs", prefix, self.total_secs);
     }
+
+    pub fn print_as_duration(&self){
+        conz::print_type("Significant: ", conz::MsgType::Normal);
+        conz::println_type(self.string_significant(true), conz::MsgType::Value);
+        self.print_all_lengths();
+    }
+
+    fn print_all_lengths(&self){
+        conz::print_type("In Seconds: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_secs), conz::MsgType::Value);
+        conz::print_type("In Minutes: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_mins), conz::MsgType::Value);
+        conz::print_type("In Hours: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours), conz::MsgType::Value);
+        conz::print_type("In Days: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 24), conz::MsgType::Value);
+        conz::print_type("In Weeks: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 168), conz::MsgType::Value);
+        conz::print_type("In Months: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 720), conz::MsgType::Value);
+        conz::print_type("In Years: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.total_hours / 8760), conz::MsgType::Value);
+    }
 }
 
 impl conz::Printable for Span{
     fn print(&self){
         conz::print_type("In the past: ", conz::MsgType::Normal);
         if self.neg{
-            conz::println_type("Yes", conz::MsgType::Highlight);
+            conz::println_type("Yes", conz::MsgType::Value);
         }else{
-            conz::println_type("No", conz::MsgType::Highlight);
+            conz::println_type("No", conz::MsgType::Value);
         }
         conz::print_type("Significant: ", conz::MsgType::Normal);
-        conz::println_type(self.string_significant(), conz::MsgType::Highlight);
-        conz::print_type("In Seconds: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_secs), conz::MsgType::Highlight);
-        conz::print_type("In Minutes: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_mins), conz::MsgType::Highlight);
-        conz::print_type("In Hours: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_hours), conz::MsgType::Highlight);
-        conz::print_type("In Days: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_hours / 24), conz::MsgType::Highlight);
-        conz::print_type("In Weeks: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_hours / 168), conz::MsgType::Highlight);
-        conz::print_type("In Months: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_hours / 720), conz::MsgType::Highlight);
-        conz::print_type("In Years: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.total_hours / 8760), conz::MsgType::Highlight);
+        conz::println_type(self.string_significant(false), conz::MsgType::Value);
+        self.print_all_lengths();
     }
 }
 
@@ -375,7 +388,7 @@ impl conz::PrettyPrintable for Point{
         let mut types = Vec::new();
         let diff = arg.diff(&self.dt);
         text.push(self.title.clone());
-        text.push(diff.string_significant().to_astr());
+        text.push(diff.string_significant(false).to_astr());
         text.push(self.dt.str_datetime()
             .concat(astr::from_str(" "))
             .concat(self.dt.str_dayname_short()));
@@ -842,8 +855,8 @@ impl conz::Printable for Slice{
 }
 
 impl conz::PrettyPrintable for Slice{
-    type ArgType = DT;
-    fn pretty_print(&self, arg: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+    type ArgType = u8;
+    fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         let mut text = Vec::new();
         let mut types = Vec::new();
         text.push(self.title.clone());
