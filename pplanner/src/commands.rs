@@ -139,16 +139,7 @@ pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: Option
 
 pub fn mk_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    conz::println_type("Add point: ", conz::MsgType::Normal);
-    let fields = data::Point::get_fields(false);
-    let res = fields.execute(&mut inputs);
-    if res.is_none() {return;}
-    let mut res = res.unwrap();
-    let point = data::Point::extract(&mut res);
-    if point.is_none() {return;}
-    state.points.add_item(point.unwrap());
-    if !state.points.write() {return;}
-    conz::println_type("Success: Point saved.", conz::MsgType::Highlight);
+    support::mk_item(&mut state.points, &mut inputs);
 }
 
 pub fn rm_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -223,16 +214,7 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
 
 pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    conz::println_type("Add todo: ", conz::MsgType::Normal);
-    let fields = data::Todo::get_fields(false);
-    let res = fields.execute(&mut inputs);
-    if res.is_none() {return;}
-    let mut res = res.unwrap();
-    let todo = data::Todo::extract(&mut res);
-    if todo.is_none() {return;}
-    state.todos.add_item(todo.unwrap());
-    if !state.todos.write() {return;}
-    conz::println_type("Success: Todo saved.", conz::MsgType::Highlight);
+    support::mk_item(&mut state.todos, &mut inputs);
 }
 
 pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -274,16 +256,7 @@ pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecD
 
 pub fn mk_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    conz::println_type("Add slice: ", conz::MsgType::Normal);
-    let fields = data::Slice::get_fields(false);
-    let res = fields.execute(&mut inputs);
-    if res.is_none() {return;}
-    let mut res = res.unwrap();
-    let slice = data::Slice::extract(&mut res);
-    if slice.is_none() {return;}
-    state.slices.add_item(slice.unwrap());
-    if !state.slices.write() {return;}
-    conz::println_type("Success: Slice saved.", conz::MsgType::Highlight);
+    support::mk_item(&mut state.slices, &mut inputs);
 }
 
 pub fn rm_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){

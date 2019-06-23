@@ -253,6 +253,20 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
     return (to,lo,id);
 }
 
+pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
+    (bfile: &mut save::BufferFile<T>, inputs: &mut Option<VecDeque<astr::Astr>>){
+    conz::println_type("Add point: ", conz::MsgType::Normal);
+    let fields = T::get_fields(false);
+    let res = fields.execute(inputs);
+    if res.is_none() {return;}
+    let mut res = res.unwrap();
+    let item = T::extract(&mut res);
+    if item.is_none() {return;}
+    bfile.add_item(item.unwrap());
+    if !bfile.write() {return;}
+    conz::println_type("Success: Point saved.", conz::MsgType::Highlight);
+}
+
 pub fn warn_unused_inputs(inputs: &Option<VecDeque<astr::Astr>>){
     if inputs.is_none() {return;}
     conz::println_type("Warning: Inputs for this command where specified but this command does not use any.", conz::MsgType::Error);
