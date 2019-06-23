@@ -174,4 +174,5 @@ pub trait Wizardable where Self: std::marker::Sized + conz::Printable{
     fn get_partial(wres: &mut WizardRes) -> Self;
     fn replace_parts(&mut self, replacements: &Self);
     fn score_againts(&self, other: &Self) -> i32;
+    fn get_name() -> astr::Astr;
 }

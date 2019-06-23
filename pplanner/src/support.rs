@@ -130,7 +130,9 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType
 pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (items: Vec<T>, bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>,
     inputs: &mut Option<VecDeque<astr::Astr>>){
-    conz::println_type("Remove point(search first): ", conz::MsgType::Normal);
+    conz::print_type("Remove ", conz::MsgType::Normal);
+    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::println_type("(search first): ", conz::MsgType::Normal);
     let cli = inputs.is_some();
     loop{
         let (match_res, vec) = get_matches(&items, inputs);
@@ -170,7 +172,9 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
 
 pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (bf: &mut save::BufferFile<T>){
-    conz::println_type("Edit point(search first): ", conz::MsgType::Normal);
+    conz::print_type("Edit ", conz::MsgType::Normal);
+    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::println_type("(search first): ", conz::MsgType::Normal);
     let fields = T::get_fields(true);
     let items = bf.get_items();
     loop{
@@ -255,7 +259,9 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
 
 pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (bfile: &mut save::BufferFile<T>, inputs: &mut Option<VecDeque<astr::Astr>>){
-    conz::println_type("Add point: ", conz::MsgType::Normal);
+    conz::print_type("Add ", conz::MsgType::Normal);
+    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::println_type(": ", conz::MsgType::Normal);
     let fields = T::get_fields(false);
     let res = fields.execute(inputs);
     if res.is_none() {return;}
@@ -264,7 +270,9 @@ pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     if item.is_none() {return;}
     bfile.add_item(item.unwrap());
     if !bfile.write() {return;}
-    conz::println_type("Success: Point saved.", conz::MsgType::Highlight);
+    conz::print_type("Success: ", conz::MsgType::Highlight);
+    conz::print_type(T::get_name(), conz::MsgType::Highlight);
+    conz::println_type(" saved!", conz::MsgType::Highlight);
 }
 
 pub fn warn_unused_inputs(inputs: &Option<VecDeque<astr::Astr>>){

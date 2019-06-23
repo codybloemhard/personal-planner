@@ -472,6 +472,10 @@ impl wizard::Wizardable for Point{
         }
         return curr_score;
     }
+
+    fn get_name() -> astr::Astr{
+        astr::from_str("point")
+    }
 }
 
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
@@ -695,6 +699,10 @@ impl wizard::Wizardable for Todo{
             curr_score += 1;
         }
         return curr_score;
+    }
+
+    fn get_name() -> astr::Astr{
+        astr::from_str("todo")
     }
 }
 
@@ -956,5 +964,9 @@ impl wizard::Wizardable for Slice{
             curr_score += 1;
         }
         return curr_score;
+    }
+
+    fn get_name() -> astr::Astr{
+        astr::from_str("slice")
     }
 }
