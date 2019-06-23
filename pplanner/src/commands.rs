@@ -127,7 +127,12 @@ pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: Option
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     conz::println_type("All commands: ", conz::MsgType::Normal);
+    let mut commands = Vec::new();
     for f in state.fset.clone(){
+        commands.push(f);
+    }
+    commands.sort();
+    for f in commands{
         conz::println_type(f, conz::MsgType::Normal);
     }
 }
