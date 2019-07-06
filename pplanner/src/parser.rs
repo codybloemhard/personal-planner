@@ -115,8 +115,8 @@ impl Parser {
 
         Parser::add("status", commands::status, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
-        Parser::add("test keys", commands::test_keys, &mut ftree, &mut fset);
-
+        Parser::add("_test_keys", commands::test_keys, &mut ftree, &mut fset);
+        Parser::add("_missing_help", commands::missing_help, &mut ftree, &mut fset);
         state.fset = fset;
         return Parser {
             ftree,

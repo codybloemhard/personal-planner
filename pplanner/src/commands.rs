@@ -9,8 +9,43 @@ use super::astr;
 use super::astr::{AStr};
 use super::state;
 use super::support;
-use super::wizard::{Wizardable};
 use super::save;
+
+pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_inputs(&inputs);
+    support::warn_unused_arguments(&args);
+    let mut missing = Vec::new();
+    for f in state.fset.clone(){
+        let mut path = std::path::PathBuf::from("./help");
+        let mut metatdata = std::fs::metadata(path.as_path());
+        if metatdata.is_err(){
+            let res = save::get_data_dir_path("help");
+            if res.is_some(){
+                path = res.unwrap();
+                metatdata = std::fs::metadata(path.as_path());
+            }
+        }
+        if metatdata.is_err(){
+            conz::println_type("Error: Help directory not found.", conz::MsgType::Error);
+            return;
+        }
+        let res = state.fset.contains(&f);
+        if !res { // really should not happen xd
+            conz::println_type("Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
+            continue;
+        }
+        path.push(astr::unsplit(&f.split_str(&astr::astr_whitespace()), '_' as u8).to_string());
+        let res = std::fs::metadata(path.clone());
+        if res.is_err(){
+            missing.push(f);
+        }
+    }
+    conz::println_type("These commands do exist but have no help file: ", conz::MsgType::Highlight);
+    missing.sort();
+    for c in missing{
+        conz::println_type(c, conz::MsgType::Normal);
+    }
+}
 
 pub fn help_cli(){
     conz::println_type("pplanner is an TUI/CLI program to manage your time.", conz::MsgType::Normal);
