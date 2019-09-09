@@ -1,5 +1,6 @@
 use super::save;
 use super::misc::{DefaultValue};
+use std::fmt;
 
 pub type Astr = Vec<u8>;
 pub type AstrVec = Vec<Vec<u8>>;
@@ -64,6 +65,16 @@ impl TOSTRING for Astr{
     fn tostring(&self) -> std::string::String{
         return self.to_string();
     }   
+}
+
+struct Reee{
+    ree: u32,
+}
+
+impl fmt::Display for Reee{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result{
+        write!(f, "{}", self.ree)
+    }
 }
 
 pub trait AStr{
