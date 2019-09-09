@@ -160,6 +160,24 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
     conz::println_type(string, conz::MsgType::Normal);
 }
 
+pub fn ls_daynames(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    conz::println_type("All names of the days in the week: ", conz::MsgType::Normal);
+    for i in 0..7 {
+        conz::println_type(data::day_name(i), conz::MsgType::Value);
+    }
+}
+
+pub fn ls_monthnames(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    conz::println_type("All names of the months in the year: ", conz::MsgType::Normal);
+    for i in 1..13 {
+        conz::println_type(data::month_name(i), conz::MsgType::Value);
+    }
+}
+
 pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
