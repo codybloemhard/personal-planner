@@ -16,6 +16,68 @@ use super::wizard;
 type DMY = (u32,u32,u32);
 type HMS = (u32,u32,u32);
 
+pub fn day_name(i: u8) -> astr::Astr{
+    astr::from_str(match i{
+        0 => "Monday",
+        1 => "Tuesday",
+        2 => "Wednesday",
+        3 => "Thursday",
+        4 => "Friday",
+        5 => "Saturday",
+        6 => "Sunday",
+        _ => "Error",
+    })
+}
+
+pub fn day_name_short(i: u8) -> astr::Astr{
+    astr::from_str(match i{
+        0 => "Mon",
+        1 => "Tue",
+        2 => "Wed",
+        3 => "Thu",
+        4 => "Fri",
+        5 => "Sat",
+        6 => "Sun",
+        _ => "Err",
+    })
+}
+
+pub fn month_name(i: u8) -> astr::Astr{
+    astr::from_str(match i{
+        1 => "January",
+        2 => "February",
+        3 => "March",
+        4 => "April",
+        5 => "May",
+        6 => "June",
+        7 => "July",
+        8 => "August",
+        9 => "September",
+        10 => "October",
+        11 => "November",
+        12 => "December",
+        _ => "Error",
+    })
+}
+
+pub fn month_name_short(i: u8) -> astr::Astr{
+    astr::from_str(match i{
+        1 => "Jan",
+        2 => "Feb",
+        3 => "Mar",
+        4 => "Apr",
+        5 => "May",
+        6 => "Jun",
+        7 => "Jul",
+        8 => "Aug",
+        9 => "Sep",
+        10 => "Oct",
+        11 => "Nov",
+        12 => "Dec",
+        _ => "Err",
+    })
+}
+
 pub struct Span {
     pub total_hours: u64,
     pub total_mins: u64,
@@ -134,45 +196,31 @@ impl DT {
     }
 
     pub fn str_dayname(&self) -> astr::Astr{
-        astr::from_str(match self.dt.weekday(){
-            chrono::Weekday::Mon => "Monday",
-            chrono::Weekday::Tue => "Tuesday",
-            chrono::Weekday::Wed => "Wednesday",
-            chrono::Weekday::Thu => "Thursday",
-            chrono::Weekday::Fri => "Friday",
-            chrono::Weekday::Sat => "Saturday",
-            chrono::Weekday::Sun => "Sunday",
+        day_name(match self.dt.weekday(){
+            chrono::Weekday::Mon => 0,
+            chrono::Weekday::Tue => 1,
+            chrono::Weekday::Wed => 2,
+            chrono::Weekday::Thu => 3,
+            chrono::Weekday::Fri => 4,
+            chrono::Weekday::Sat => 5,
+            chrono::Weekday::Sun => 6,
         })
     }
 
     pub fn str_dayname_short(&self) -> astr::Astr{
-        astr::from_str(match self.dt.weekday(){
-            chrono::Weekday::Mon => "Mon",
-            chrono::Weekday::Tue => "Tue",
-            chrono::Weekday::Wed => "Wed",
-            chrono::Weekday::Thu => "Thu",
-            chrono::Weekday::Fri => "Fri",
-            chrono::Weekday::Sat => "Sat",
-            chrono::Weekday::Sun => "Sun",
+        day_name_short(match self.dt.weekday(){
+            chrono::Weekday::Mon => 0,
+            chrono::Weekday::Tue => 1,
+            chrono::Weekday::Wed => 2,
+            chrono::Weekday::Thu => 3,
+            chrono::Weekday::Fri => 4,
+            chrono::Weekday::Sat => 5,
+            chrono::Weekday::Sun => 6,
         })
     }
 
     pub fn str_monthname(&self) -> astr::Astr{
-        astr::from_str(match self.dt.month(){
-            1 => "January",
-            2 => "February",
-            3 => "March",
-            4 => "April",
-            5 => "May",
-            6 => "June",
-            7 => "July",
-            8 => "August",
-            9 => "September",
-            10 => "October",
-            11 => "November",
-            12 => "December",
-            _ => "error",
-        })
+        month_name(self.dt.month() as u8)
     }
 
     pub fn diff(&self, other: &DT) -> Span{
