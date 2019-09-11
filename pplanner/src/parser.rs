@@ -92,8 +92,8 @@ impl Parser {
         Parser::add("help", commands::help, &mut ftree, &mut fset);
         Parser::add("license", commands::license, &mut ftree, &mut fset);
         Parser::add("ls commands", commands::ls_commands, &mut ftree, &mut fset);
-        Parser::add("ls daynames", commands::ls_daynames, &mut ftree, &mut fset);
-        Parser::add("ls monthnames", commands::ls_monthnames, &mut ftree, &mut fset);
+        Parser::add("ls days", commands::ls_days, &mut ftree, &mut fset);
+        Parser::add("ls months", commands::ls_months, &mut ftree, &mut fset);
         
         Parser::add("mk point", commands::mk_point, &mut ftree, &mut fset);
         Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);
