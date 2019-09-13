@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::io::Read;
 use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
 use std::cmp::{ max, min };
+use term_basics_linux::tbl;
 
 use super::astr;
 use super::astr::{TOSTRING};
@@ -30,13 +31,21 @@ pub trait PrettyPrintable{
 
 fn set_colour(msgtype: MsgType){
     let colorcode = match msgtype {
-        MsgType::Normal => "\x1B[32m",
-        MsgType::Error => "\x1B[31m",
-        MsgType::Prompt => "\x1B[36m",
-        MsgType::Highlight => "\x1B[37m",
-        MsgType::Value => "\x1B[33m",
+        MsgType::Normal => tbl::UserColour::Green,
+        MsgType::Error => tbl::UserColour::Red,
+        MsgType::Prompt => tbl::UserColour::Cyan,
+        MsgType::Highlight => tbl::UserColour::Grey,
+        MsgType::Value => tbl::UserColour::Yellow,
     };
-    print!("{}", colorcode);
+    tbl::set_colour(colorcode, tbl::FGBG::FG);
+    let typecode = match msgtype {
+        MsgType::Normal => tbl::TextStyle::Std,
+        MsgType::Error => tbl::TextStyle::Underlined,
+        MsgType::Prompt => tbl::TextStyle::Bold,
+        MsgType::Highlight => tbl::TextStyle::Italic,
+        MsgType::Value => tbl::TextStyle::Bold,
+    };
+    tbl::set_style(typecode);
 }
 
 pub fn print<T: astr::TOSTRING>(msg: T){
