@@ -64,16 +64,16 @@ impl TOSTRING for std::string::String{
 impl TOSTRING for Astr{
     fn tostring(&self) -> std::string::String{
         return self.to_string();
-    }   
+    }
 }
 
-struct Reee{
-    ree: u32,
+pub struct DisplayableAstr{
+    astr: Astr,
 }
 
-impl fmt::Display for Reee{
+impl fmt::Display for DisplayableAstr{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result{
-        write!(f, "{}", self.ree)
+        write!(f, "{}", self.astr.to_string())
     }
 }
 
@@ -88,6 +88,7 @@ pub trait AStr{
     fn concat(&self, other: Astr) -> Astr;
     fn to_lower(&self) -> Astr;
     fn cut(&self, max: u16) -> Astr;
+    fn disp(&self) -> DisplayableAstr;
 }
 
 impl AStr for Astr{
@@ -207,6 +208,12 @@ impl AStr for Astr{
             newstr.push(*ch);
         }
         return newstr;
+    }
+
+    fn disp(&self) -> DisplayableAstr{
+        DisplayableAstr{
+            astr: self.clone(),
+        }
     }
 }
 
