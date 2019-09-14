@@ -5,7 +5,7 @@ use term_basics_linux::tbl;
 use super::astr;
 use super::astr::{TOSTRING};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum MsgType {
     Normal,
     Error,
@@ -36,9 +36,9 @@ fn set_style(msgtype: MsgType){
     tbl::set_colour(colorcode, tbl::FGBG::FG);
     let typecode = match msgtype {
         MsgType::Normal => tbl::TextStyle::Std,
-        MsgType::Error => tbl::TextStyle::Underlined,
+        MsgType::Error => tbl::TextStyle::Italic,
         MsgType::Prompt => tbl::TextStyle::Bold,
-        MsgType::Highlight => tbl::TextStyle::Italic,
+        MsgType::Highlight => tbl::TextStyle::Bold,
         MsgType::Value => tbl::TextStyle::Bold,
     };
     tbl::set_style(typecode);
