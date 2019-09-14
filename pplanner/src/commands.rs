@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 use std::fs::File;
 use std::collections::VecDeque;
+use term_basics_linux::tbl;
 
 use super::conz;
 use super::conz::Printable;
@@ -414,5 +415,5 @@ pub fn test_keys(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDe
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     conz::println_type("Testing keys, press any key to get id, exit program to stop.", conz::MsgType::Normal);
-    conz::test_chars();
+    tbl::test_chars();
 }

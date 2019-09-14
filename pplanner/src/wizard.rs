@@ -4,6 +4,7 @@ use super::astr;
 use super::data;
 use super::conz;
 use super::astr::*;
+use super::astr::{AStr};
 use super::misc::{DefaultValue};
 
 //use std::time::{SystemTime, UNIX_EPOCH};
@@ -125,11 +126,9 @@ impl FieldVec{
     }
 
     fn handle_u16(u16s: &mut VecDeque<u16>, line: astr::Astr) -> bool{
-        let asu32 = astr::to_u32(&line);
-        if asu32.is_none() {return false;}
-        let asu32 = asu32.unwrap();
-        if asu32 > std::u16::MAX as u32 {return false;}
-        u16s.push_back(asu32 as u16);
+        let val: Option<u16> = term_basics_linux::tbl::string_to_value(&line.to_string());
+        if val.is_none() {return false;}
+        u16s.push_back(val.unwrap());
         return true;
     }
 }

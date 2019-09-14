@@ -282,17 +282,6 @@ pub fn to_u32_unchecked(string: &Astr) -> u32{
     return u;
 }
 
-pub fn to_u32(string: &Astr) -> Option<u32>{
-    let mut u: u32 = 0;
-    for ch in string{
-        if !char_is_num(*ch){
-            return Option::None;
-        }
-        u = u * 10 + ((ch - 48) as u32);
-    }
-    return Option::Some(u);
-}
-
 pub fn astr_whitespace() -> Astr{
     return from_str(" \n\t");
 }
