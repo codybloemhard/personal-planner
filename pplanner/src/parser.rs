@@ -189,6 +189,33 @@ impl Parser {
         match search {
             Option::None => {
                 conz::println_error("Fail: Command not found: \"", &rawstr, "\"!");
+                let words = astr::from_str(rawstr).split_str(&astr::astr_whitespace());
+                let mut maxcount = 0;
+                let mut best = Vec::new();
+                for f in &self.state.fset{
+                    let mut count = 0;
+                    let splitted = f.split_str(&astr::astr_whitespace());
+                    for w in &words{
+                        for s in &splitted{
+                            if w == s { count += 1; }
+                        }
+                    }
+                    if count < maxcount { continue; }
+                    if count == maxcount {
+                        best.push(f.clone());
+                    }
+                    if count > maxcount{
+                        best.clear();
+                        best.push(f.clone());
+                        maxcount = count;
+                    }
+                }
+                if best.len() > 0{
+                    conz::println_type("Best matches: ", conz::MsgType::Normal);
+                    for b in best{
+                        conz::println_type(b.disp(), conz::MsgType::Highlight);
+                    }
+                }
                 return false;
             },
             Option::Some(x) => x(&mut self.state, args, inputs),

@@ -1,7 +1,6 @@
 short:
 FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
 refactor out some dupkicate code in the commands(slice ect)
-impl display for type that are being printed
 command not found error suggesting similar existing commands
 better help files with examples
 
