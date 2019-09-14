@@ -44,7 +44,7 @@ pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Optio
     conz::println_type("These commands do exist but have no help file: ", conz::MsgType::Highlight);
     missing.sort();
     for c in missing{
-        conz::println_type(c, conz::MsgType::Normal);
+        conz::println_type(c.disp(), conz::MsgType::Normal);
     }
 }
 
@@ -66,15 +66,15 @@ pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<as
     support::warn_unused_inputs(&inputs);
     let dt = data::DT::new();
     conz::print_type("Time:  ", conz::MsgType::Normal);
-    conz::println_type(dt.str_time(), conz::MsgType::Value);
+    conz::println_type(dt.str_time().disp(), conz::MsgType::Value);
     conz::print_type("Date:  ", conz::MsgType::Normal);
-    conz::println_type(dt.str_date(), conz::MsgType::Value);
+    conz::println_type(dt.str_date().disp(), conz::MsgType::Value);
     conz::print_type("Week:  ", conz::MsgType::Normal);
-    conz::println_type(dt.str_weeknr(), conz::MsgType::Value);
+    conz::println_type(dt.str_weeknr().disp(), conz::MsgType::Value);
     conz::print_type("Day:   ", conz::MsgType::Normal);
-    conz::println_type(dt.str_dayname(), conz::MsgType::Value);
+    conz::println_type(dt.str_dayname().disp(), conz::MsgType::Value);
     conz::print_type("Month: ", conz::MsgType::Normal);
-    conz::println_type(dt.str_monthname(), conz::MsgType::Value);
+    conz::println_type(dt.str_monthname().disp(), conz::MsgType::Value);
 }
 
 pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
@@ -167,7 +167,7 @@ pub fn ls_days(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDequ
     conz::println_type("All names of the days in the week: ", conz::MsgType::Normal);
     for i in 0..7 {
         conz::print_type(format!("{} ", i), conz::MsgType::Normal);
-        conz::println_type(data::day_name(i), conz::MsgType::Value);
+        conz::println_type(data::day_name(i).disp(), conz::MsgType::Value);
     }
 }
 
@@ -178,7 +178,7 @@ pub fn ls_months(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDe
     for i in 1..13 {
         conz::print_type(format!("{} ", i), conz::MsgType::Normal);
         if i < 10 { conz::print_type(" ", conz::MsgType::Normal); }
-        conz::println_type(data::month_name(i), conz::MsgType::Value);
+        conz::println_type(data::month_name(i).disp(), conz::MsgType::Value);
     }
 }
 
@@ -192,7 +192,7 @@ pub fn ls_commands(state: &mut state::State, args: astr::AstrVec, inputs: Option
     }
     commands.sort();
     for f in commands{
-        conz::println_type(f, conz::MsgType::Normal);
+        conz::println_type(f.disp(), conz::MsgType::Normal);
     }
 }
 

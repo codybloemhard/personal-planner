@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use term_basics_linux::tbl;
 
 use super::astr;
 use super::astr::{AStr};
@@ -92,20 +93,20 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType
     let divider_hor = |a| {astr::from_str("|")
         .concat(astr::from_str(a).repeat(lensum + ((lengths.len()-1)*3) as u16))
         .concat(astr::from_str("|"))};
-    conz::println_type(divider_hor("="), conz::MsgType::Highlight);
+    conz::println_type(divider_hor("=").disp(), conz::MsgType::Highlight);
     divider_ver_edge();
     for i in 0..titles.len() - 1{
         conz::print_type(
-            titles[i].pad_after(lengths[i]), 
+            titles[i].pad_after(lengths[i]).disp(), 
             conz::MsgType::Normal);
         divider_ver();
     }
     conz::print_type(
-        titles[titles.len() - 1].pad_after(lengths[titles.len() - 1]), 
+        titles[titles.len() - 1].pad_after(lengths[titles.len() - 1]).disp(), 
         conz::MsgType::Normal);
     divider_ver_edge();
-    conz::println("");
-    conz::println_type(divider_hor("-"), conz::MsgType::Highlight);
+    tbl::println("");
+    conz::println_type(divider_hor("-").disp(), conz::MsgType::Highlight);
     for x in datavec{
         divider_ver_edge();
         let (texts,types) = x.pretty_print(arg);
@@ -114,24 +115,24 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType
         }
         for i in 0..texts.len() - 1{
             conz::print_type(
-                texts[i].pad_after(lengths[i]),
+                texts[i].pad_after(lengths[i]).disp(),
                 types[i].clone());
             divider_ver();
         }
         conz::print_type(
-            texts[texts.len() - 1].pad_after(lengths[texts.len() - 1]),
+            texts[texts.len() - 1].pad_after(lengths[texts.len() - 1]).disp(),
             types[texts.len() - 1].clone());
         divider_ver_edge();
-        conz::println("");
+        tbl::println("");
     }
-    conz::println_type(divider_hor("="), conz::MsgType::Highlight);
+    conz::println_type(divider_hor("=").disp(), conz::MsgType::Highlight);
 }
 
 pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (items: Vec<T>, bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>,
     inputs: &mut Option<VecDeque<astr::Astr>>){
     conz::print_type("Remove ", conz::MsgType::Normal);
-    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::print_type(T::get_name().disp(), conz::MsgType::Normal);
     conz::println_type("(search first): ", conz::MsgType::Normal);
     let cli = inputs.is_some();
     loop{
@@ -173,7 +174,7 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
 pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (bf: &mut save::BufferFile<T>){
     conz::print_type("Edit ", conz::MsgType::Normal);
-    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::print_type(T::get_name().disp(), conz::MsgType::Normal);
     conz::println_type("(search first): ", conz::MsgType::Normal);
     let fields = T::get_fields(true);
     let items = bf.get_items();
@@ -260,7 +261,7 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
 pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     (bfile: &mut save::BufferFile<T>, inputs: &mut Option<VecDeque<astr::Astr>>){
     conz::print_type("Add ", conz::MsgType::Normal);
-    conz::print_type(T::get_name(), conz::MsgType::Normal);
+    conz::print_type(T::get_name().disp(), conz::MsgType::Normal);
     conz::println_type(": ", conz::MsgType::Normal);
     let fields = T::get_fields(false);
     let res = fields.execute(inputs);
@@ -271,7 +272,7 @@ pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     bfile.add_item(item.unwrap());
     if !bfile.write() {return;}
     conz::print_type("Success: ", conz::MsgType::Highlight);
-    conz::print_type(T::get_name(), conz::MsgType::Highlight);
+    conz::print_type(T::get_name().disp(), conz::MsgType::Highlight);
     conz::println_type(" saved!", conz::MsgType::Highlight);
 }
 

@@ -25,7 +25,7 @@ pub trait PrettyPrintable{
     fn titles(arg: &Self::ArgType) -> Vec<astr::Astr>;
 }
 
-fn set_colour(msgtype: MsgType){
+fn set_style(msgtype: MsgType){
     let colorcode = match msgtype {
         MsgType::Normal => tbl::UserColour::Green,
         MsgType::Error => tbl::UserColour::Red,
@@ -44,48 +44,29 @@ fn set_colour(msgtype: MsgType){
     tbl::set_style(typecode);
 }
 
-pub fn print<T: astr::TOSTRING>(msg: T){
-    set_colour(MsgType::Normal);
-    print!("{}", msg.tostring());
+pub fn print_type<T: std::fmt::Display>(msg: T, msgtype: MsgType){
+    set_style(msgtype);
+    print!("{}", msg);
 }
 
-pub fn print_type<T: astr::TOSTRING>(msg: T, msgtype: MsgType){
-    set_colour(msgtype);
-    print!("{}", msg.tostring());
+pub fn println_type<T: std::fmt::Display>(msg: T, msgtype: MsgType){
+    set_style(msgtype);
+    println!("{}", msg);
 }
 
-pub fn print_error<T: astr::TOSTRING>(pre: T, mid: T, pos: T){
-    set_colour(MsgType::Error);
-    print!("{}", pre.tostring());
-    set_colour(MsgType::Highlight);
-    print!("{}", mid.tostring());
-    set_colour(MsgType::Error);
-    print!("{}", pos.tostring());
-}
-
-pub fn println<T: astr::TOSTRING>(msg: T){
-    set_colour(MsgType::Normal);
-    println!("{}", msg.tostring());
-}
-
-pub fn println_type<T: astr::TOSTRING>(msg: T, msgtype: MsgType){
-    set_colour(msgtype);
-    println!("{}", msg.tostring());
-}
-
-pub fn println_error<T: astr::TOSTRING>(pre: T, mid: T, pos: T){
-    set_colour(MsgType::Error);
-    print!("{}", pre.tostring());
-    set_colour(MsgType::Highlight);
-    print!("{}", mid.tostring());
-    set_colour(MsgType::Error);
-    println!("{}", pos.tostring());
+pub fn println_error<T: std::fmt::Display>(pre: T, mid: T, pos: T){
+    set_style(MsgType::Error);
+    print!("{}", pre);
+    set_style(MsgType::Highlight);
+    print!("{}", mid);
+    set_style(MsgType::Error);
+    println!("{}", pos);
 }
 
 pub fn prompt(msg : &str) -> String{
     print_type(msg, MsgType::Prompt);
     std::io::stdout().flush().expect("Error: stdout flush failed.");
-    set_colour(MsgType::Normal);
+    set_style(MsgType::Normal);
     return tbl::input_field();
 }
 

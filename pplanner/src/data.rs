@@ -3,6 +3,7 @@ use num_derive::ToPrimitive;
 use num_traits::ToPrimitive;
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
+use term_basics_linux::tbl;
 
 use super::conz;
 use super::astr;
@@ -437,13 +438,13 @@ impl std::cmp::PartialEq for Point {
 impl conz::Printable for Point{
     fn print(&self){
         conz::print_type("Title: ", conz::MsgType::Normal);
-        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::println_type(self.title.disp(), conz::MsgType::Highlight);
         conz::print_type("Type: ", conz::MsgType::Normal);
-        conz::println_type(self.ptype.to_astr(), conz::MsgType::Highlight);
+        conz::println_type(self.ptype.to_astr().disp(), conz::MsgType::Highlight);
         conz::print_type("time date: ", conz::MsgType::Normal);
-        conz::print_type(self.dt.str_datetime(), conz::MsgType::Value);
-        conz::print(" ");
-        conz::println_type(self.dt.str_dayname(), conz::MsgType::Value);
+        conz::print_type(self.dt.str_datetime().disp(), conz::MsgType::Value);
+        tbl::print(" ");
+        conz::println_type(self.dt.str_dayname().disp(), conz::MsgType::Value);
     }
 }
 
@@ -775,11 +776,11 @@ impl wizard::Wizardable for Todo{
 impl conz::Printable for Todo{
     fn print(&self){
         conz::print_type("Title: ", conz::MsgType::Normal);
-        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::println_type(self.title.disp(), conz::MsgType::Highlight);
         conz::print_type("Urgency: ", conz::MsgType::Normal);
-        conz::println_type(format!("{}", self.urgency).to_astr(), conz::MsgType::Highlight);
+        conz::println_type(format!("{}", self.urgency), conz::MsgType::Highlight);
         conz::print_type("Type: ", conz::MsgType::Normal);
-        conz::println_type(self.ttype.to_astr(), conz::MsgType::Highlight);
+        conz::println_type(self.ttype.to_astr().disp(), conz::MsgType::Highlight);
     }
 }
 
@@ -914,17 +915,17 @@ impl DefaultValue for Slice{
 impl conz::Printable for Slice{
     fn print(&self){
         conz::print_type("Title: ", conz::MsgType::Normal);
-        conz::println_type(self.title.clone(), conz::MsgType::Highlight);
+        conz::println_type(self.title.disp(), conz::MsgType::Highlight);
         conz::print_type("Type: ", conz::MsgType::Normal);
-        conz::println_type(self.stype.to_astr(), conz::MsgType::Highlight);
+        conz::println_type(self.stype.to_astr().disp(), conz::MsgType::Highlight);
         conz::print_type("Start: ", conz::MsgType::Normal);
-        conz::print_type(self.start.str_datetime(), conz::MsgType::Value);
-        conz::print(" ");
-        conz::println_type(self.start.str_dayname(), conz::MsgType::Value);
+        conz::print_type(self.start.str_datetime().disp(), conz::MsgType::Value);
+        tbl::print(" ");
+        conz::println_type(self.start.str_dayname().disp(), conz::MsgType::Value);
         conz::print_type("End: ", conz::MsgType::Normal);
-        conz::print_type(self.end.str_datetime(), conz::MsgType::Value);
-        conz::print(" ");
-        conz::println_type(self.end.str_dayname(), conz::MsgType::Value);
+        conz::print_type(self.end.str_datetime().disp(), conz::MsgType::Value);
+        tbl::print(" ");
+        conz::println_type(self.end.str_dayname().disp(), conz::MsgType::Value);
     }
 }
 
