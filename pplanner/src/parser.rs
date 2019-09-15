@@ -190,24 +190,26 @@ impl Parser {
             Option::None => {
                 conz::println_error("Fail: Command not found: \"", &rawstr, "\"!");
                 let words = astr::from_str(rawstr).split_str(&astr::astr_whitespace());
-                let mut maxcount = 0;
+                let mut maxcount = 0.0;
                 let mut best = Vec::new();
                 for f in &self.state.fset{
-                    let mut count = 0;
+                    let mut count = 0.0;
                     let splitted = f.split_str(&astr::astr_whitespace());
                     for w in &words{
                         for s in &splitted{
-                            if w == s { count += 1; }
+                            if w == s {
+                                count += 15.0;
+                            }else{
+                                count += w.sameness(s);
+                            }
                         }
                     }
-                    if count < maxcount { continue; }
-                    if count == maxcount {
-                        best.push(f.clone());
-                    }
-                    if count > maxcount{
+                    if count > maxcount + 10.0{
                         best.clear();
                         best.push(f.clone());
                         maxcount = count;
+                    }else if count >= maxcount{
+                        best.push(f.clone());
                     }
                 }
                 if best.len() > 0{

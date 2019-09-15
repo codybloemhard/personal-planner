@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use term_basics_linux::tbl;
 
 use super::astr;
-use super::astr::{TOSTRING};
+use super::astr::{AStr};
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum MsgType {
@@ -76,7 +76,7 @@ pub fn read_bool(msg: &str, inputs: &mut Option<VecDeque<astr::Astr>>) -> bool{
     else{
         let res = inputs.as_mut().unwrap().pop_front();
         if res.is_none(){line = prompt(&msg);}
-        else {line = res.unwrap().tostring();}
+        else {line = res.unwrap().to_string();}
     }
     return tbl::string_to_bool(&line);
 }

@@ -45,28 +45,6 @@ impl ToAstr for &'static str{
     }
 }
 
-pub trait TOSTRING{
-    fn tostring(&self) -> std::string::String;
-}
-
-impl TOSTRING for &str{
-    fn tostring(&self) -> std::string::String{
-        return std::string::String::from(*self);
-    }
-}
-
-impl TOSTRING for std::string::String{
-    fn tostring(&self) -> std::string::String{
-        return self.clone();
-    }   
-}
-
-impl TOSTRING for Astr{
-    fn tostring(&self) -> std::string::String{
-        return self.to_string();
-    }
-}
-
 pub struct DisplayableAstr{
     astr: Astr,
 }
@@ -89,6 +67,7 @@ pub trait AStr{
     fn to_lower(&self) -> Astr;
     fn cut(&self, max: u16) -> Astr;
     fn disp(&self) -> DisplayableAstr;
+    fn sameness(&self, other: &Astr) -> f32;
 }
 
 impl AStr for Astr{
@@ -214,6 +193,20 @@ impl AStr for Astr{
         DisplayableAstr{
             astr: self.clone(),
         }
+    }
+
+    fn sameness(&self, other: &Astr) -> f32{
+        if self == other { return 1.0; }
+        let mut sum = 0.0;
+        for sel in self{
+            for oth in other{
+                if sel == oth{
+                    sum += 1.0;
+                    break;
+                }
+            }
+        }
+        return sum / std::cmp::max(self.len(), other.len()) as f32;
     }
 }
 
