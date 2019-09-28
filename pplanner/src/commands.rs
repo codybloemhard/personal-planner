@@ -1,7 +1,7 @@
 use std::io::prelude::*;
 use std::fs::File;
 use std::collections::VecDeque;
-use term_basics_linux::tbl;
+use term_basics_linux as tbl;
 
 use super::conz;
 use super::conz::Printable;

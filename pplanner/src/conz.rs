@@ -1,6 +1,6 @@
 use std::io::Write; //flush stdout
 use std::collections::VecDeque;
-use term_basics_linux::tbl;
+use term_basics_linux as tbl;
 
 use super::astr;
 use super::astr::{AStr};

@@ -126,7 +126,7 @@ impl FieldVec{
     }
 
     fn handle_u16(u16s: &mut VecDeque<u16>, line: astr::Astr) -> bool{
-        let val: Option<u16> = term_basics_linux::tbl::string_to_value(&line.to_string());
+        let val: Option<u16> = term_basics_linux::string_to_value(&line.to_string());
         if val.is_none() {return false;}
         u16s.push_back(val.unwrap());
         return true;

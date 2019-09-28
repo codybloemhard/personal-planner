@@ -3,7 +3,7 @@ use num_derive::ToPrimitive;
 use num_traits::ToPrimitive;
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use term_basics_linux::tbl;
+use term_basics_linux as tbl;
 
 use super::conz;
 use super::astr;
