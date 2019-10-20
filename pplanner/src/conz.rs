@@ -1,4 +1,3 @@
-use std::io::Write; //flush stdout
 use std::collections::VecDeque;
 use term_basics_linux as tbl;
 
@@ -65,7 +64,7 @@ pub fn println_error<T: std::fmt::Display>(pre: T, mid: T, pos: T){
 
 pub fn prompt(msg : &str) -> String{
     print_type(msg, MsgType::Prompt);
-    std::io::stdout().flush().expect("Error: stdout flush failed.");
+    tbl::flush().expect("Error: stdout flush failed.");
     set_style(MsgType::Normal);
     return tbl::input_field();
 }
