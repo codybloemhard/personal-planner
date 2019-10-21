@@ -1,5 +1,4 @@
 extern crate chrono;
-extern crate dirs;
 extern crate num_derive;
 
 #[macro_use]

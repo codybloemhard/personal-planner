@@ -1,10 +1,11 @@
 use std::io::prelude::*;
 use std::fs::OpenOptions;
+use simpleio as sio;
 
 use super::conz;
 use super::misc;
 
-pub const DATA_DIR: &'static str = ".config/pplanner";
+pub const DATA_DIR: &'static str = "pplanner";
 pub const POINT_DIR: &'static str = "points";
 pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
 pub const TODO_DIR: &'static str = "todos";
@@ -13,33 +14,38 @@ pub const SLICE_DIR: &'static str = "slices";
 pub const SLICE_ARCHIVE_DIR: &'static str = "slices_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
-    let hd = dirs::home_dir();
-    if hd.is_none() {return Option::None;}
-    let mut hd = hd.unwrap();
-    hd.push(DATA_DIR);
-    hd.push(relative);
-    return Option::Some(hd);
+    let confd = sio::get_config();
+    if confd.is_none() {return Option::None;}
+    let mut confd = confd.unwrap();
+    confd.push(DATA_DIR);
+    confd.push(relative);
+    return Option::Some(confd);
 }
 
 fn setup_file(p: &str){
     let pointpath = get_data_dir_path(p).unwrap();
     let pointpath = pointpath.as_path();
-    let metatdata = std::fs::metadata(pointpath);
-    if metatdata.is_err() {
-        let ok = buffer_write_file(pointpath, &Vec::new());
-        let pathstr = pointpath.to_str();
-        if pathstr.is_none() {
-            conz::print_type("Error: could not get string from path.", conz::MsgType::Error);
-            return;
-        }
-        let pathstr = pathstr.unwrap();
-        if ok{
+    let pathstr = pointpath.to_str();
+    if pathstr.is_none() {
+        conz::print_type("Error: could not get string from path.", conz::MsgType::Error);
+        return;
+    }
+    let pathstr = pathstr.unwrap();
+    match sio::create_dir(pointpath){
+        sio::DirStatus::Created => {
             conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
             conz::println_type(pathstr, conz::MsgType::Value);
-        }
-        else{
+            let ok = buffer_write_file(pointpath, &Vec::new());
+            if !ok {
+                conz::print_type("Could not init file: ", conz::MsgType::Error);
+                conz::println_type(pathstr, conz::MsgType::Value);
+                return;
+            }
+        },
+        sio::DirStatus::Error => {
             conz::println_error("", "Error: Could not create file: ", &pathstr);
-        }
+        },
+        _ => {},
     }
 }
 

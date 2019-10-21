@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4.6"
-dirs = "1.0"
 num-traits = "0.2"
 num-derive = "0.2"
 term-basics-linux = "0.2.4"
+simpleio = "0.1.1"
