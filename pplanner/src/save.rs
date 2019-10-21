@@ -31,21 +31,16 @@ fn setup_file(p: &str){
         return;
     }
     let pathstr = pathstr.unwrap();
-    match sio::create_dir(pointpath){//TODO: for file
-        sio::DirStatus::Created => {
-            conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
-            conz::println_type(pathstr, conz::MsgType::Value);
-            let ok = buffer_write_file(pointpath, &Vec::new());
-            if !ok {
-                conz::print_type("Could not init file: ", conz::MsgType::Error);
-                conz::println_type(pathstr, conz::MsgType::Value);
-                return;
-            }
-        },
-        sio::DirStatus::Error => {
-            conz::println_error("", "Error: Could not create file: ", &pathstr);
-        },
-        _ => {},
+    if sio::file_exists(pointpath) { return; }
+    let ok = buffer_write_file(pointpath, &Vec::new());
+    if ok {
+        conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
+        conz::println_type(pathstr, conz::MsgType::Value);
+    }
+    else {
+        conz::println_error("", "Error: Could not create file: ", &pathstr);
+        conz::println_type(pathstr, conz::MsgType::Value);
+        return;
     }
 }
 
