@@ -31,7 +31,7 @@ fn setup_file(p: &str){
         return;
     }
     let pathstr = pathstr.unwrap();
-    match sio::create_dir(pointpath){
+    match sio::create_dir(pointpath){//TODO: for file
         sio::DirStatus::Created => {
             conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
             conz::println_type(pathstr, conz::MsgType::Value);
@@ -50,29 +50,29 @@ fn setup_file(p: &str){
 }
 
 pub fn setup_config_dir() -> bool{
-    let home = get_data_dir_path("");
-    if home.is_none() {
-        conz::println_type("Error: could not get home directory.", conz::MsgType::Error);
+    let conf = sio::get_config();
+    if conf.is_none() {
+        conz::println_type("Error: could not get config directory.", conz::MsgType::Error);
         return false;
     }
-    let path = home.unwrap();
+    let path = conf.unwrap();
     let path = path.as_path();
-    let metatdata = std::fs::metadata(path);
     let pathstr = path.to_str();
     if pathstr.is_none() {
         conz::println_type("Error: could not get string from path.", conz::MsgType::Error);
         return false;
     }
     let pathstr = pathstr.unwrap();
-    if !metatdata.is_ok() {
-        let res = std::fs::create_dir_all(path);
-        if !res.is_ok() {
-            conz::println_error("", "Error: Could not create path: ", &pathstr);
-            return false;
-        }else{
+    match sio::create_dir(path){
+        sio::DirStatus::Created =>{
             conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
             conz::println_type(pathstr, conz::MsgType::Value);
-        }
+        },
+        sio::DirStatus::Error =>{
+            conz::println_error("", "Error: Could not create path: ", &pathstr);
+            return false;
+        },
+        _ =>{},
     }
     setup_file(POINT_DIR);
     setup_file(POINT_ARCHIVE_DIR);
