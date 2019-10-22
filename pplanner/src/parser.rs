@@ -198,13 +198,14 @@ impl Parser {
                     for w in &words{
                         for s in &splitted{
                             if w == s {
-                                count += 15.0;
+                                count += 4.0;
                             }else{
                                 count += w.sameness(s);
                             }
                         }
                     }
-                    if count > maxcount + 10.0{
+                    count /= (words.len() * splitted.len()) as f32;
+                    if count > maxcount + 1.0{
                         best.clear();
                         best.push(f.clone());
                         maxcount = count;
