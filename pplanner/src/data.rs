@@ -550,6 +550,7 @@ pub enum TodoType{
     Todo,
     Long,
     Idea,
+    Doing,
     DefaultValue,
 }
 
@@ -571,6 +572,9 @@ impl TodoType{
         if string[0] == 'i' as u8{
             return TodoType::Idea;
         }
+        if string[0] == 'd' as u8{
+            return TodoType::Doing;
+        }
         return TodoType::Todo;
     }
 }
@@ -581,6 +585,7 @@ impl astr::ToAstr for TodoType{
             TodoType::Todo => "Todo",
             TodoType::Long => "Longterm",
             TodoType::Idea => "Idea",
+            TodoType::Doing => "Doing",
             TodoType::DefaultValue => "Error",
         })
     }

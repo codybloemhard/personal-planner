@@ -297,13 +297,15 @@ pub fn edit_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<
 pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    let (to,lo,id) = support::split_todos(state.todos.get_items());
+    let (doi,tod,lon,ide) = support::split_todos(state.todos.get_items());
+    conz::print_type("Doing: ", conz::MsgType::Normal);
+    support::pretty_print(&doi, &false);
     conz::print_type("Todo: ", conz::MsgType::Normal);
-    support::pretty_print(&to, &false);
+    support::pretty_print(&tod, &false);
     conz::print_type("Longterm: ", conz::MsgType::Normal);
-    support::pretty_print(&lo, &false);
+    support::pretty_print(&lon, &false);
     conz::print_type("Idea: ", conz::MsgType::Normal);
-    support::pretty_print(&id, &false);
+    support::pretty_print(&ide, &false);
 }
 
 pub fn ls_todos_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
