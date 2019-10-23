@@ -167,7 +167,10 @@ pub fn ls_days(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDequ
     conz::println_type("All names of the days in the week: ", conz::MsgType::Normal);
     for i in 0..7 {
         conz::print_type(format!("{} ", i), conz::MsgType::Normal);
-        conz::println_type(data::day_name(i).disp(), conz::MsgType::Value);
+        conz::print_type(data::day_name(i).disp(), conz::MsgType::Value);
+        conz::print_type(" (", conz::MsgType::Normal);
+        conz::print_type(format!("{}", data::day_name_short(i).disp()), conz::MsgType::Value);
+        conz::println_type(")", conz::MsgType::Normal);
     }
 }
 
@@ -178,7 +181,10 @@ pub fn ls_months(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDe
     for i in 1..13 {
         conz::print_type(format!("{} ", i), conz::MsgType::Normal);
         if i < 10 { conz::print_type(" ", conz::MsgType::Normal); }
-        conz::println_type(data::month_name(i).disp(), conz::MsgType::Value);
+        conz::print_type(data::month_name(i).disp(), conz::MsgType::Value);
+        conz::print_type(" (", conz::MsgType::Normal);
+        conz::print_type(data::month_name_short(i).disp(), conz::MsgType::Value);
+        conz::println_type(")", conz::MsgType::Normal);
     }
 }
 
