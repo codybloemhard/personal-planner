@@ -267,12 +267,8 @@ pub fn char_is_letter_upper(ch: u8) -> bool{
     return ch >= CHAR_START_UPPER && ch <= 90;
 }
 
-pub fn to_u32_unchecked(string: &Astr) -> u32{
-    let mut u: u32 = 0;
-    for ch in string{
-        u = u * 10 + ((ch - 48) as u32);
-    }
-    return u;
+pub fn to_u32_checked(string: &Astr) -> Option<u32>{
+    term_basics_linux::string_to_value(&string.to_string())
 }
 
 pub fn astr_whitespace() -> Astr{

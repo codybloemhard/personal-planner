@@ -2,7 +2,6 @@ short:
 FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
 refactor out some dupkicate code in the commands(slice ect)
 better help files with examples
-use short month names and accept them as input
 mv todos
 
 slice type

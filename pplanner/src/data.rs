@@ -79,6 +79,25 @@ pub fn month_name_short(i: u8) -> astr::Astr{
     })
 }
 
+pub fn month_short_to_uint(mon: &astr::Astr) -> Option<u32>{
+    let lower = mon.to_lower();
+    match lower.to_string().as_ref() {
+        "jan" => Option::Some(1),
+        "feb" => Option::Some(2),
+        "mar" => Option::Some(3),
+        "apr" => Option::Some(4),
+        "may" => Option::Some(5),
+        "jun" => Option::Some(6),
+        "jul" => Option::Some(7),
+        "aug" => Option::Some(8),
+        "sep" => Option::Some(9),
+        "oct" => Option::Some(10),
+        "nov" => Option::Some(11),
+        "dec" => Option::Some(12),
+        _ => Option::None,
+    }
+}
+
 pub struct Span {
     pub total_hours: u64,
     pub total_mins: u64,
@@ -316,8 +335,14 @@ impl DefaultValue for DT{
 pub fn parse_dmy_or_hms(string: &astr::Astr) -> Option<DMY>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
-    let triplet: Vec<u32> = splitted.iter().map(astr::to_u32_unchecked).collect();
-    return Option::Some((triplet[0],triplet[1],triplet[2]));
+    let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
+    if triplet[0].is_none() {return Option::None;}
+    if triplet[2].is_none() {return Option::None;}
+    if triplet[1].is_none() {
+        triplet[1] = month_short_to_uint(&splitted[1]);
+        if triplet[1].is_none() {return Option::None;}
+    }
+    return Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()));
 }
 
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
