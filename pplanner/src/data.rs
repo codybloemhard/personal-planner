@@ -332,16 +332,40 @@ impl DefaultValue for DT{
     }
 }
 
-pub fn parse_dmy_or_hms(string: &astr::Astr) -> Option<DMY>{
+pub fn parse_dmy(string: &astr::Astr) -> Option<DMY>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
     let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
+    //if its now than put in piece of the current date
+    if triplet[0].is_none() && splitted[0].to_string() == "now".to_string(){
+        let now = DT::new();
+        triplet[0] = Option::Some(now.dt.day());
+    }
+    if triplet[1].is_none() && splitted[1].to_string() == "now".to_string(){
+        let now = DT::new();
+        triplet[1] = Option::Some(now.dt.month());
+    }
+    if triplet[2].is_none() && splitted[2].to_string() == "now".to_string(){
+        let now = DT::new();
+        triplet[2] = Option::Some(now.dt.year() as u32);
+    }
+    //months can be inputted with 3 letter month names. still none, fail.
     if triplet[0].is_none() {return Option::None;}
-    if triplet[2].is_none() {return Option::None;}
     if triplet[1].is_none() {
         triplet[1] = month_short_to_uint(&splitted[1]);
         if triplet[1].is_none() {return Option::None;}
     }
+    if triplet[2].is_none() {return Option::None;}
+    return Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()));
+}
+
+pub fn parse_hms(string: &astr::Astr) -> Option<DMY>{
+    let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
+    if splitted.len() != 3 {return Option::None;}
+    let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
+    if triplet[0].is_none() {return Option::None;}
+    if triplet[1].is_none() {return Option::None;}
+    if triplet[2].is_none() {return Option::None;}
     return Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()));
 }
 

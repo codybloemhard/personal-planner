@@ -115,8 +115,8 @@ impl FieldVec{
     fn handle_datetime(datetimes: &mut VecDeque<data::DT>, line: astr::Astr) -> bool{
         let lines = line.split_str(&astr::astr_whitespace());
         if lines.len() != 2 {return false;}
-        let tri0 = data::parse_dmy_or_hms(&lines[0]);
-        let tri1 = data::parse_dmy_or_hms(&lines[1]);
+        let tri0 = data::parse_hms(&lines[0]);
+        let tri1 = data::parse_dmy(&lines[1]);
         if tri0.is_none() {return false;}
         if tri1.is_none() {return false;}
         let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
