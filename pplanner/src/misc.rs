@@ -4,7 +4,13 @@ pub trait DefaultValue{
 
 impl DefaultValue for u16{
     fn default_val() -> Self{
-        return 0;
+        0
+    }
+}
+
+impl DefaultValue for bool{
+    fn default_val() -> Self{
+        false
     }
 }
 

@@ -1091,3 +1091,144 @@ impl wizard::Wizardable for Slice{
         astr::from_str("slice")
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Eq, Clone)]
+pub struct Todo {
+    title: astr::Astr,
+    done: bool,
+}
+
+impl save::Bufferable for Todo {
+    fn into_buffer(&self, vec: &mut Vec<u8>){
+        self.title.into_buffer(vec);
+        (self.done as u8).into_buffer(vec);
+    }
+
+    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+        if (vec.len() as i32) - (*iter as i32) < 5 { return Option::None; }
+        let title = astr::Astr::from_buffer(vec, iter);
+        if title.is_none() {return Option::None;}
+        let done = u8::from_buffer(vec, iter);
+        if done.is_none() {return Option::None;}
+        return Option::Some(Self{title: title.unwrap(),done: done.unwrap() != 0});
+    }
+}
+
+impl std::cmp::Ord for Todo {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.done.cmp(&other.done);
+    }
+}
+
+impl std::cmp::PartialOrd for Todo {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return Some(self.cmp(other));
+    }
+}
+
+impl std::cmp::PartialEq for Todo {
+    fn eq(&self, other: &Self) -> bool {
+        return 
+            self.done == self.done
+    }
+}
+
+impl DefaultValue for Todo{
+    fn default_val() -> Self{
+        Self{title: astr::new(), done: false}
+    }
+}
+
+impl conz::Printable for Todo{
+    fn print(&self){
+        conz::print_type("Title: ", conz::MsgType::Normal);
+        conz::println_type(self.title.disp(), conz::MsgType::Highlight);
+        conz::print_type("Done: ", conz::MsgType::Normal);
+        conz::println_type(format!("{}", self.done), conz::MsgType::Highlight);
+    }
+}
+
+impl conz::PrettyPrintable for Todo{
+    type ArgType = u8;
+    fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
+        fn bool_tickbox(b: bool) -> astr::Astr{
+            match b{
+                true => astr::from_str("[*]"),
+                false => astr::from_str("[ ]"),
+            }
+        }
+        let mut text = Vec::new();
+        let mut types = Vec::new();
+        text.push(bool_tickbox(self.done));
+        text.push(self.title.clone());
+        types.push(conz::MsgType::Value);
+        types.push(conz::MsgType::Normal);
+        return (text,types);
+    }
+    
+    fn lengths(_: &Self::ArgType) -> Vec<u16>{
+        vec![3,32]
+    }
+
+    fn titles(_: &Self::ArgType) -> Vec<astr::Astr>{
+        vec![astr::from_str("Done:"),
+            astr::from_str("Title:"),]
+    }
+}
+
+impl wizard::Wizardable for Todo{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Self>{
+        loop{
+            let title_res = wres.get_text();
+            if title_res.is_none() {break;}
+            let done_res = wres.get_bool();
+            if done_res.is_none() {break;}
+            return Option::Some(Self{title:title_res.unwrap(),done:done_res.unwrap()});
+        }
+        conz::println_type("Error: could not build todo.", conz::MsgType::Error);
+        return Option::None;
+    }
+
+    fn get_fields(partial: bool) -> wizard::FieldVec{
+        let mut fields = wizard::FieldVec::new();
+        if partial{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Partial);
+            fields.add(wizard::InputType::Bool, astr::from_str("Done: "), wizard::PromptType::Partial);
+        }else{
+            fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
+            fields.add(wizard::InputType::Bool, astr::from_str("Done: "), wizard::PromptType::Reprompt);
+        }
+        return fields;
+    }
+
+    fn get_partial(wres: &mut wizard::WizardRes) -> Self{
+        let ttitle = astr::Astr::unwrap_default(wres.get_text());
+        let tdone = bool::unwrap_default(wres.get_bool());
+        return Todo{
+            title: ttitle,
+            done: tdone,
+        }
+    }
+
+    fn replace_parts(&mut self, replacements: &Self){
+        self.title.replace_if_not_default(replacements.title.clone());
+        self.done.replace_if_not_default(replacements.done);
+    }
+
+    fn score_againts(&self, other: &Self) -> i32{
+        let mut curr_score = 0;
+        if self.title == other.title{
+            curr_score += 1;
+        }
+        if self.done == other.done{
+            curr_score += 1;
+        }
+        return curr_score;
+    }
+
+    fn get_name() -> astr::Astr{
+        astr::from_str("todo")
+    }
+}
