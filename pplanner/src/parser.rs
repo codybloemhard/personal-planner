@@ -108,6 +108,7 @@ impl Parser {
         Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
         Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
         Parser::add("edit todos", commands::edit_todos, &mut ftree, &mut fset);
+        Parser::add("mv todos", commands::mv_todos, &mut ftree, &mut fset);
         
         Parser::add("mk slice", commands::mk_slice, &mut ftree, &mut fset);
         Parser::add("ls slices", commands::ls_slices, &mut ftree, &mut fset);

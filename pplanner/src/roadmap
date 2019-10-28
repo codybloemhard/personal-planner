@@ -3,6 +3,8 @@ FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
 refactor out some dupkicate code in the commands(slice ect)
 better help files with examples
 mv todos
+habits
+remove clones
 
 slice type
 mk slice

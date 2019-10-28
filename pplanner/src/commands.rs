@@ -315,6 +315,62 @@ pub fn ls_todos_archive(state: &mut state::State, args: astr::AstrVec, inputs: O
     support::pretty_print(&res, &true);
 }
 
+pub fn mv_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::println_type("Move todos (search first): ", conz::MsgType::Normal);
+    let cli = inputs.is_some();
+    let items = &state.todos.get_items();
+    loop{
+        let (match_res, vec) = support::get_matches(items, &mut inputs);
+        match match_res{
+            support::MatchResult::None =>{
+                conz::println_type("Fail: no matches found.", conz::MsgType::Error);
+                if cli {return;}
+                match conz::read_bool("Try again?: ", &mut inputs){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+            support::MatchResult::Some =>{
+                conz::print_type("Found ", conz::MsgType::Normal);
+                conz::print_type(format!("{}", vec.len()), conz::MsgType::Value);
+                conz::println_type(" items.", conz::MsgType::Normal);
+                for i in &vec{
+                    items[*i].print();
+                }
+                if !cli{
+                    match conz::read_bool("Move all?: ", &mut inputs){
+                        true =>{}
+                        false =>{
+                            match conz::read_bool("Try again?: ", &mut inputs){
+                                true =>{continue;}
+                                false =>{return;}
+                            }
+                        }
+                    }
+                }
+                let x = conz::prompt("New type: ");
+                let ttype = data::TodoType::from_astr(&astr::from_string(&x), true);
+                let mut replacements = Vec::new();
+                let mut indices = Vec::new();
+                for i in &vec{
+                    let mut ntodo = items[*i].clone();
+                    ntodo.ttype = ttype.clone();
+                    indices.push(*i);
+                    replacements.push(ntodo);
+                }
+                let ok = state.todos.replace(indices, replacements);
+                if ok {
+                    conz::println_type("Success: Todos moved.", conz::MsgType::Highlight);
+                }else{
+                    conz::println_type("Error: Todos moving failed.", conz::MsgType::Highlight);
+                }
+                return;
+            }
+        }
+    }
+}
+
 pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     now(state, args.clone(), inputs.clone());
     ls_points(state, args.clone(), inputs.clone());
