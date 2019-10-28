@@ -245,19 +245,16 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
             if todos[i].ttype == data::TodoType::Long { break; }
             tod.push(todos[i].clone());
         }
-        if index == todos.len() - 1 { break; }
         for i in index..todos.len(){
             index = i;
             if todos[i].ttype == data::TodoType::Idea { break; }
             lon.push(todos[i].clone());
         }
-        if index == todos.len() - 1 { break; }
         for i in index..todos.len(){
             index = i;
             if todos[i].ttype == data::TodoType::Doing { break; }
             ide.push(todos[i].clone());
         }
-        if index == todos.len() - 1 { break; }
         for i in index..todos.len(){
             doi.push(todos[i].clone());
         }
