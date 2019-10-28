@@ -277,30 +277,30 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
     }
 }
 
-pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+pub fn mk_plan(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    support::mk_item(&mut state.todos, &mut inputs);
+    support::mk_item(&mut state.plans, &mut inputs);
 }
 
-pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+pub fn rm_plans(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    let items = state.todos.get_items().clone();
-    support::rm_items(items, &mut state.todos, &mut state.todos_archive, &mut inputs);
+    let items = state.plans.get_items().clone();
+    support::rm_items(items, &mut state.plans, &mut state.plans_archive, &mut inputs);
 }
 
-pub fn edit_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn edit_plans(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     check_unsupported_inputs!(inputs);
-    support::edit_items(&mut state.todos);
+    support::edit_items(&mut state.plans);
 }
 
-pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn ls_plans(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    let (doi,tod,lon,ide) = support::split_todos(state.todos.get_items());
-    conz::print_type("Doing: ", conz::MsgType::Normal);
+    let (doi,tod,lon,ide) = support::split_todos(state.plans.get_items());
+    conz::print_type("Current: ", conz::MsgType::Normal);
     support::pretty_print(&doi, &false);
-    conz::print_type("Todo: ", conz::MsgType::Normal);
+    conz::print_type("Shortterm: ", conz::MsgType::Normal);
     support::pretty_print(&tod, &false);
     conz::print_type("Longterm: ", conz::MsgType::Normal);
     support::pretty_print(&lon, &false);
@@ -308,18 +308,18 @@ pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<Ve
     support::pretty_print(&ide, &false);
 }
 
-pub fn ls_todos_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+pub fn ls_plans_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    let res = state.todos_archive.read();
+    let res = state.plans_archive.read();
     support::pretty_print(&res, &true);
 }
 
-pub fn mv_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+pub fn mv_plans(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
-    conz::println_type("Move todos (search first): ", conz::MsgType::Normal);
+    conz::println_type("Move plans (search first): ", conz::MsgType::Normal);
     let cli = inputs.is_some();
-    let items = &state.todos.get_items();
+    let items = &state.plans.get_items();
     loop{
         let (match_res, vec) = support::get_matches(items, &mut inputs);
         match match_res{
@@ -350,7 +350,7 @@ pub fn mv_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
                     }
                 }
                 let x = conz::prompt("New type: ");
-                let ttype = data::TodoType::from_astr(&astr::from_string(&x), true);
+                let ttype = data::PlanType::from_astr(&astr::from_string(&x), true);
                 let mut replacements = Vec::new();
                 let mut indices = Vec::new();
                 for i in &vec{
@@ -359,11 +359,11 @@ pub fn mv_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
                     indices.push(*i);
                     replacements.push(ntodo);
                 }
-                let ok = state.todos.replace(indices, replacements);
+                let ok = state.plans.replace(indices, replacements);
                 if ok {
-                    conz::println_type("Success: Todos moved.", conz::MsgType::Highlight);
+                    conz::println_type("Success: Plans moved.", conz::MsgType::Highlight);
                 }else{
-                    conz::println_type("Error: Todos moving failed.", conz::MsgType::Highlight);
+                    conz::println_type("Error: Plans moving failed.", conz::MsgType::Highlight);
                 }
                 return;
             }
@@ -374,7 +374,7 @@ pub fn mv_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
 pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     now(state, args.clone(), inputs.clone());
     ls_points(state, args.clone(), inputs.clone());
-    ls_todos(state, args.clone(), inputs.clone());
+    ls_plans(state, args.clone(), inputs.clone());
 }
 
 pub fn mk_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){

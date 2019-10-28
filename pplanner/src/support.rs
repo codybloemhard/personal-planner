@@ -233,7 +233,7 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
     }
 }
 
-pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,Vec<data::Todo>,Vec<data::Todo>){
+pub fn split_todos(todos: &Vec<data::Plan>) -> (Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>){
     let mut doi = Vec::new();
     let mut tod = Vec::new();
     let mut lon = Vec::new();
@@ -242,17 +242,17 @@ pub fn split_todos(todos: &Vec<data::Todo>) -> (Vec<data::Todo>,Vec<data::Todo>,
     loop{
         for i in 0..todos.len(){
             index = i;
-            if todos[i].ttype == data::TodoType::Long { break; }
+            if todos[i].ttype == data::PlanType::Long { break; }
             tod.push(todos[i].clone());
         }
         for i in index..todos.len(){
             index = i;
-            if todos[i].ttype == data::TodoType::Idea { break; }
+            if todos[i].ttype == data::PlanType::Idea { break; }
             lon.push(todos[i].clone());
         }
         for i in index..todos.len(){
             index = i;
-            if todos[i].ttype == data::TodoType::Doing { break; }
+            if todos[i].ttype == data::PlanType::Current { break; }
             ide.push(todos[i].clone());
         }
         for i in index..todos.len(){

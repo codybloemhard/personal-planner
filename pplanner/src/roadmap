@@ -2,16 +2,11 @@ short:
 FIX: freeze(printer mutex deadlock?) doesnt show up anymore?
 refactor out some dupkicate code in the commands(slice ect)
 better help files with examples
-mv todos
-habits
 remove clones
+habits
+todos to plans
+todos
 
-slice type
-mk slice
-ls slice
-rm slice
-edit slice
-inspect slice
 edit point: replace some fields of many items by that of one
 command history, arrows to select
 

@@ -595,93 +595,93 @@ impl wizard::Wizardable for Point{
 }
 
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
-pub enum TodoType{
-    Todo,
+pub enum PlanType{
+    Short,
     Long,
     Idea,
-    Doing,
+    Current,
     DefaultValue,
 }
 
-impl PartialEq for TodoType {
-    fn eq(&self, other: &TodoType) -> bool {
+impl PartialEq for PlanType {
+    fn eq(&self, other: &PlanType) -> bool {
         ToPrimitive::to_u8(self) == ToPrimitive::to_u8(other)
     }
 }
 
-impl TodoType{
-    pub fn from_astr(string: &astr::Astr, partial: bool) -> TodoType{
+impl PlanType{
+    pub fn from_astr(string: &astr::Astr, partial: bool) -> PlanType{
         let string = string.to_lower();
         if string.len() == 0 && partial{
-            return TodoType::DefaultValue;
+            return PlanType::DefaultValue;
         }
         if string[0] == 'l' as u8{
-            return TodoType::Long;
+            return PlanType::Long;
         }
         if string[0] == 'i' as u8{
-            return TodoType::Idea;
+            return PlanType::Idea;
         }
         if string[0] == 'd' as u8{
-            return TodoType::Doing;
+            return PlanType::Current;
         }
-        return TodoType::Todo;
+        return PlanType::Short;
     }
 }
 
-impl astr::ToAstr for TodoType{
+impl astr::ToAstr for PlanType{
     fn to_astr(&self) -> astr::Astr{
         astr::from_str(match self{
-            TodoType::Todo => "Todo",
-            TodoType::Long => "Longterm",
-            TodoType::Idea => "Idea",
-            TodoType::Doing => "Doing",
-            TodoType::DefaultValue => "Error",
+            PlanType::Short => "Short",
+            PlanType::Long => "Longterm",
+            PlanType::Idea => "Idea",
+            PlanType::Current => "Current",
+            PlanType::DefaultValue => "Error",
         })
     }
 }
 
-impl DefaultValue for TodoType{
+impl DefaultValue for PlanType{
     fn default_val() -> Self{
-        return TodoType::DefaultValue;
+        return PlanType::DefaultValue;
     }
 }
 
-impl std::cmp::PartialOrd for TodoType{
-    fn partial_cmp(&self, other: &TodoType) -> Option<std::cmp::Ordering> {
+impl std::cmp::PartialOrd for PlanType{
+    fn partial_cmp(&self, other: &PlanType) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl std::cmp::Ord for TodoType{
-    fn cmp(&self, other: &TodoType) -> std::cmp::Ordering {
+impl std::cmp::Ord for PlanType{
+    fn cmp(&self, other: &PlanType) -> std::cmp::Ordering {
         ToPrimitive::to_u8(self).cmp(&ToPrimitive::to_u8(other))
     }
 }
 
 #[derive(Eq,Clone)]
-pub struct Todo{
+pub struct Plan{
     title: astr::Astr,
     urgency: u16,
-    pub ttype: TodoType,
+    pub ttype: PlanType,
 }
 
-impl Todo{
-    pub fn new(title: astr::Astr, urgency: u16, strtype: astr::Astr) -> Todo{
-        Todo{
+impl Plan{
+    pub fn new(title: astr::Astr, urgency: u16, strtype: astr::Astr) -> Plan{
+        Plan{
             title: title,
             urgency: urgency,
-            ttype: TodoType::from_astr(&strtype, false),
+            ttype: PlanType::from_astr(&strtype, false),
         }
     }
 }
 
-impl save::Bufferable for Todo{
+impl save::Bufferable for Plan{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         self.title.into_buffer(vec);
         self.urgency.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ttype);
         if primtype.is_none() {
-            conz::println_type("Error: Could not convert TodoType to u8.", conz::MsgType::Error);
+            conz::println_type("Error: Could not convert PlanType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
         }else{
             primtype.unwrap().into_buffer(vec);
@@ -697,7 +697,7 @@ impl save::Bufferable for Todo{
         if res_ttype.is_none() {return Option::None;}
         let res_ttype = FromPrimitive::from_u8(res_ttype.unwrap());
         if res_ttype.is_none() {return Option::None;}
-        return Option::Some(Todo{
+        return Option::Some(Plan{
             title: res_title.unwrap(),
             urgency: res_urg.unwrap(),
             ttype: res_ttype.unwrap(),
@@ -705,7 +705,7 @@ impl save::Bufferable for Todo{
     }
 }
 
-impl conz::PrettyPrintable for Todo{
+impl conz::PrettyPrintable for Plan{
     type ArgType = bool;
     fn pretty_print(&self, print_type: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         let mut text = Vec::new();
@@ -736,8 +736,8 @@ impl conz::PrettyPrintable for Todo{
     }
 }
 
-impl std::cmp::Ord for Todo {
-    fn cmp(&self, other: &Todo) -> std::cmp::Ordering {
+impl std::cmp::Ord for Plan {
+    fn cmp(&self, other: &Plan) -> std::cmp::Ordering {
         let ontype = self.ttype.cmp(&other.ttype);
         if ontype != std::cmp::Ordering::Equal{
             return ontype;
@@ -746,22 +746,22 @@ impl std::cmp::Ord for Todo {
     }
 }
 
-impl std::cmp::PartialOrd for Todo {
-    fn partial_cmp(&self, other: &Todo) -> Option<std::cmp::Ordering> {
+impl std::cmp::PartialOrd for Plan {
+    fn partial_cmp(&self, other: &Plan) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl std::cmp::PartialEq for Todo {
-    fn eq(&self, other: &Todo) -> bool {
+impl std::cmp::PartialEq for Plan {
+    fn eq(&self, other: &Plan) -> bool {
         self.title == other.title &&
         self.urgency == other.urgency &&
         self.ttype == other.ttype
     }
 }
 
-impl wizard::Wizardable for Todo{
-    fn extract(wres: &mut wizard::WizardRes) -> Option<Todo>{
+impl wizard::Wizardable for Plan{
+    fn extract(wres: &mut wizard::WizardRes) -> Option<Plan>{
         loop{
             let title_res = wres.get_text();
             if title_res.is_none() {break;}
@@ -769,7 +769,7 @@ impl wizard::Wizardable for Todo{
             if urgency.is_none() {break;}
             let ttype = wres.get_text();
             if ttype.is_none() {break;}
-            let ret = Todo::new(title_res.unwrap(), urgency.unwrap(), ttype.unwrap());
+            let ret = Plan::new(title_res.unwrap(), urgency.unwrap(), ttype.unwrap());
             return Option::Some(ret);
         }
         conz::println_type("Error: could not build todo.", conz::MsgType::Error);
@@ -794,8 +794,8 @@ impl wizard::Wizardable for Todo{
         let ttitle = astr::Astr::unwrap_default(wres.get_text());
         let turgency = u16::unwrap_default(wres.get_u16());
         let x = wres.get_text();
-        let ttype = TodoType::from_astr(&astr::Astr::unwrap_default(x), true);
-        return Todo{
+        let ttype = PlanType::from_astr(&astr::Astr::unwrap_default(x), true);
+        return Plan{
             title: ttitle,
             urgency: turgency,
             ttype: ttype,
@@ -823,11 +823,11 @@ impl wizard::Wizardable for Todo{
     }
 
     fn get_name() -> astr::Astr{
-        astr::from_str("todo")
+        astr::from_str("plan")
     }
 }
 
-impl conz::Printable for Todo{
+impl conz::Printable for Plan{
     fn print(&self){
         conz::print_type("Title: ", conz::MsgType::Normal);
         conz::println_type(self.title.disp(), conz::MsgType::Highlight);

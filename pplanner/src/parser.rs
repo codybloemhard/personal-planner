@@ -103,12 +103,12 @@ impl Parser {
         Parser::add("clean points", commands::clean_points, &mut ftree, &mut fset);
         Parser::add("edit points", commands::edit_points, &mut ftree, &mut fset);
 
-        Parser::add("mk todo", commands::mk_todo, &mut ftree, &mut fset);
-        Parser::add("ls todos", commands::ls_todos, &mut ftree, &mut fset);
-        Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
-        Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
-        Parser::add("edit todos", commands::edit_todos, &mut ftree, &mut fset);
-        Parser::add("mv todos", commands::mv_todos, &mut ftree, &mut fset);
+        Parser::add("mk plan", commands::mk_plan, &mut ftree, &mut fset);
+        Parser::add("ls plans", commands::ls_plans, &mut ftree, &mut fset);
+        Parser::add("ls plans archive", commands::ls_plans_archive, &mut ftree, &mut fset);
+        Parser::add("rm plans", commands::rm_plans, &mut ftree, &mut fset);
+        Parser::add("edit plans", commands::edit_plans, &mut ftree, &mut fset);
+        Parser::add("mv plans", commands::mv_plans, &mut ftree, &mut fset);
         
         Parser::add("mk slice", commands::mk_slice, &mut ftree, &mut fset);
         Parser::add("ls slices", commands::ls_slices, &mut ftree, &mut fset);
