@@ -118,6 +118,12 @@ impl Parser {
         Parser::add("clean slices", commands::clean_slices, &mut ftree, &mut fset);
         Parser::add("edit slices", commands::edit_slices, &mut ftree, &mut fset);
 
+        Parser::add("mk todo", commands::mk_todo, &mut ftree, &mut fset);
+        Parser::add("ls todos", commands::ls_todos, &mut ftree, &mut fset);
+        Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
+        Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
+        Parser::add("clean todos", commands::clean_todos, &mut ftree, &mut fset);
+
         Parser::add("status", commands::status, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
         Parser::add("_test_keys", commands::test_keys, &mut ftree, &mut fset);

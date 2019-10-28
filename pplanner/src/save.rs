@@ -12,6 +12,8 @@ pub const PLAN_DIR: &'static str = "plans";
 pub const PLAN_ARCHIVE_DIR: &'static str = "plans_archive";
 pub const SLICE_DIR: &'static str = "slices";
 pub const SLICE_ARCHIVE_DIR: &'static str = "slices_archive";
+pub const TODO_DIR: &'static str = "todos";
+pub const TODO_ARCHIVE_DIR: &'static str = "todos_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let confd = sio::get_config();
@@ -75,6 +77,8 @@ pub fn setup_config_dir() -> bool{
     setup_file(PLAN_ARCHIVE_DIR);
     setup_file(SLICE_DIR);
     setup_file(SLICE_ARCHIVE_DIR);
+    setup_file(TODO_DIR);
+    setup_file(TODO_ARCHIVE_DIR);
     return true;
 }
 

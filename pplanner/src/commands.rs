@@ -77,6 +77,12 @@ pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<as
     conz::println_type(dt.str_monthname().disp(), conz::MsgType::Value);
 }
 
+pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    now(state, args.clone(), inputs.clone());
+    ls_points(state, args.clone(), inputs.clone());
+    ls_plans(state, args.clone(), inputs.clone());
+}
+
 pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
@@ -371,12 +377,6 @@ pub fn mv_plans(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
     }
 }
 
-pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
-    now(state, args.clone(), inputs.clone());
-    ls_points(state, args.clone(), inputs.clone());
-    ls_plans(state, args.clone(), inputs.clone());
-}
-
 pub fn mk_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::mk_item(&mut state.slices, &mut inputs);
@@ -459,6 +459,49 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
         return;
     }
 }
+
+pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::mk_item(&mut state.todos, &mut inputs);
+}
+
+pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    let items = state.todos.get_items().clone();
+    support::rm_items(items, &mut state.todos, &mut state.todos_archive, &mut inputs);
+}
+
+pub fn clean_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::println_type("Remove all todos that are done: ", conz::MsgType::Normal);
+    match conz::read_bool("Sure to remove them?: ", &mut inputs){
+        true =>{}
+        false =>{return;}
+    }
+    let todos = state.todos.get_items().clone();
+    let mut vec = Vec::new();
+    for i in 0..todos.len(){
+        if todos[i].done{
+            break;
+        }
+        vec.push(i);
+    }
+    support::remove_and_archive(&mut state.todos, &mut state.todos_archive, vec, &todos);
+}
+
+pub fn ls_todos(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    support::pretty_print(state.todos.get_items(), &0);
+}
+
+pub fn ls_todos_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    support::warn_unused_inputs(&inputs);
+    let res = state.todos_archive.read();
+    support::pretty_print(&res, &0);
+}
+
 
 pub fn flush_files(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
