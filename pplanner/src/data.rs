@@ -1129,7 +1129,7 @@ impl std::cmp::PartialOrd for Todo {
 impl std::cmp::PartialEq for Todo {
     fn eq(&self, other: &Self) -> bool {
         return 
-            self.done == self.done
+            self.done == other.done
     }
 }
 
@@ -1143,7 +1143,7 @@ impl conz::Printable for Todo{
     fn print(&self){
         conz::print_type("Title: ", conz::MsgType::Normal);
         conz::println_type(self.title.disp(), conz::MsgType::Highlight);
-        conz::print_type("Done: ", conz::MsgType::Normal);
+        conz::print_type("Done:", conz::MsgType::Normal);
         conz::println_type(format!("{}", self.done), conz::MsgType::Highlight);
     }
 }
@@ -1153,8 +1153,8 @@ impl conz::PrettyPrintable for Todo{
     fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         fn bool_tickbox(b: bool) -> astr::Astr{
             match b{
-                true => astr::from_str("[*]"),
-                false => astr::from_str("[ ]"),
+                true => astr::from_str("[ * ]"),
+                false => astr::from_str("[   ]"),
             }
         }
         let mut text = Vec::new();
@@ -1167,7 +1167,7 @@ impl conz::PrettyPrintable for Todo{
     }
     
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
-        vec![3,32]
+        vec![5,48]
     }
 
     fn titles(_: &Self::ArgType) -> Vec<astr::Astr>{

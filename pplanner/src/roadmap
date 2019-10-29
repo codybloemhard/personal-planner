@@ -4,13 +4,11 @@ refactor out some dupkicate code in the commands(slice ect)
 better help files with examples
 remove clones
 habits
-todos
 
 edit point: replace some fields of many items by that of one
 command history, arrows to select
 
 long:
-slices
 timeslots and sequential planner
 scriptableness
 auto scheduling(AI)
