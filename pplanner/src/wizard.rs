@@ -137,9 +137,8 @@ impl FieldVec{
     }
 
     fn handle_bool(bools: &mut VecDeque<bool>, line: astr::Astr) -> bool{
-        let val = term_basics_linux::string_to_value(&line.to_string());
-        if val.is_none() {return false;}
-        bools.push_back(val.unwrap());
+        let val = term_basics_linux::string_to_bool(&line.to_string());
+        bools.push_back(val);
         return true;
     }
 }
