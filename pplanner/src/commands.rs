@@ -11,6 +11,7 @@ use super::astr::{AStr};
 use super::state;
 use super::support;
 use super::save;
+use crate::wizard::Wizardable;
 
 pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_inputs(&inputs);
@@ -465,6 +466,58 @@ pub fn mk_todo(state: &mut state::State, args: astr::AstrVec, mut inputs: Option
     support::mk_item(&mut state.todos, &mut inputs);
 }
 
+pub fn tick_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
+    support::warn_unused_arguments(&args);
+    conz::print_type("Tick todo(search first): ", conz::MsgType::Normal);
+    let items = state.todos.get_items();
+    loop{
+        let (match_res, vec) = support::get_matches(items, &mut inputs);
+        match match_res{
+            support::MatchResult::None =>{
+                conz::println_type("Fail: no matches found.", conz::MsgType::Error);
+                match conz::read_bool("Try again?: ", &mut Option::None){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+            support::MatchResult::Some =>{
+                conz::print_type("Found ", conz::MsgType::Normal);
+                conz::print_type(format!("{}", vec.len()), conz::MsgType::Value);
+                conz::println_type(" items.", conz::MsgType::Normal);
+                for i in &vec{
+                    if items[*i].done {continue;}
+                    items[*i].print();
+                }
+                match conz::read_bool("Tick all?: ", &mut Option::None){
+                    true =>{
+                        let mut replacements = Vec::new();
+                        let mut indices = Vec::new();
+                        for i in &vec{
+                            if items[*i].done {continue;}
+                            let mut ntodo = items[*i].clone();
+                            ntodo.done = true;
+                            indices.push(*i);
+                            replacements.push(ntodo);
+                        }
+                        let ok = state.todos.replace(indices, replacements);
+                        if ok {
+                            conz::println_type("Success: Todos edited.", conz::MsgType::Highlight);
+                        }else{
+                            conz::println_type("Error: Todos editing failed.", conz::MsgType::Highlight);
+                        }
+                        return;
+                    }
+                    false =>{}
+                }
+                match conz::read_bool("Try again?: ", &mut Option::None){
+                    true =>{continue;}
+                    false =>{return;}
+                }
+            }
+        }
+    }
+}
+
 pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     let items = state.todos.get_items().clone();
@@ -481,8 +534,8 @@ pub fn clean_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Op
     let todos = state.todos.get_items().clone();
     let mut vec = Vec::new();
     for i in 0..todos.len(){
-        if todos[i].done{
-            break;
+        if !todos[i].done{
+            continue;
         }
         vec.push(i);
     }

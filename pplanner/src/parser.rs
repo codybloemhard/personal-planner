@@ -123,6 +123,7 @@ impl Parser {
         Parser::add("ls todos archive", commands::ls_todos_archive, &mut ftree, &mut fset);
         Parser::add("rm todos", commands::rm_todos, &mut ftree, &mut fset);
         Parser::add("clean todos", commands::clean_todos, &mut ftree, &mut fset);
+        Parser::add("tick todos", commands::tick_todos, &mut ftree, &mut fset);
 
         Parser::add("status", commands::status, &mut ftree, &mut fset);
         Parser::add("flush files", commands::flush_files, &mut ftree, &mut fset);
