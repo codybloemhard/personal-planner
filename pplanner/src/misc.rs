@@ -21,10 +21,10 @@ pub trait UnwrapDefault<T>{
 
 impl<T: DefaultValue + PartialEq> UnwrapDefault<T> for T{
     fn unwrap_default(res: Option<T>) -> T{
-        if res.is_some(){
-            return res.unwrap();
+        if let Some(resv) = res{
+            return resv;
         }
-        return T::default_val();
+        T::default_val()
     }
 
     fn replace_if_not_default(&mut self, new: T){
@@ -33,18 +33,18 @@ impl<T: DefaultValue + PartialEq> UnwrapDefault<T> for T{
     }
 }
 
-pub fn is_sorted<T: PartialOrd>(vec: &Vec<T>) -> bool{
+pub fn is_sorted<T: PartialOrd>(vec: &[T]) -> bool{
     let len = vec.len();
     if len <= 1 {return true;}
     if len == 2 {
         return vec[0] <= vec[1];
     }
     let mut last = &vec[0];
-    for i in 1..len{
-        if last > &vec[i] {
+    for item in vec.iter().take(len).skip(1){
+        if last > item {
             return false;
         }
-        last = &vec[i];
+        last = &item;
     }
-    return true;
+    true
 }

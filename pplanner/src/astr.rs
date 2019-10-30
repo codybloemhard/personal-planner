@@ -6,17 +6,7 @@ pub type Astr = Vec<u8>;
 pub type AstrVec = Vec<Vec<u8>>;
 
 pub fn new() -> Astr{
-    return Vec::new();
-}
-
-pub fn from_string(s: &String) -> Astr{
-    let mut buffer = new();
-    for ch in s.chars() {
-        if !ch.is_ascii() { continue; }
-        let val: u8 = ch as u8;
-        buffer.push(val);
-    }
-    return buffer;
+    Vec::new()
 }
 
 pub fn from_str(s: &str) -> Astr{
@@ -26,7 +16,7 @@ pub fn from_str(s: &str) -> Astr{
         let val: u8 = ch as u8;
         buffer.push(val);
     }
-    return buffer;
+    buffer
 }
 
 pub trait ToAstr{
@@ -35,13 +25,13 @@ pub trait ToAstr{
 
 impl ToAstr for String{
     fn to_astr(&self) -> Astr{
-        return from_string(self);
+        from_str(self)
     }
 }
 
 impl ToAstr for &'static str{
     fn to_astr(&self) -> Astr{
-        return from_str(self);
+        from_str(self)
     }
 }
 
@@ -80,7 +70,7 @@ impl AStr for Astr{
         for ch in self{
             s.push(*ch as char);
         }
-        return s;
+        s
     }
 
     fn split_str(&self, splitchars: &Astr) -> AstrVec{
@@ -113,7 +103,7 @@ impl AStr for Astr{
         if counter > 0{
             splitnow(&mut splits, &mut current, &mut counter);
         }
-        return splits;
+        splits
     }
 
     fn copy_from_ref(&self) -> Astr{
@@ -121,7 +111,7 @@ impl AStr for Astr{
         for ch in self{
             newstr.push(*ch);
         }
-        return newstr;
+        newstr
     }
 
     fn confine(&self, max: u16) -> Astr{
@@ -133,9 +123,9 @@ impl AStr for Astr{
             newstr.push(self[i as usize] as u8);
         }
         for _ in 0..3 {
-            newstr.push('.' as u8);
+            newstr.push(b'.');
         }
-        return newstr;
+        newstr
     }
 
     fn cut(&self, max: u16) -> Astr{
@@ -143,20 +133,20 @@ impl AStr for Astr{
         for i in 0..(std::cmp::min(max, std::cmp::max(max, self.len() as u16))){
             newstr.push(self[i as usize] as u8);
         }
-        return newstr;
+        newstr
     }
 
     fn pad_after(&self, max: u16) -> Astr{
         if self.len() == max as usize {
-            return self.copy_from_ref();
+            self.copy_from_ref()
         }else if self.len() < max as usize {
             let mut newstr = self.copy_from_ref();
             for _ in 0..(max-self.len() as u16){
-                newstr.push(' ' as u8);
+                newstr.push(b' ');
             }
-            return newstr;
+            newstr
         }else{
-            return self.confine(max);
+            self.confine(max)
         }
     }
 
@@ -167,7 +157,7 @@ impl AStr for Astr{
                 newstr.push(*ch);
             }
         }
-        return newstr;
+        newstr
     }
 
     fn concat(&self, other: Astr) -> Astr{
@@ -175,7 +165,7 @@ impl AStr for Astr{
         for ch in other{
             newstr.push(ch);
         }
-        return newstr;
+        newstr
     }
 
     fn to_lower(&self) -> Astr{
@@ -186,7 +176,7 @@ impl AStr for Astr{
             }
             newstr.push(*ch);
         }
-        return newstr;
+        newstr
     }
 
     fn disp(&self) -> DisplayableAstr{
@@ -206,7 +196,7 @@ impl AStr for Astr{
                 }
             }
         }
-        return sum / std::cmp::max(self.len(), other.len()) as f32;
+        sum / std::cmp::max(self.len(), other.len()) as f32
     }
 }
 
@@ -220,7 +210,7 @@ impl save::Bufferable for Astr{
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         let res_len = u32::from_buffer(vec, iter);
-        if res_len.is_none() {return Option::None;}
+        res_len?;
         let len = res_len.unwrap();
         if (vec.len() as i32) - (*iter as i32) < (len as i32) {
             return Option::None;
@@ -230,13 +220,13 @@ impl save::Bufferable for Astr{
             string.push(vec[i as usize]);
         }
         *iter += len;
-        return Option::Some(string);
+        Option::Some(string)
     }
 }
 
 impl DefaultValue for Astr{
     fn default_val() -> Self{
-        return new();
+        new()
     }
 }
 
@@ -253,7 +243,7 @@ pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
         }
         counter+=1;
     }
-    return newstr;
+    newstr
 }
 
 //pub const CHAR_START_NUM: u8 = 48;
@@ -264,7 +254,7 @@ pub const CHAR_START_UPPER: u8 = 65;
 }*/
 
 pub fn char_is_letter_upper(ch: u8) -> bool{
-    return ch >= CHAR_START_UPPER && ch <= 90;
+    ch >= CHAR_START_UPPER && ch <= 90
 }
 
 pub fn to_u32_checked(string: &Astr) -> Option<u32>{
@@ -272,5 +262,5 @@ pub fn to_u32_checked(string: &Astr) -> Option<u32>{
 }
 
 pub fn astr_whitespace() -> Astr{
-    return from_str(" \n\t");
+    from_str(" \n\t")
 }

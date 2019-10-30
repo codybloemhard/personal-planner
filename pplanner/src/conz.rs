@@ -66,7 +66,7 @@ pub fn prompt(msg : &str) -> String{
     print_type(msg, MsgType::Prompt);
     tbl::flush().expect("Error: stdout flush failed.");
     set_style(MsgType::Normal);
-    return tbl::input_field();
+    tbl::input_field()
 }
 
 pub fn read_bool(msg: &str, inputs: &mut Option<VecDeque<astr::Astr>>) -> bool{
@@ -74,8 +74,11 @@ pub fn read_bool(msg: &str, inputs: &mut Option<VecDeque<astr::Astr>>) -> bool{
     if inputs.is_none(){line = prompt(&msg);}
     else{
         let res = inputs.as_mut().unwrap().pop_front();
-        if res.is_none(){line = prompt(&msg);}
-        else {line = res.unwrap().to_string();}
+        if let Some(resv) = res {
+            line = resv.to_string();
+        } else{
+            line = prompt(&msg);
+        }
     }
-    return tbl::string_to_bool(&line);
+    tbl::string_to_bool(&line)
 }

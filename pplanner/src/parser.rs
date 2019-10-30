@@ -68,14 +68,14 @@ impl FuncTree{
             if index >= key.len() {return Option::None;}
             let last = index == key.len() - 1;
             let res = root.tree.get_mut(&key[index]);
-            if res.is_none(){return Option::None;}
+            res.as_ref()?;
             if last{
-                return res.unwrap().leaf;
+                res.unwrap().leaf
             }else{
-                return _find(&mut res.unwrap(), key, index + 1);
+                _find(&mut res.unwrap(), key, index + 1)
             }
         }
-        return _find(self, key, 0);
+        _find(self, key, 0)
     }
 }
 
@@ -130,13 +130,13 @@ impl Parser {
         Parser::add("_test_keys", commands::test_keys, &mut ftree, &mut fset);
         Parser::add("_missing_help", commands::missing_help, &mut ftree, &mut fset);
         state.fset = fset;
-        return Parser {
+        Parser {
             ftree,
             state,
         }
     }
 
-    fn add(name: &str, func: Func, ftree: &mut Box<FuncTree>, fset: &mut HashSet<astr::Astr>){
+    fn add(name: &str, func: Func, ftree: &mut FuncTree, fset: &mut HashSet<astr::Astr>){
         let splitted = astr::from_str(name).split_str(&astr::astr_whitespace());
         ftree.push(&splitted, func);
         fset.insert(astr::from_str(name));
@@ -147,8 +147,8 @@ impl Parser {
         conz::println_type("Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
         match x.as_ref(){
-            "y" => return true,
-            _ => return false,
+            "y" => true,
+            _ => false,
         }
     }
 
@@ -157,9 +157,9 @@ impl Parser {
         let mut command = astr::new();
         let mut args = astr::new();
         for ch in line{
-            if ch == '(' as u8{
+            if ch == b'('{
                 mode = 1;
-            }else if ch == ')' as u8{
+            }else if ch == b')'{
                 break;
             }else if mode == 0{
                 command.push(ch);
@@ -167,7 +167,7 @@ impl Parser {
                 args.push(ch);
             }
         }
-        return (command,args);
+        (command,args)
     }
 
     pub fn start_loop(&mut self) {
@@ -221,7 +221,7 @@ impl Parser {
                         best.push(f.clone());
                     }
                 }
-                if best.len() > 0{
+                if !best.is_empty(){
                     conz::println_type("Best matches: ", conz::MsgType::Normal);
                     for b in best{
                         conz::println_type(b.disp(), conz::MsgType::Highlight);
@@ -231,7 +231,7 @@ impl Parser {
             },
             Option::Some(x) => x(&mut self.state, args, inputs),
         }
-        return true;
+        true
     }
 }
 
@@ -278,12 +278,10 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
     if to_exec != ""{
         parser.parse_and_run(to_exec, inputs);
     }
-    else{
-        if inputs.is_some(){
-            conz::print_type("Warning: There were inputs provided using flag ", conz::MsgType::Error);
-            conz::print_type("-i", conz::MsgType::Highlight);
-            conz::print_type(" while there was no command given to execute using ", conz::MsgType::Error);
-            conz::println_type("-e", conz::MsgType::Highlight);
-        }
+    else if inputs.is_some(){
+        conz::print_type("Warning: There were inputs provided using flag ", conz::MsgType::Error);
+        conz::print_type("-i", conz::MsgType::Highlight);
+        conz::print_type(" while there was no command given to execute using ", conz::MsgType::Error);
+        conz::println_type("-e", conz::MsgType::Highlight);
     }
 }

@@ -21,8 +21,8 @@ pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Optio
         let mut metatdata = std::fs::metadata(path.as_path());
         if metatdata.is_err(){
             let res = save::get_data_dir_path("help");
-            if res.is_some(){
-                path = res.unwrap();
+            if let Some(resv) = res{
+                path = resv;
                 metatdata = std::fs::metadata(path.as_path());
             }
         }
@@ -35,7 +35,7 @@ pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Optio
             conz::println_type("Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
             continue;
         }
-        path.push(astr::unsplit(&f.split_str(&astr::astr_whitespace()), '_' as u8).to_string());
+        path.push(astr::unsplit(&f.split_str(&astr::astr_whitespace()), b'_').to_string());
         let res = std::fs::metadata(path.clone());
         if res.is_err(){
             missing.push(f);
@@ -114,7 +114,7 @@ pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDequ
 
 pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_inputs(&inputs);
-    if args.len() == 0{
+    if args.is_empty(){
         conz::print_type("Help, type ", conz::MsgType::Normal);
         conz::print_type("help(command) ", conz::MsgType::Highlight);
         conz::println_type("to find help.", conz::MsgType::Normal);
@@ -130,8 +130,8 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
     let mut metatdata = std::fs::metadata(path.as_path());
     if metatdata.is_err(){
         let res = save::get_data_dir_path("help");
-        if res.is_some(){
-            path = res.unwrap();
+        if let Some(resv) = res{
+            path = resv;
             metatdata = std::fs::metadata(path.as_path());
         }
     }
@@ -144,7 +144,7 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
         conz::println_type("Fail: command does not exist, so help for it neither.", conz::MsgType::Error);
         return;
     }
-    path.push(astr::unsplit(&args[0].split_str(&astr::astr_whitespace()), '_' as u8).to_string());
+    path.push(astr::unsplit(&args[0].split_str(&astr::astr_whitespace()), b'_').to_string());
     let res = std::fs::metadata(path.clone());
     if res.is_err(){
         conz::println_type("Error: help file not found.", conz::MsgType::Error);
@@ -163,7 +163,7 @@ pub fn help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeq
         return;
     }
     conz::print_type("Command: ", conz::MsgType::Normal);
-    conz::println_type(astr::unsplit(&args, ' ' as u8).to_string(), conz::MsgType::Highlight);
+    conz::println_type(astr::unsplit(&args, b' ').to_string(), conz::MsgType::Highlight);
     conz::println_type(string, conz::MsgType::Normal);
 }
 
@@ -222,15 +222,14 @@ pub fn rm_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Opti
 pub fn clean_points(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     conz::println_type("Remove all points that are in the past: ", conz::MsgType::Normal);
-    match conz::read_bool("Sure to remove them?: ", &mut inputs){
-        true =>{}
-        false =>{return;}
+    if !conz::read_bool("Sure to remove them?: ", &mut inputs){
+        return;
     }
     let points = state.points.get_items().clone();
     let mut vec = Vec::new();
     let now = data::DT::new();
-    for i in 0..points.len(){
-        if !now.diff(&points[i].dt).neg{
+    for (i, item) in points.iter().enumerate(){
+        if !now.diff(&item.dt).neg{
             break;
         }
         vec.push(i);
@@ -270,10 +269,8 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
                 conz::println_type("Fail: no results found.", conz::MsgType::Error);
             }
             if inputs.is_some() {return;}
-            match conz::read_bool("Try again?: ", &mut Option::None){
-                true =>{continue;}
-                false =>{return;}
-            }
+            if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+            else {return;}
         }
         points[vec[0]].print();
         let now = data::DT::new();
@@ -332,10 +329,8 @@ pub fn mv_plans(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
             support::MatchResult::None =>{
                 conz::println_type("Fail: no matches found.", conz::MsgType::Error);
                 if cli {return;}
-                match conz::read_bool("Try again?: ", &mut inputs){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", &mut inputs) {continue;}
+                else {return;}
             }
             support::MatchResult::Some =>{
                 conz::print_type("Found ", conz::MsgType::Normal);
@@ -344,19 +339,12 @@ pub fn mv_plans(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
                 for i in &vec{
                     items[*i].print();
                 }
-                if !cli{
-                    match conz::read_bool("Move all?: ", &mut inputs){
-                        true =>{}
-                        false =>{
-                            match conz::read_bool("Try again?: ", &mut inputs){
-                                true =>{continue;}
-                                false =>{return;}
-                            }
-                        }
-                    }
+                if !cli && !conz::read_bool("Move all?: ", &mut inputs){
+                    if conz::read_bool("Try again?: ", &mut inputs) {continue;}
+                    else {return;}
                 }
                 let x = conz::prompt("New type: ");
-                let ttype = data::PlanType::from_astr(&astr::from_string(&x), true);
+                let ttype = data::PlanType::from_astr(&astr::from_str(&x), true);
                 let mut replacements = Vec::new();
                 let mut indices = Vec::new();
                 for i in &vec{
@@ -391,15 +379,12 @@ pub fn rm_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: Opti
 pub fn clean_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     conz::println_type("Remove all slices that are in the past: ", conz::MsgType::Normal);
-    match conz::read_bool("Sure to remove them?: ", &mut inputs){
-        true =>{}
-        false =>{return;}
-    }
+    if !conz::read_bool("Sure to remove them?: ", &mut inputs) {return;}
     let slices = state.slices.get_items().clone();
     let mut vec = Vec::new();
     let now = data::DT::new();
-    for i in 0..slices.len(){
-        if !now.diff(&slices[i].start).neg{
+    for (i, slice) in slices.iter().enumerate(){
+        if !now.diff(&slice.start).neg{
             break;
         }
         vec.push(i);
@@ -439,10 +424,8 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
                 conz::println_type("Fail: no results found.", conz::MsgType::Error);
             }
             if inputs.is_some() {return;}
-            match conz::read_bool("Try again?: ", &mut Option::None){
-                true =>{continue;}
-                false =>{return;}
-            }
+            if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+            else {return;}
         }
         let slice = &slices[vec[0]]; 
         slice.print();
@@ -474,10 +457,8 @@ pub fn tick_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Opt
         match match_res{
             support::MatchResult::None =>{
                 conz::println_type("Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool("Try again?: ", &mut Option::None){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+                else {return;}
             }
             support::MatchResult::Some =>{
                 conz::print_type("Found ", conz::MsgType::Normal);
@@ -487,31 +468,26 @@ pub fn tick_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Opt
                     if items[*i].done {continue;}
                     items[*i].print();
                 }
-                match conz::read_bool("Tick all?: ", &mut Option::None){
-                    true =>{
-                        let mut replacements = Vec::new();
-                        let mut indices = Vec::new();
-                        for i in &vec{
-                            if items[*i].done {continue;}
-                            let mut ntodo = items[*i].clone();
-                            ntodo.done = true;
-                            indices.push(*i);
-                            replacements.push(ntodo);
-                        }
-                        let ok = state.todos.replace(indices, replacements);
-                        if ok {
-                            conz::println_type("Success: Todos edited.", conz::MsgType::Highlight);
-                        }else{
-                            conz::println_type("Error: Todos editing failed.", conz::MsgType::Highlight);
-                        }
-                        return;
+                if conz::read_bool("Tick all?: ", &mut Option::None){
+                    let mut replacements = Vec::new();
+                    let mut indices = Vec::new();
+                    for i in &vec{
+                        if items[*i].done {continue;}
+                        let mut ntodo = items[*i].clone();
+                        ntodo.done = true;
+                        indices.push(*i);
+                        replacements.push(ntodo);
                     }
-                    false =>{}
+                    let ok = state.todos.replace(indices, replacements);
+                    if ok {
+                        conz::println_type("Success: Todos edited.", conz::MsgType::Highlight);
+                    }else{
+                        conz::println_type("Error: Todos editing failed.", conz::MsgType::Highlight);
+                    }
+                    return;
                 }
-                match conz::read_bool("Try again?: ", &mut Option::None){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+                else {return;}
             }
         }
     }
@@ -526,14 +502,11 @@ pub fn rm_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Optio
 pub fn clean_todos(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     conz::println_type("Remove all todos that are done: ", conz::MsgType::Normal);
-    match conz::read_bool("Sure to remove them?: ", &mut inputs){
-        true =>{}
-        false =>{return;}
-    }
+    if !conz::read_bool("Sure to remove them?: ", &mut inputs) {return;}
     let todos = state.todos.get_items().clone();
     let mut vec = Vec::new();
-    for i in 0..todos.len(){
-        if !todos[i].done{
+    for (i,item) in todos.iter().enumerate(){
+        if !item.done{
             continue;
         }
         vec.push(i);

@@ -5,23 +5,23 @@ use simpleio as sio;
 use super::conz;
 use super::misc;
 
-pub const DATA_DIR: &'static str = "pplanner";
-pub const POINT_DIR: &'static str = "points";
-pub const POINT_ARCHIVE_DIR: &'static str = "points_archive";
-pub const PLAN_DIR: &'static str = "plans";
-pub const PLAN_ARCHIVE_DIR: &'static str = "plans_archive";
-pub const SLICE_DIR: &'static str = "slices";
-pub const SLICE_ARCHIVE_DIR: &'static str = "slices_archive";
-pub const TODO_DIR: &'static str = "todos";
-pub const TODO_ARCHIVE_DIR: &'static str = "todos_archive";
+pub const DATA_DIR: &str = "pplanner";
+pub const POINT_DIR: &str = "points";
+pub const POINT_ARCHIVE_DIR: &str = "points_archive";
+pub const PLAN_DIR: &str = "plans";
+pub const PLAN_ARCHIVE_DIR: &str = "plans_archive";
+pub const SLICE_DIR: &str = "slices";
+pub const SLICE_ARCHIVE_DIR: &str = "slices_archive";
+pub const TODO_DIR: &str = "todos";
+pub const TODO_ARCHIVE_DIR: &str = "todos_archive";
 
 pub fn get_data_dir_path(relative: &str) -> Option<std::path::PathBuf>{
     let confd = sio::get_config();
-    if confd.is_none() {return Option::None;}
+    confd.as_ref()?;
     let mut confd = confd.unwrap();
     confd.push(DATA_DIR);
     confd.push(relative);
-    return Option::Some(confd);
+    Option::Some(confd)
 }
 
 fn setup_file(p: &str){
@@ -42,7 +42,6 @@ fn setup_file(p: &str){
     else {
         conz::println_error("", "Error: Could not create file: ", &pathstr);
         conz::println_type(pathstr, conz::MsgType::Value);
-        return;
     }
 }
 
@@ -82,7 +81,7 @@ pub fn setup_config_dir() -> bool{
     setup_file(SLICE_ARCHIVE_DIR);
     setup_file(TODO_DIR);
     setup_file(TODO_ARCHIVE_DIR);
-    return true;
+    true
 }
 
 pub type Buffer = Vec<u8>;
@@ -103,12 +102,12 @@ impl Bufferable for u32{
     fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 4 {return Option::None;}
         let mut val: u32 = 0;
-        val += (vec[(*iter + 0) as usize] as u32) << 24;
-        val += (vec[(*iter + 1) as usize] as u32) << 16;
-        val += (vec[(*iter + 2) as usize] as u32) << 8;
-        val += vec[(*iter + 3) as usize] as u32;
+        val += u32::from(vec[(*iter + 0) as usize]) << 24;
+        val += u32::from(vec[(*iter + 1) as usize]) << 16;
+        val += u32::from(vec[(*iter + 2) as usize]) << 8;
+        val += u32::from(vec[(*iter + 3) as usize]);
         *iter += 4;
-        return Option::Some(val);
+        Option::Some(val)
     }
 }
 
@@ -121,10 +120,10 @@ impl Bufferable for u16{
     fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 2 {return Option::None;}
         let mut val: u16 = 0;
-        val += (vec[(*iter + 0) as usize] as u16) << 8;
-        val += vec[(*iter + 1) as usize] as u16;
+        val += u16::from(vec[(*iter + 0) as usize]) << 8;
+        val += u16::from(vec[(*iter + 1) as usize]);
         *iter += 2;
-        return Option::Some(val);
+        Option::Some(val)
     }
 }
 
@@ -137,7 +136,7 @@ impl Bufferable for u8{
         if (vec.len() as i32) - (*iter as i32) < 1 {return Option::None;}
         let val = vec[*iter as usize];
         *iter += 1;
-        return Option::Some(val);
+        Option::Some(val)
     }
 }
 
@@ -152,7 +151,7 @@ pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
     if opened.write_all(&vec).is_err() {return false;}
-    return true;
+    true
 }
 
 pub fn buffer_write_file_append(path: &std::path::Path, vec: &Buffer) -> bool{
@@ -160,7 +159,7 @@ pub fn buffer_write_file_append(path: &std::path::Path, vec: &Buffer) -> bool{
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
     if opened.write_all(&vec).is_err() {return false;}
-    return true;
+    true
 }
 
 pub fn buffer_read_file(path: &std::path::Path) -> Option<Buffer>{
@@ -169,7 +168,7 @@ pub fn buffer_read_file(path: &std::path::Path) -> Option<Buffer>{
     let mut opened = file.unwrap();
     let mut vec: Buffer = Vec::new();
     if opened.read_to_end(&mut vec).is_err() {return Option::None;}
-    return Option::Some(vec);
+    Option::Some(vec)
 }
 
 pub struct BufferFile<T: Bufferable + std::cmp::Ord>{
@@ -183,7 +182,7 @@ pub struct BufferFile<T: Bufferable + std::cmp::Ord>{
 impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     pub fn new(path: std::path::PathBuf) -> BufferFile<T>{
         BufferFile{
-            path: path,
+            path,
             content: Vec::new(),
             dirty: false,
             loaded: false,
@@ -191,12 +190,12 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         }
     }
     
-    fn content_to_buffer(vec: &Vec<T>) -> Buffer{
+    fn content_to_buffer(vec: &[T]) -> Buffer{
         let mut buf = Vec::new();
         for x in vec{
             x.into_buffer(&mut buf);
         }
-        return buf;
+        buf
     }
 
     pub fn write(&mut self) -> bool{
@@ -209,12 +208,12 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         self.dirty = !buffer_write_file(self.path.as_path(), &BufferFile::content_to_buffer(&self.content));
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
-        if pathstr.is_none(){
-            conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+        if let Some(pathstrv) = pathstr{
+            conz::println_error("", "Error: Cannot write items to file: ", &pathstrv);
         }else{
-            conz::println_error("", "Error: Cannot write items to file: ", &pathstr.unwrap());
+            conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
         }
-        return false;
+        false
     }
 
     fn buffer_to_content(&mut self, vec: &Buffer){
@@ -234,17 +233,17 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             match res{
                 Option::None => {
                     let pathstr = bf.path.to_str();
-                    if pathstr.is_none(){
-                        conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+                    if let Some(pathstrv) = pathstr{
+                        conz::println_error("", "Error: Cannot read file: ", &pathstrv);
                     }else{
-                        conz::println_error("", "Error: Cannot read file: ", &pathstr.unwrap());
+                        conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
                     }
-                    return false;
+                    false
                 }
                 Option::Some(x) => {
                     bf.buffer_to_content(&x);
                     bf.dirty = false;
-                    return true;
+                    true
                 }
             }
         }
@@ -257,26 +256,24 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                 self.dirty = true;
             }
         }
-        return true;
+        true
     }
 
     pub fn add_item(&mut self, item: T) -> bool{
-        if !self.loaded{
-            if !self.read(false) {
-                conz::println_type("Error: Cannot add item.", conz::MsgType::Error);
-                return false;
-            }
+        if !self.loaded && !self.read(false) {
+            conz::println_type("Error: Cannot add item.", conz::MsgType::Error);
+            return false;
         }
         self.content.push(item);
         self.dirty = true;
         self.sorted = false;
-        return true;
+        true
     }
 
     pub fn get_items(&mut self) -> &Vec<T>{
         if !self.loaded {self.read(false);}
         self.sort(true);
-        return &self.content;
+        &self.content
     }
 
     pub fn sort(&mut self, check: bool){
@@ -288,18 +285,16 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         Items get added incrementally, written sorted, when first read there sorted.
         Should be ok-ish for our usecase.
         */
-        if check{
-            if misc::is_sorted(&self.content){
-                self.sorted = true;
-                return;
-            }
+        if check && misc::is_sorted(&self.content){
+            self.sorted = true;
+            return;
         }
         self.content.sort();
         self.sorted = true;
     }
 
     pub fn is_clean(&self) -> bool{
-        return !self.dirty;
+        !self.dirty
     }
 
     pub fn remove_indices(&mut self, mut indices: Vec<usize>) -> bool{
@@ -310,17 +305,15 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         let mut index = 0;
         let mut vec = Vec::new();
         for i in 0..self.content.len(){
-            if index < indices.len(){
-                if indices[index] == i {
-                    index += 1;
-                    continue;
-                }
+            if index < indices.len() && indices[index] == i {
+                index += 1;
+                continue;
             }
             vec.push(self.content[i].clone()); 
         }
         self.content = vec;
         self.dirty = true;
-        return self.write();
+        self.write()
     }
 
     pub fn replace(&mut self, indices: Vec<usize>, replacements: Vec<T>) -> bool{
@@ -342,7 +335,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         }
         self.sort(true);
         self.dirty = true;
-        return self.write();
+        self.write()
     }
 }
 
@@ -355,18 +348,18 @@ pub struct ArchiveFile<T: Bufferable>{
 impl<T: Bufferable> ArchiveFile<T>{
     pub fn new(path: std::path::PathBuf) -> ArchiveFile<T>{
         ArchiveFile{
-            path: path,
+            path,
             content: Vec::new(),
             dirty: false,
         }
     }
 
-    fn content_to_buffer(vec: &Vec<T>) -> Buffer{
+    fn content_to_buffer(vec: &[T]) -> Buffer{
         let mut buf = Vec::new();
         for x in vec{
             x.into_buffer(&mut buf);
         }
-        return buf;
+        buf
     }
 
     pub fn write(&mut self) -> bool{
@@ -377,12 +370,12 @@ impl<T: Bufferable> ArchiveFile<T>{
             return true;
         }
         let pathstr = self.path.to_str();
-        if pathstr.is_none(){
-            conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+        if let Some(pathstrv) = pathstr {
+            conz::println_error("", "Error: Cannot write items to file: ", &pathstrv);
         }else{
-            conz::println_error("", "Error: Cannot write items to file: ", &pathstr.unwrap());
+            conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
         }
-        return false;
+        false
     }
 
     fn buffer_to_content(&mut self, vec: &Buffer) -> Vec<T>{
@@ -393,7 +386,7 @@ impl<T: Bufferable> ArchiveFile<T>{
             if res.is_none() {break;}
             ret.push(res.unwrap());
         }
-        return ret;
+        ret
     }
 
     pub fn read(&mut self) -> Vec<T>{
@@ -401,15 +394,15 @@ impl<T: Bufferable> ArchiveFile<T>{
         match res{
             Option::None => {
                 let pathstr = self.path.to_str();
-                if pathstr.is_none(){
-                    conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
+                if let Some(pathstrv) = pathstr{
+                    conz::println_error("", "Error: Cannot read file: ", &pathstrv);
                 }else{
-                    conz::println_error("", "Error: Cannot read file: ", &pathstr.unwrap());
+                    conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
                 }
-                return Vec::new();
+                Vec::new()
             }
             Option::Some(x) => {
-                return self.buffer_to_content(&x);
+                self.buffer_to_content(&x)
             }
         }
     }
@@ -420,6 +413,6 @@ impl<T: Bufferable> ArchiveFile<T>{
     }
 
     pub fn is_clean(&self) -> bool{
-        return !self.dirty;
+        !self.dirty
     }
 }

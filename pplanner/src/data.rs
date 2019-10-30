@@ -115,13 +115,9 @@ impl Span {
     pub const SECS_DAY: u64 = 86400;
 
     pub fn string_significant(&self, as_dur: bool) -> String{
-        let mut prefix = match self.neg{
-            true => "past ",
-            false => "in ",
-        };
-        if as_dur {
-            prefix = "";
-        }
+        let prefix = if as_dur { "" }
+        else if self.neg {"past "}
+        else {"in "};
         if self.total_hours > 48 {
             return format!("{}{} days", prefix, self.days);
         }
@@ -131,7 +127,7 @@ impl Span {
         if self.total_secs > 60 {
             return format!("{}{} mins", prefix, self.total_mins);
         }
-        return format!("{}{} secs", prefix, self.total_secs);
+        format!("{}{} secs", prefix, self.total_secs)
     }
 
     pub fn print_as_duration(&self){
@@ -187,19 +183,19 @@ impl DT {
     pub fn make_datetime(dmy: DMY, hms: HMS) -> Option<Self>{
         let datetime = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(hms.0, hms.1, hms.2);
         if datetime == chrono::LocalResult::None {return Option::None;}
-        return Option::Some(DT{ dt: datetime.unwrap(), });
+        Option::Some(DT{ dt: datetime.unwrap(), })
     }
 
     pub fn str_datetime(&self) -> astr::Astr{    
-        return format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")).to_astr();
+        format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")).to_astr()
     }
 
     pub fn str_date(&self) -> astr::Astr{    
-        return format!("{}", self.dt.format("%d-%m-%Y")).to_astr();
+        format!("{}", self.dt.format("%d-%m-%Y")).to_astr()
     }
 
     pub fn str_time(&self) -> astr::Astr{    
-        return format!("{}", self.dt.format("%H:%M:%S")).to_astr();
+        format!("{}", self.dt.format("%H:%M:%S")).to_astr()
     }
 
     pub fn weeknr(&self) -> u8{
@@ -208,11 +204,11 @@ impl DT {
         let datetime = datetime.unwrap();
         let since = self.diff(&datetime);
         let weeks = since.days / 7;
-        return (weeks + 1) as u8; //year starts with week 1 not week 0
+        (weeks + 1) as u8 //year starts with week 1 not week 0
     }
 
     pub fn str_weeknr(&self) -> astr::Astr{
-        return format!("{}", self.weeknr()).to_astr();
+        format!("{}", self.weeknr()).to_astr()
     }
 
     pub fn str_dayname(&self) -> astr::Astr{
@@ -255,16 +251,16 @@ impl DT {
             let total_hours = secs_all / Span::SECS_HOUR;
             let total_mins = secs_all / Span::SECS_MIN;
 
-            return Span {
-                total_hours: total_hours,
-                total_mins: total_mins,
+            Span {
+                total_hours,
+                total_mins,
                 total_secs: secs_all,
-                days: days,
-                hours: hours,
-                mins: mins,
+                days,
+                hours,
+                mins,
                 secs: left,
-                neg: neg,
-            };
+                neg,
+            }
         }
         fn get_secs(me: &DT, other: &DT) -> u64{
             let d = other.dt - me.dt;
@@ -275,12 +271,9 @@ impl DT {
             }
         }
         let mut secs = get_secs(self, other);
-        let mut neg = false;
-        if secs == 0{
-            secs = get_secs(other, self);
-            neg = true;
-        }
-        return _diff(secs, neg);
+        let neg = if secs == 0 { secs = get_secs(other, self); true }
+        else { false };
+        _diff(secs, neg)
     }
 }
 
@@ -298,31 +291,31 @@ impl save::Bufferable for DT{
         if (vec.len() as i32) - (*iter as i32) < 9 { return Option::None; }
         //we can unwrap without check, buffer_read_u32 only fails if not enough bytes
         //we have checked there are enough bytes
-        let ho = u8::from_buffer(vec, iter).unwrap() as u32;
-        let mi = u8::from_buffer(vec, iter).unwrap() as u32;
-        let se = u8::from_buffer(vec, iter).unwrap() as u32;
-        let da = u8::from_buffer(vec, iter).unwrap() as u32;
-        let mo = u8::from_buffer(vec, iter).unwrap() as u32;
+        let ho = u32::from(u8::from_buffer(vec, iter).unwrap());
+        let mi = u32::from(u8::from_buffer(vec, iter).unwrap());
+        let se = u32::from(u8::from_buffer(vec, iter).unwrap());
+        let da = u32::from(u8::from_buffer(vec, iter).unwrap());
+        let mo = u32::from(u8::from_buffer(vec, iter).unwrap());
         let ye = u32::from_buffer(vec, iter).unwrap();
-        return DT::make_datetime((da,mo,ye), (ho,mi,se));
+        DT::make_datetime((da,mo,ye), (ho,mi,se))
     }
 }
 
 impl std::cmp::Ord for DT {
     fn cmp(&self, other: &DT) -> std::cmp::Ordering {
-        return self.dt.cmp(&other.dt);
+        self.dt.cmp(&other.dt)
     }
 }
 
 impl std::cmp::PartialOrd for DT {
     fn partial_cmp(&self, other: &DT) -> Option<std::cmp::Ordering> {
-        return Some(self.cmp(other));
+        Some(self.cmp(other))
     }
 }
 
 impl std::cmp::PartialEq for DT {
     fn eq(&self, other: &DT) -> bool {
-        return self.dt == other.dt;
+        self.dt == other.dt
     }
 }
 
@@ -337,36 +330,36 @@ pub fn parse_dmy(string: &astr::Astr) -> Option<DMY>{
     if splitted.len() != 3 {return Option::None;}
     let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
     //if its now than put in piece of the current date
-    if triplet[0].is_none() && splitted[0].to_string() == "now".to_string(){
+    if triplet[0].is_none() && splitted[0].to_string() == "now"{
         let now = DT::new();
         triplet[0] = Option::Some(now.dt.day());
     }
-    if triplet[1].is_none() && splitted[1].to_string() == "now".to_string(){
+    if triplet[1].is_none() && splitted[1].to_string() == "now"{
         let now = DT::new();
         triplet[1] = Option::Some(now.dt.month());
     }
-    if triplet[2].is_none() && splitted[2].to_string() == "now".to_string(){
+    if triplet[2].is_none() && splitted[2].to_string() == "now"{
         let now = DT::new();
         triplet[2] = Option::Some(now.dt.year() as u32);
     }
     //months can be inputted with 3 letter month names. still none, fail.
-    if triplet[0].is_none() {return Option::None;}
+    triplet[0]?;
     if triplet[1].is_none() {
         triplet[1] = month_short_to_uint(&splitted[1]);
-        if triplet[1].is_none() {return Option::None;}
+        triplet[1]?;
     }
-    if triplet[2].is_none() {return Option::None;}
-    return Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()));
+    triplet[2]?;
+    Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()))
 }
 
 pub fn parse_hms(string: &astr::Astr) -> Option<DMY>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
     let triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
-    if triplet[0].is_none() {return Option::None;}
-    if triplet[1].is_none() {return Option::None;}
-    if triplet[2].is_none() {return Option::None;}
-    return Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()));
+    triplet[0]?;
+    triplet[1]?;
+    triplet[2]?;
+    Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()))
 }
 
 #[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
@@ -386,7 +379,7 @@ impl PartialEq for PointType {
 impl PointType{
     pub fn from_astr(string: &astr::Astr, partial: bool) -> PointType{
         let string = string.to_lower();
-        if string.len() == 0 && partial{
+        if string.is_empty() && partial{
             return PointType::DefaultValue;
         }
         if string.len() < 3{
@@ -398,7 +391,7 @@ impl PointType{
         if string.cut(3) == astr::from_str("eve"){
             return PointType::Event;
         }
-        return PointType::None;
+        PointType::None
     }
 }
 
@@ -415,7 +408,7 @@ impl astr::ToAstr for PointType{
 
 impl DefaultValue for PointType{
     fn default_val() -> Self{
-        return PointType::DefaultValue;
+        PointType::DefaultValue
     }
 }
 
@@ -429,8 +422,8 @@ pub struct Point{
 impl Point{
     pub fn new(dt: DT, title: astr::Astr, ptype: astr::Astr) -> Self{
         Point{
-            dt: dt,
-            title: title,
+            dt,
+            title,
             ptype: PointType::from_astr(&ptype, false),
         }
     }
@@ -441,46 +434,46 @@ impl save::Bufferable for Point{
         self.title.into_buffer(vec);
         self.dt.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ptype);
-        if primtype.is_none() {
+        if let Some(primtypev) = primtype{
+            primtypev.into_buffer(vec);
+        }else{
             conz::println_type("Error: Could not convert PointType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
-        }else{
-            primtype.unwrap().into_buffer(vec);
         }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         let res_title = astr::Astr::from_buffer(vec, iter);
-        if res_title.is_none() {return Option::None;}
+        res_title.as_ref()?;
         let res_dt = DT::from_buffer(vec, iter);
-        if res_dt.is_none() {return Option::None;}
+        res_dt.as_ref()?;
         let res_ptype = u8::from_buffer(vec, iter);
-        if res_ptype.is_none() {return Option::None;}
+        res_ptype.as_ref()?;
         let res_ptype = FromPrimitive::from_u8(res_ptype.unwrap());
-        if res_ptype.is_none() {return Option::None;}
-        return Option::Some(Point{
+        res_ptype.as_ref()?;
+        Option::Some(Point{
             title: res_title.unwrap(),
             dt: res_dt.unwrap(),
             ptype: res_ptype.unwrap(),
-        }); 
+        })
     }
 }
 
 impl std::cmp::Ord for Point {
     fn cmp(&self, other: &Point) -> std::cmp::Ordering {
-        return self.dt.cmp(&other.dt);
+        self.dt.cmp(&other.dt)
     }
 }
 
 impl std::cmp::PartialOrd for Point {
     fn partial_cmp(&self, other: &Point) -> Option<std::cmp::Ordering> {
-        return Some(self.cmp(other));
+        Some(self.cmp(other))
     }
 }
 
 impl std::cmp::PartialEq for Point {
     fn eq(&self, other: &Point) -> bool {
-        return self.dt == other.dt;
+        self.dt == other.dt
     }
 }
 
@@ -513,7 +506,7 @@ impl conz::PrettyPrintable for Point{
         types.push(support::diff_color(&diff));
         types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Normal);
-        return (text,types);
+        (text,types)
     }
     
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
@@ -541,7 +534,7 @@ impl wizard::Wizardable for Point{
             return Option::Some(ret);
         }
         conz::println_type("Error: could not build point.", conz::MsgType::Error);
-        return Option::None;
+        Option::None
     }
 
     fn get_fields(partial: bool) -> wizard::FieldVec{
@@ -555,17 +548,17 @@ impl wizard::Wizardable for Point{
             fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
             fields.add(wizard::InputType::DateTime, astr::from_str("Time date: "), wizard::PromptType::Reprompt);
         }
-        return fields;
+        fields
     }
 
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
         let ptitle = astr::Astr::unwrap_default(wres.get_text());
         let ptype = PointType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
         let pdt = DT::unwrap_default(wres.get_dt());
-        return Point{
+        Point{
             dt: pdt,
             title: ptitle,
-            ptype: ptype,
+            ptype,
         }
     }
 
@@ -586,7 +579,7 @@ impl wizard::Wizardable for Point{
         if self.dt == other.dt{
             curr_score += 1;
         }
-        return curr_score;
+        curr_score
     }
 
     fn get_name() -> astr::Astr{
@@ -612,19 +605,19 @@ impl PartialEq for PlanType {
 impl PlanType{
     pub fn from_astr(string: &astr::Astr, partial: bool) -> PlanType{
         let string = string.to_lower();
-        if string.len() == 0 && partial{
+        if string.is_empty() && partial{
             return PlanType::DefaultValue;
         }
-        if string[0] == 'l' as u8{
+        if string[0] == b'l'{
             return PlanType::Long;
         }
-        if string[0] == 'i' as u8{
+        if string[0] == b'i'{
             return PlanType::Idea;
         }
-        if string[0] == 'd' as u8{
+        if string[0] == b'd'{
             return PlanType::Current;
         }
-        return PlanType::Short;
+        PlanType::Short
     }
 }
 
@@ -642,7 +635,7 @@ impl astr::ToAstr for PlanType{
 
 impl DefaultValue for PlanType{
     fn default_val() -> Self{
-        return PlanType::DefaultValue;
+        PlanType::DefaultValue
     }
 }
 
@@ -668,8 +661,8 @@ pub struct Plan{
 impl Plan{
     pub fn new(title: astr::Astr, urgency: u16, strtype: astr::Astr) -> Plan{
         Plan{
-            title: title,
-            urgency: urgency,
+            title,
+            urgency,
             ttype: PlanType::from_astr(&strtype, false),
         }
     }
@@ -680,28 +673,28 @@ impl save::Bufferable for Plan{
         self.title.into_buffer(vec);
         self.urgency.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.ttype);
-        if primtype.is_none() {
+        if let Some(primtypev) = primtype {
+            primtypev.into_buffer(vec);
+        }else{
             conz::println_type("Error: Could not convert PlanType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
-        }else{
-            primtype.unwrap().into_buffer(vec);
         }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         let res_title = astr::Astr::from_buffer(vec, iter);
-        if res_title.is_none() {return Option::None;}
+        res_title.as_ref()?;
         let res_urg = u16::from_buffer(vec, iter);
-        if res_urg.is_none() {return Option::None;}
+        res_urg.as_ref()?;
         let res_ttype = u8::from_buffer(vec, iter);
-        if res_ttype.is_none() {return Option::None;}
+        res_ttype.as_ref()?;
         let res_ttype = FromPrimitive::from_u8(res_ttype.unwrap());
-        if res_ttype.is_none() {return Option::None;}
-        return Option::Some(Plan{
+        res_ttype.as_ref()?;
+        Option::Some(Plan{
             title: res_title.unwrap(),
             urgency: res_urg.unwrap(),
             ttype: res_ttype.unwrap(),
-        });
+        })
     }
 }
 
@@ -718,7 +711,7 @@ impl conz::PrettyPrintable for Plan{
             text.push(self.ttype.to_astr());
             types.push(conz::MsgType::Normal);
         }
-        return (text,types);
+        (text,types)
     }
     
     fn lengths(print_type: &Self::ArgType) -> Vec<u16>{
@@ -732,7 +725,7 @@ impl conz::PrettyPrintable for Plan{
         if *print_type {
             res.push(astr::from_str("Type:"));
         }
-        return res;
+        res
     }
 }
 
@@ -773,7 +766,7 @@ impl wizard::Wizardable for Plan{
             return Option::Some(ret);
         }
         conz::println_type("Error: could not build todo.", conz::MsgType::Error);
-        return Option::None;
+        Option::None
     }
 
     fn get_fields(partial: bool) -> wizard::FieldVec{
@@ -787,7 +780,7 @@ impl wizard::Wizardable for Plan{
             fields.add(wizard::InputType::U16, astr::from_str("Urgency: "), wizard::PromptType::Reprompt);
             fields.add(wizard::InputType::Text, astr::from_str("Type: "), wizard::PromptType::Once);
         }
-        return fields;
+        fields
     }
 
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
@@ -795,16 +788,16 @@ impl wizard::Wizardable for Plan{
         let turgency = u16::unwrap_default(wres.get_u16());
         let x = wres.get_text();
         let ttype = PlanType::from_astr(&astr::Astr::unwrap_default(x), true);
-        return Plan{
+        Plan{
             title: ttitle,
             urgency: turgency,
-            ttype: ttype,
+            ttype,
         }
     }
 
     fn replace_parts(&mut self, replacements: &Self){
         self.title.replace_if_not_default(replacements.title.clone());
-        self.urgency.replace_if_not_default(replacements.urgency.clone());
+        self.urgency.replace_if_not_default(replacements.urgency);
         self.ttype.replace_if_not_default(replacements.ttype.clone());
     }
 
@@ -819,7 +812,7 @@ impl wizard::Wizardable for Plan{
         if self.ttype == other.ttype{
             curr_score += 1;
         }
-        return curr_score;
+        curr_score
     }
 
     fn get_name() -> astr::Astr{
@@ -856,7 +849,7 @@ impl PartialEq for SliceType {
 impl SliceType {
     pub fn from_astr(string: &astr::Astr, partial: bool) -> Self{
         let string = string.to_lower();
-        if string.len() == 0 && partial{
+        if string.is_empty() && partial{
             return SliceType::DefaultValue;
         }
         if string.cut(1) == astr::from_str("d"){
@@ -868,7 +861,7 @@ impl SliceType {
         if string.cut(1) == astr::from_str("a"){
             return SliceType::Activity;
         }
-        return SliceType::None;
+        SliceType::None
     }
 }
 
@@ -886,7 +879,7 @@ impl astr::ToAstr for SliceType {
 
 impl DefaultValue for SliceType {
     fn default_val() -> Self{
-        return SliceType::DefaultValue;
+        SliceType::DefaultValue
     }
 }
 
@@ -901,10 +894,10 @@ pub struct Slice {
 impl Slice {
     pub fn from(start: DT, end: DT, title: astr::Astr, stype: SliceType) -> Self{
         Self{
-            start: start,
-            end: end,
-            title: title,
-            stype: stype,
+            start,
+            end,
+            title,
+            stype,
         }
     }
 }
@@ -915,47 +908,46 @@ impl save::Bufferable for Slice {
         self.end.into_buffer(vec);
         self.title.into_buffer(vec);
         let primtype = ToPrimitive::to_u8(&self.stype);
-        if primtype.is_none() {
+        if let Some(primtypev) = primtype{
+            primtypev.into_buffer(vec);
+        }else{
             conz::println_type("Error: Could not convert SliceType to u8.", conz::MsgType::Error);
             (0 as u8).into_buffer(vec);
-        }else{
-            primtype.unwrap().into_buffer(vec);
         }
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 18 { return Option::None; }
         let start = DT::from_buffer(vec, iter);
-        if start.is_none() { return Option::None; }
+        start.as_ref()?;
         let end = DT::from_buffer(vec, iter);
-        if end.is_none() { return Option::None; }
+        end.as_ref()?;
         let title = astr::Astr::from_buffer(vec, iter);
-        if title.is_none() {return Option::None;}
+        title.as_ref()?;
         let res_stype = u8::from_buffer(vec, iter);
-        if res_stype.is_none() {return Option::None;}
+        res_stype.as_ref()?;
         let res_stype = FromPrimitive::from_u8(res_stype.unwrap());
-        if res_stype.is_none() {return Option::None;}
-        return Option::Some(Self::from(start.unwrap(), end.unwrap(), title.unwrap(), res_stype.unwrap()));
+        res_stype.as_ref()?;
+        Option::Some(Self::from(start.unwrap(), end.unwrap(), title.unwrap(), res_stype.unwrap()))
     }
 }
 
 impl std::cmp::Ord for Slice {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        return self.start.cmp(&other.start);
+        self.start.cmp(&other.start)
     }
 }
 
 impl std::cmp::PartialOrd for Slice {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        return Some(self.cmp(other));
+        Some(self.cmp(other))
     }
 }
 
 impl std::cmp::PartialEq for Slice {
-    fn eq(&self, other: &Self) -> bool {
-        return 
+    fn eq(&self, other: &Self) -> bool { 
             self.start == other.start &&
-            self.end == other.end;
+            self.end == other.end
     }
 }
 
@@ -1000,7 +992,7 @@ impl conz::PrettyPrintable for Slice{
         types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Normal);
-        return (text,types);
+        (text,types)
     }
     
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
@@ -1031,7 +1023,7 @@ impl wizard::Wizardable for Slice{
             return Option::Some(ret);
         }
         conz::println_type("Error: could not build slice.", conz::MsgType::Error);
-        return Option::None;
+        Option::None
     }
 
     fn get_fields(partial: bool) -> wizard::FieldVec{
@@ -1047,7 +1039,7 @@ impl wizard::Wizardable for Slice{
             fields.add(wizard::InputType::DateTime, astr::from_str("Start time date: "), wizard::PromptType::Reprompt);
             fields.add(wizard::InputType::DateTime, astr::from_str("End time date: "), wizard::PromptType::Reprompt);
         }
-        return fields;
+        fields
     }
 
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
@@ -1055,11 +1047,11 @@ impl wizard::Wizardable for Slice{
         let stype = SliceType::from_astr(&astr::Astr::unwrap_default(wres.get_text()), true);
         let sstart = DT::unwrap_default(wres.get_dt());
         let send = DT::unwrap_default(wres.get_dt());
-        return Slice{
+        Slice{
             start: sstart,
             end: send,
             title: stitle,
-            stype: stype,
+            stype,
         }
     }
 
@@ -1084,7 +1076,7 @@ impl wizard::Wizardable for Slice{
         if self.end == other.end{
             curr_score += 1;
         }
-        return curr_score;
+        curr_score
     }
 
     fn get_name() -> astr::Astr{
@@ -1107,28 +1099,27 @@ impl save::Bufferable for Todo {
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 5 { return Option::None; }
         let title = astr::Astr::from_buffer(vec, iter);
-        if title.is_none() {return Option::None;}
+        title.as_ref();
         let done = u8::from_buffer(vec, iter);
-        if done.is_none() {return Option::None;}
-        return Option::Some(Self{title: title.unwrap(),done: done.unwrap() != 0});
+        done.as_ref();
+        Option::Some(Self{title: title.unwrap(),done: done.unwrap() != 0})
     }
 }
 
 impl std::cmp::Ord for Todo {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        return self.done.cmp(&other.done);
+        self.done.cmp(&other.done)
     }
 }
 
 impl std::cmp::PartialOrd for Todo {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        return Some(self.cmp(other));
+        Some(self.cmp(other))
     }
 }
 
 impl std::cmp::PartialEq for Todo {
     fn eq(&self, other: &Self) -> bool {
-        return 
             self.done == other.done
     }
 }
@@ -1152,10 +1143,8 @@ impl conz::PrettyPrintable for Todo{
     type ArgType = u8;
     fn pretty_print(&self, _: &Self::ArgType) -> (astr::AstrVec,Vec<conz::MsgType>){
         fn bool_tickbox(b: bool) -> astr::Astr{
-            match b{
-                true => astr::from_str("[ * ]"),
-                false => astr::from_str("[   ]"),
-            }
+            if b {astr::from_str("[ * ]")}
+            else {astr::from_str("[   ]")}
         }
         let mut text = Vec::new();
         let mut types = Vec::new();
@@ -1163,7 +1152,7 @@ impl conz::PrettyPrintable for Todo{
         text.push(self.title.clone());
         types.push(conz::MsgType::Value);
         types.push(conz::MsgType::Normal);
-        return (text,types);
+        (text,types)
     }
     
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
@@ -1186,7 +1175,7 @@ impl wizard::Wizardable for Todo{
             return Option::Some(Self{title:title_res.unwrap(),done:done_res.unwrap()});
         }
         conz::println_type("Error: could not build todo.", conz::MsgType::Error);
-        return Option::None;
+        Option::None
     }
 
     fn get_fields(partial: bool) -> wizard::FieldVec{
@@ -1198,13 +1187,13 @@ impl wizard::Wizardable for Todo{
             fields.add(wizard::InputType::Text, astr::from_str("Title: "), wizard::PromptType::Once);
             fields.add(wizard::InputType::Bool, astr::from_str("Done: "), wizard::PromptType::Reprompt);
         }
-        return fields;
+        fields
     }
 
     fn get_partial(wres: &mut wizard::WizardRes) -> Self{
         let ttitle = astr::Astr::unwrap_default(wres.get_text());
         let tdone = bool::unwrap_default(wres.get_bool());
-        return Todo{
+        Todo{
             title: ttitle,
             done: tdone,
         }
@@ -1223,7 +1212,7 @@ impl wizard::Wizardable for Todo{
         if self.done == other.done{
             curr_score += 1;
         }
-        return curr_score;
+        curr_score
     }
 
     fn get_name() -> astr::Astr{

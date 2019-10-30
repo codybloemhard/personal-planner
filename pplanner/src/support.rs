@@ -14,7 +14,7 @@ pub enum MatchResult{
     Some,
 }
 
-pub fn get_matches<T: Wizardable>(data: &Vec<T>, inputs: &mut Option<VecDeque<astr::Astr>>) -> (MatchResult,Vec<usize>){
+pub fn get_matches<T: Wizardable>(data: &[T], inputs: &mut Option<VecDeque<astr::Astr>>) -> (MatchResult,Vec<usize>){
     let fields = T::get_fields(true);
     let res = fields.execute(inputs);
     if res.is_none(){
@@ -24,8 +24,8 @@ pub fn get_matches<T: Wizardable>(data: &Vec<T>, inputs: &mut Option<VecDeque<as
     let partial = T::get_partial(&mut res);
     let mut score = 0;
     let mut vec = Vec::new();
-    for i in 0..data.len(){
-        let current = &data[i];
+    for (i, item) in data.iter().enumerate(){
+        let current = &item;
         let curr_score = partial.score_againts(current);
         if curr_score > score{
             score = curr_score;
@@ -43,12 +43,12 @@ pub fn get_matches<T: Wizardable>(data: &Vec<T>, inputs: &mut Option<VecDeque<as
         return (MatchResult::Some, vec);
     }
     //should not be reachable
-    return (MatchResult::None, vec);
+    (MatchResult::None, vec)
 }
 
 pub fn remove_and_archive<T: save::Bufferable + std::cmp::Ord + Clone>
     (bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>, 
-    vec: Vec<usize>, data: &Vec<T>){
+    vec: Vec<usize>, data: &[T]){
     let ok = bf.remove_indices(vec.clone());
     if ok {
         conz::println_type("Success: Items removed.", conz::MsgType::Highlight);
@@ -74,7 +74,7 @@ pub fn diff_color(diff: &data::Span) -> conz::MsgType{
     }
 }
 
-pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &Vec<T>, arg: &T::ArgType){
+pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &[T], arg: &T::ArgType){
     let count = datavec.len();
     let lengths = T::lengths(arg);
     let titles = T::titles(arg);
@@ -141,10 +141,8 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
             MatchResult::None =>{
                 conz::println_type("Fail: no matches found.", conz::MsgType::Error);
                 if cli {return;}
-                match conz::read_bool("Try again?: ", inputs){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", inputs) {continue;}
+                else {return;}
             }
             MatchResult::Some =>{
                 conz::print_type("Found ", conz::MsgType::Normal);
@@ -154,15 +152,9 @@ pub fn rm_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                     items[*i].print();
                 }
                 if !cli{
-                    match conz::read_bool("Delete all?: ", inputs){
-                        true =>{}
-                        false =>{
-                            match conz::read_bool("Try again?: ", inputs){
-                                true =>{continue;}
-                                false =>{return;}
-                            }
-                        }
-                    }
+                    if conz::read_bool("Delete all?: ", inputs) {}
+                    else if conz::read_bool("Try again?: ", inputs) {continue;}
+                    else {return;}
                 }
                 remove_and_archive(bf, af, vec, &items);
                 return;
@@ -183,10 +175,8 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
         match match_res{
             MatchResult::None =>{
                 conz::println_type("Fail: no matches found.", conz::MsgType::Error);
-                match conz::read_bool("Try again?: ", &mut Option::None){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+                else {return;}
             }
             MatchResult::Some =>{
                 conz::print_type("Found ", conz::MsgType::Normal);
@@ -195,72 +185,67 @@ pub fn edit_items<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
                 for i in &vec{
                     items[*i].print();
                 }
-                match conz::read_bool("Edit all?: ", &mut Option::None){
-                    true =>{
-                        let mut replacements = Vec::new();
-                        let mut indices = Vec::new();
-                        for i in &vec{
-                            let mut npoint = items[*i].clone();
-                            npoint.print();
-                            let res = fields.execute(&mut Option::None);
-                            if res.is_none() {return;}
-                            let mut res = res.unwrap();
-                            let partial = T::get_partial(&mut res);
-                            npoint.replace_parts(&partial);
-                            conz::println_type("New item: ", conz::MsgType::Normal);
-                            npoint.print();
-                            let ok = conz::read_bool("Apply edit?: ", &mut Option::None);
-                            if !ok {continue;}
-                            indices.push(*i);
-                            replacements.push(npoint);
-                        }
-                        let ok = bf.replace(indices, replacements);
-                        if ok {
-                            conz::println_type("Success: Items edited.", conz::MsgType::Highlight);
-                        }else{
-                            conz::println_type("Error: Items editing failed.", conz::MsgType::Highlight);
-                        }
-                        return;
+                if conz::read_bool("Edit all?: ", &mut Option::None){
+                    let mut replacements = Vec::new();
+                    let mut indices = Vec::new();
+                    for i in &vec{
+                        let mut npoint = items[*i].clone();
+                        npoint.print();
+                        let res = fields.execute(&mut Option::None);
+                        if res.is_none() {return;}
+                        let mut res = res.unwrap();
+                        let partial = T::get_partial(&mut res);
+                        npoint.replace_parts(&partial);
+                        conz::println_type("New item: ", conz::MsgType::Normal);
+                        npoint.print();
+                        let ok = conz::read_bool("Apply edit?: ", &mut Option::None);
+                        if !ok {continue;}
+                        indices.push(*i);
+                        replacements.push(npoint);
                     }
-                    false =>{}
+                    let ok = bf.replace(indices, replacements);
+                    if ok {
+                        conz::println_type("Success: Items edited.", conz::MsgType::Highlight);
+                    }else{
+                        conz::println_type("Error: Items editing failed.", conz::MsgType::Highlight);
+                    }
+                    return;
                 }
-                match conz::read_bool("Try again?: ", &mut Option::None){
-                    true =>{continue;}
-                    false =>{return;}
-                }
+                if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
+                else {return;}
             }
         }
     }
 }
 
-pub fn split_todos(todos: &Vec<data::Plan>) -> (Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>){
+pub fn split_todos(todos: &[data::Plan]) -> (Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>,Vec<data::Plan>){
     let mut doi = Vec::new();
     let mut tod = Vec::new();
     let mut lon = Vec::new();
     let mut ide = Vec::new();
     let mut index = 0;
     loop{
-        for i in 0..todos.len(){
+        for (i,item) in todos.iter().enumerate(){
             index = i;
-            if todos[i].ttype == data::PlanType::Long { break; }
-            tod.push(todos[i].clone());
+            if item.ttype == data::PlanType::Long { break; }
+            tod.push(item.clone());
         }
-        for i in index..todos.len(){
+        for (i,item) in todos.iter().enumerate().skip(index){
             index = i;
-            if todos[i].ttype == data::PlanType::Idea { break; }
-            lon.push(todos[i].clone());
+            if item.ttype == data::PlanType::Idea { break; }
+            lon.push(item.clone());
         }
-        for i in index..todos.len(){
+        for (i,item) in todos.iter().enumerate().skip(index){
             index = i;
-            if todos[i].ttype == data::PlanType::Current { break; }
-            ide.push(todos[i].clone());
+            if item.ttype == data::PlanType::Current { break; }
+            ide.push(item.clone());
         }
-        for i in index..todos.len(){
-            doi.push(todos[i].clone());
+        for (_,item) in todos.iter().enumerate().skip(index){
+            doi.push(item.clone());
         }
         break;
     }
-    return (doi,tod,lon,ide);
+    (doi,tod,lon,ide)
 }
 
 pub fn mk_item<T: Wizardable + save::Bufferable + std::cmp::Ord + Clone>
@@ -286,8 +271,8 @@ pub fn warn_unused_inputs(inputs: &Option<VecDeque<astr::Astr>>){
     conz::println_type("Warning: Inputs for this command where specified but this command does not use any.", conz::MsgType::Error);
 }
 
-pub fn warn_unused_arguments(args: &Vec<astr::Astr>){
-    if args.len() < 1 {return;}
+pub fn warn_unused_arguments(args: &[astr::Astr]){
+    if args.is_empty() {return;}
     conz::println_type("Warning: Arguments for this command where specified but this command does not use any.", conz::MsgType::Error);
 }
 

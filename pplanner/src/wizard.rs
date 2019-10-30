@@ -41,9 +41,9 @@ impl FieldVec{
 
     pub fn add(&mut self, field_type: InputType, prompt_msg: astr::Astr, prompt_type: PromptType){
         self.vec.push(Field{
-            field_type: field_type,
-            prompt_msg: prompt_msg,
-            prompt_type: prompt_type,
+            field_type,
+            prompt_msg,
+            prompt_type,
         });
     }
 
@@ -102,18 +102,18 @@ impl FieldVec{
             }
         }
         let res = WizardRes::new(texts, datetimes, u16s, bools);
-        return Option::Some(res);
+        Option::Some(res)
     }
 
     fn handle_text(texts: &mut VecDeque<astr::Astr>, line: astr::Astr) -> bool{
         //check if freeze is in stdin
         //let start = SystemTime::now();
-        if line.len() < 1 {return false;}
+        if line.is_empty() {return false;}
         //let end = SystemTime::now();
         //let dur = end.duration_since(start);
         //println!("{:?}", dur);
         texts.push_back(line);
-        return true;
+        true
     }
 
     fn handle_datetime(datetimes: &mut VecDeque<data::DT>, line: astr::Astr) -> bool{
@@ -126,20 +126,20 @@ impl FieldVec{
         let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
         if dt1.is_none() {return false;}
         datetimes.push_back(dt1.unwrap());
-        return true;
+        true
     }
 
     fn handle_u16(u16s: &mut VecDeque<u16>, line: astr::Astr) -> bool{
         let val: Option<u16> = term_basics_linux::string_to_value(&line.to_string());
         if val.is_none() {return false;}
         u16s.push_back(val.unwrap());
-        return true;
+        true
     }
 
     fn handle_bool(bools: &mut VecDeque<bool>, line: astr::Astr) -> bool{
         let val = term_basics_linux::string_to_bool(&line.to_string());
         bools.push_back(val);
-        return true;
+        true
     }
 }
 
