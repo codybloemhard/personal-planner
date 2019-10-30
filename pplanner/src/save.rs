@@ -52,7 +52,8 @@ pub fn setup_config_dir() -> bool{
         conz::println_type("Error: could not get config directory.", conz::MsgType::Error);
         return false;
     }
-    let path = conf.unwrap();
+    let mut path = conf.unwrap();
+    path.push(DATA_DIR);
     let path = path.as_path();
     let pathstr = path.to_str();
     if pathstr.is_none() {
@@ -69,7 +70,9 @@ pub fn setup_config_dir() -> bool{
             conz::println_error("", "Error: Could not create path: ", &pathstr);
             return false;
         },
-        _ =>{},
+        _ =>{
+            println!("{}", path.display());
+        },
     }
     setup_file(POINT_DIR);
     setup_file(POINT_ARCHIVE_DIR);
