@@ -362,7 +362,7 @@ pub fn parse_dmy(string: &astr::Astr) -> Option<DMY>{
 pub fn parse_hms(string: &astr::Astr) -> Option<DMY>{
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
-    let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
+    let triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
     if triplet[0].is_none() {return Option::None;}
     if triplet[1].is_none() {return Option::None;}
     if triplet[2].is_none() {return Option::None;}

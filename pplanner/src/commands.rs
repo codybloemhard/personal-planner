@@ -11,7 +11,6 @@ use super::astr::{AStr};
 use super::state;
 use super::support;
 use super::save;
-use crate::wizard::Wizardable;
 
 pub fn missing_help(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_inputs(&inputs);

@@ -256,12 +256,12 @@ pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
     return newstr;
 }
 
-pub const CHAR_START_NUM: u8 = 48;
+//pub const CHAR_START_NUM: u8 = 48;
 pub const CHAR_START_UPPER: u8 = 65;
 
-pub fn char_is_num(ch: u8) -> bool{
+/*pub fn char_is_num(ch: u8) -> bool{
     return ch >= CHAR_START_NUM && ch <= 57;
-}
+}*/
 
 pub fn char_is_letter_upper(ch: u8) -> bool{
     return ch >= CHAR_START_UPPER && ch <= 90;
