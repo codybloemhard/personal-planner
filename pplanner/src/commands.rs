@@ -427,7 +427,7 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
             if conz::read_bool("Try again?: ", &mut Option::None) {continue;}
             else {return;}
         }
-        let slice = &slices[vec[0]]; 
+        let slice = &slices[vec[0]];
         slice.print();
         let now = data::DT::new();
         conz::println_type("Duration: ", conz::MsgType::Highlight);

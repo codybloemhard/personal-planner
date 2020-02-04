@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use num_derive::ToPrimitive;
 use num_traits::ToPrimitive;
-use num_derive::FromPrimitive;    
+use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use term_basics_linux as tbl;
 
@@ -614,7 +614,7 @@ impl PlanType{
         if string[0] == b'i'{
             return PlanType::Idea;
         }
-        if string[0] == b'd'{
+        if string[0] == b'c'{
             return PlanType::Current;
         }
         PlanType::Short

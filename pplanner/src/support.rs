@@ -47,7 +47,7 @@ pub fn get_matches<T: Wizardable>(data: &[T], inputs: &mut Option<VecDeque<astr:
 }
 
 pub fn remove_and_archive<T: save::Bufferable + std::cmp::Ord + Clone>
-    (bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>, 
+    (bf: &mut save::BufferFile<T>, af: &mut save::ArchiveFile<T>,
     vec: Vec<usize>, data: &[T]){
     let ok = bf.remove_indices(vec.clone());
     if ok {
@@ -97,12 +97,12 @@ pub fn pretty_print<T: conz::PrettyPrintable>(datavec: &[T], arg: &T::ArgType){
     divider_ver_edge();
     for i in 0..titles.len() - 1{
         conz::print_type(
-            titles[i].pad_after(lengths[i]).disp(), 
+            titles[i].pad_after(lengths[i]).disp(),
             conz::MsgType::Normal);
         divider_ver();
     }
     conz::print_type(
-        titles[titles.len() - 1].pad_after(lengths[titles.len() - 1]).disp(), 
+        titles[titles.len() - 1].pad_after(lengths[titles.len() - 1]).disp(),
         conz::MsgType::Normal);
     divider_ver_edge();
     tbl::println("");
