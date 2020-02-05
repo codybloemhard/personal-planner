@@ -3,6 +3,7 @@ use num_derive::ToPrimitive;
 use num_traits::ToPrimitive;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
+use std::convert::TryInto;
 use term_basics_linux as tbl;
 
 use super::conz;
@@ -335,6 +336,15 @@ impl DefaultValue for DT{
 }
 
 pub fn parse_dmy(string: &astr::Astr) -> Option<DMY>{
+    if &string.to_string() == "today"{
+        let now = DT::new().dt;
+        return Option::Some((now.day(), now.month(), now.year().try_into().unwrap()));
+    }
+    // if &string.to_string() == "tomorrow"{
+    //     let now = DT::new().dt;
+    //
+    //     return Option::Some((tom.day(), tom.month(), tom.year().try_into().unwrap()));
+    // }
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
     let mut triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();
@@ -362,6 +372,12 @@ pub fn parse_dmy(string: &astr::Astr) -> Option<DMY>{
 }
 
 pub fn parse_hms(string: &astr::Astr) -> Option<DMY>{
+    if &string.to_string() == "dead"{
+        return Option::Some((23,59,59));
+    }
+    if &string.to_string() == "idk"{
+        return Option::Some((0,0,1));
+    }
     let splitted = string.split_str(&astr::from_str(":;-_.,/\\"));
     if splitted.len() != 3 {return Option::None;}
     let triplet: Vec<Option<u32>> = splitted.iter().map(astr::to_u32_checked).collect();

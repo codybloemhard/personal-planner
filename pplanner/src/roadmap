@@ -6,8 +6,7 @@ refactor out some dupkicate code in the commands(slice ect)
 better help files with examples
 remove clones
 habits
-More signicant classes: months, years
-More datetime shorthands like now: idk, dead
+Tomorrow datetime shorthand
 Cmd: repeat last command
 edit point: replace some fields of many items by that of one
 command history, arrows to select
