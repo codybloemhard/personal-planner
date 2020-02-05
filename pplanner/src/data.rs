@@ -118,6 +118,15 @@ impl Span {
         let prefix = if as_dur { "" }
         else if self.neg {"past "}
         else {"in "};
+        if self.total_hours > 24 * 9999 {
+            return format!("{}{}^2 years", prefix, ((self.days / 365) as f64).sqrt() as u64 + 1);
+        }
+        if self.total_hours > 24 * 365 {
+            return format!("{}{} years", prefix, self.days / 365);
+        }
+        if self.total_hours > 24 * 99 {
+            return format!("{}{} months", prefix, self.days / 30);
+        }
         if self.total_hours > 48 {
             return format!("{}{} days", prefix, self.days);
         }
@@ -186,15 +195,15 @@ impl DT {
         Option::Some(DT{ dt: datetime.unwrap(), })
     }
 
-    pub fn str_datetime(&self) -> astr::Astr{    
+    pub fn str_datetime(&self) -> astr::Astr{
         format!("{}", self.dt.format("%H:%M:%S %d-%m-%Y")).to_astr()
     }
 
-    pub fn str_date(&self) -> astr::Astr{    
+    pub fn str_date(&self) -> astr::Astr{
         format!("{}", self.dt.format("%d-%m-%Y")).to_astr()
     }
 
-    pub fn str_time(&self) -> astr::Astr{    
+    pub fn str_time(&self) -> astr::Astr{
         format!("{}", self.dt.format("%H:%M:%S")).to_astr()
     }
 
@@ -508,7 +517,7 @@ impl conz::PrettyPrintable for Point{
         types.push(conz::MsgType::Normal);
         (text,types)
     }
-    
+
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
         vec![32,14,23,11]
     }
@@ -713,7 +722,7 @@ impl conz::PrettyPrintable for Plan{
         }
         (text,types)
     }
-    
+
     fn lengths(print_type: &Self::ArgType) -> Vec<u16>{
         if !*print_type {vec![48,8]}
         else {vec![48,8,8]}
@@ -945,7 +954,7 @@ impl std::cmp::PartialOrd for Slice {
 }
 
 impl std::cmp::PartialEq for Slice {
-    fn eq(&self, other: &Self) -> bool { 
+    fn eq(&self, other: &Self) -> bool {
             self.start == other.start &&
             self.end == other.end
     }
@@ -994,7 +1003,7 @@ impl conz::PrettyPrintable for Slice{
         types.push(conz::MsgType::Normal);
         (text,types)
     }
-    
+
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
         vec![32,23,23,11]
     }
@@ -1018,7 +1027,7 @@ impl wizard::Wizardable for Slice{
             if title_res.is_none() {break;}
             let stype_res = wres.get_text();
             if stype_res.is_none() {break;}
-            let ret = Slice::from(start_res.unwrap(), end_res.unwrap(), title_res.unwrap(), 
+            let ret = Slice::from(start_res.unwrap(), end_res.unwrap(), title_res.unwrap(),
                 SliceType::from_astr(&stype_res.unwrap(), false));
             return Option::Some(ret);
         }
@@ -1154,7 +1163,7 @@ impl conz::PrettyPrintable for Todo{
         types.push(conz::MsgType::Normal);
         (text,types)
     }
-    
+
     fn lengths(_: &Self::ArgType) -> Vec<u16>{
         vec![5,48]
     }
