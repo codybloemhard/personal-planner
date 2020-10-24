@@ -189,7 +189,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
             sorted: false,
         }
     }
-    
+
     fn content_to_buffer(vec: &[T]) -> Buffer{
         let mut buf = Vec::new();
         for x in vec{
@@ -309,7 +309,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                 index += 1;
                 continue;
             }
-            vec.push(self.content[i].clone()); 
+            vec.push(self.content[i].clone());
         }
         self.content = vec;
         self.dirty = true;

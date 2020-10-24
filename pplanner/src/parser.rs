@@ -94,7 +94,7 @@ impl Parser {
         Parser::add("ls commands", commands::ls_commands, &mut ftree, &mut fset);
         Parser::add("ls days", commands::ls_days, &mut ftree, &mut fset);
         Parser::add("ls months", commands::ls_months, &mut ftree, &mut fset);
-        
+
         Parser::add("mk point", commands::mk_point, &mut ftree, &mut fset);
         Parser::add("ls points", commands::ls_points, &mut ftree, &mut fset);
         Parser::add("ls points archive", commands::ls_points_archive, &mut ftree, &mut fset);
@@ -109,7 +109,7 @@ impl Parser {
         Parser::add("rm plans", commands::rm_plans, &mut ftree, &mut fset);
         Parser::add("edit plans", commands::edit_plans, &mut ftree, &mut fset);
         Parser::add("mv plans", commands::mv_plans, &mut ftree, &mut fset);
-        
+
         Parser::add("mk slice", commands::mk_slice, &mut ftree, &mut fset);
         Parser::add("ls slices", commands::ls_slices, &mut ftree, &mut fset);
         Parser::add("ls slices archive", commands::ls_slices_archive, &mut ftree, &mut fset);

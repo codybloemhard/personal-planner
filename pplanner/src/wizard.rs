@@ -65,7 +65,7 @@ impl FieldVec{
                                 res = Option::Some(astr::from_str(""));
                             }
                             _ =>{
-                                conz::println_type("Error: Not enough inputs provided for command!", 
+                                conz::println_type("Error: Not enough inputs provided for command!",
                                     conz::MsgType::Error);
                                 return Option::None;
                             }
