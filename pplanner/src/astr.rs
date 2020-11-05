@@ -1,22 +1,18 @@
 use super::save;
-use super::misc::{DefaultValue};
 use std::fmt;
 
-pub type Astr = Vec<u8>;
-pub type AstrVec = Vec<Vec<u8>>;
-
-pub fn new() -> Astr{
-    Vec::new()
-}
+#[derive(PartialEq,Eq,PartialOrd,Ord,Hash,Clone)]
+pub struct Astr(pub Vec<u8>);
+pub type AstrVec = Vec<Astr>;
 
 pub fn from_str(s: &str) -> Astr{
-    let mut buffer = new();
+    let mut buffer = Vec::new();
     for ch in s.chars(){
         if !ch.is_ascii() { continue; }
         let val: u8 = ch as u8;
         buffer.push(val);
     }
-    buffer
+    Astr(buffer)
 }
 
 pub trait ToAstr{
@@ -46,6 +42,9 @@ impl fmt::Display for DisplayableAstr{
 }
 
 pub trait AStr{
+    fn new() -> Self;
+    fn len(&self) -> usize;
+    fn is_empty(&self) -> bool;
     fn clear(&mut self);
     fn to_string(&self) -> std::string::String;
     fn split_str(&self, splitchars: &Astr) -> AstrVec;
@@ -61,13 +60,24 @@ pub trait AStr{
 }
 
 impl AStr for Astr{
+    fn new() -> Self{
+        Astr(Vec::new())
+    }
+
+    fn len(&self) -> usize{
+        self.0.len()
+    }
+
+    fn is_empty(&self) -> bool{
+        self.0.is_empty()
+   }
     fn clear(&mut self){
-        self.clear();
+        self.0.clear();
     }
 
     fn to_string(&self) -> std::string::String{
         let mut s: String = String::new();
-        for ch in self{
+        for ch in &self.0{
             s.push(*ch as char);
         }
         s
@@ -76,15 +86,15 @@ impl AStr for Astr{
     fn split_str(&self, splitchars: &Astr) -> AstrVec{
         fn splitnow(splits: &mut AstrVec, current: &mut Astr, counter: &mut u32){
             splits.push(current.clone());
-            current.clear();
+            current.0.clear();
             *counter = 0;
         }
         let mut splits: AstrVec = Vec::new();
-        let mut current = new();
+        let mut current = Self::new();
         let mut counter: u32 = 0;
-        for ch in self{
+        for ch in &self.0{
             let mut hit: bool = false;
-            for sp in splitchars{
+            for sp in &splitchars.0{
                 if *ch == *sp{
                     hit = true;
                     break;
@@ -98,7 +108,7 @@ impl AStr for Astr{
                 continue;
             }
             counter += 1;
-            current.push(*ch);
+            current.0.push(*ch);
         }
         if counter > 0{
             splitnow(&mut splits, &mut current, &mut counter);
@@ -107,33 +117,33 @@ impl AStr for Astr{
     }
 
     fn copy_from_ref(&self) -> Astr{
-        let mut newstr = new();
-        for ch in self{
+        let mut newstr = Vec::new();
+        for ch in &self.0{
             newstr.push(*ch);
         }
-        newstr
+        Astr(newstr)
     }
 
     fn confine(&self, max: u16) -> Astr{
         if self.len() <= max as usize {
             return self.copy_from_ref();
         }
-        let mut newstr = new();
+        let mut newstr = Vec::new();
         for i in 0..(max-3){
-            newstr.push(self[i as usize] as u8);
+            newstr.push(self.0[i as usize] as u8);
         }
         for _ in 0..3 {
             newstr.push(b'.');
         }
-        newstr
+        Astr(newstr)
     }
 
     fn cut(&self, max: u16) -> Astr{
-        let mut newstr = new();
+        let mut newstr = Vec::new();
         for i in 0..(std::cmp::min(max, std::cmp::max(max, self.len() as u16))){
-            newstr.push(self[i as usize] as u8);
+            newstr.push(self.0[i as usize] as u8);
         }
-        newstr
+        Astr(newstr)
     }
 
     fn pad_after(&self, max: u16) -> Astr{
@@ -142,7 +152,7 @@ impl AStr for Astr{
         }else if self.len() < max as usize {
             let mut newstr = self.copy_from_ref();
             for _ in 0..(max-self.len() as u16){
-                newstr.push(b' ');
+                newstr.0.push(b' ');
             }
             newstr
         }else{
@@ -151,32 +161,32 @@ impl AStr for Astr{
     }
 
     fn repeat(&self, times: u16) -> Astr{
-        let mut newstr = new();
+        let mut newstr = Vec::new();
         for _ in 0..times{
-            for ch in self{
+            for ch in &self.0{
                 newstr.push(*ch);
             }
         }
-        newstr
+        Astr(newstr)
     }
 
     fn concat(&self, other: Astr) -> Astr{
         let mut newstr = self.copy_from_ref();
-        for ch in other{
-            newstr.push(ch);
+        for ch in other.0{
+            newstr.0.push(ch);
         }
         newstr
     }
 
     fn to_lower(&self) -> Astr{
-        let mut newstr = new();
-        for ch in self{
+        let mut newstr = Vec::new();
+        for ch in &self.0{
             if char_is_letter_upper(*ch){
                 newstr.push(ch - 26);
             }
             newstr.push(*ch);
         }
-        newstr
+        Astr(newstr)
     }
 
     fn disp(&self) -> DisplayableAstr{
@@ -186,10 +196,10 @@ impl AStr for Astr{
     }
 
     fn sameness(&self, other: &Astr) -> f32{
-        if self == other { return 1.0; }
+        if self.0 == other.0 { return 1.0; }
         let mut sum = 0.0;
-        for sel in self{
-            for oth in other{
+        for sel in &self.0{
+            for oth in &other.0{
                 if sel == oth{
                     sum += 1.0;
                     break;
@@ -205,7 +215,7 @@ impl save::Bufferable for Astr{
     fn into_buffer(&self, vec: &mut Vec<u8>){
         let len = self.len() as u32;
         u32::into_buffer(&len, vec);
-        save::buffer_append_buffer(vec, self);
+        save::buffer_append_buffer(vec, &self.0);
     }
 
     fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
@@ -215,27 +225,27 @@ impl save::Bufferable for Astr{
         if (vec.len() as i32) - (*iter as i32) < (len as i32) {
             return Option::None;
         }
-        let mut string = new();
+        let mut string = Vec::new();
         for i in *iter..(*iter+len){
             string.push(vec[i as usize]);
         }
         *iter += len;
-        Option::Some(string)
+        Option::Some(Astr(string))
     }
 }
 
-impl DefaultValue for Astr{
-    fn default_val() -> Self{
-        new()
+impl Default for Astr{
+    fn default() -> Self{
+        Self::new()
     }
 }
 
 pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
-    let mut newstr = new();
+    let mut newstr = Vec::new();
     let mut counter = 0;
     let max = vec.len() - 1;
     for v in vec{
-        for ch in v{
+        for ch in &v.0{
             newstr.push(*ch);
         }
         if counter != max{
@@ -243,7 +253,7 @@ pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
         }
         counter+=1;
     }
-    newstr
+    Astr(newstr)
 }
 
 //pub const CHAR_START_NUM: u8 = 48;

@@ -5,7 +5,6 @@ use super::data;
 use super::conz;
 use super::astr::*;
 use super::astr::{AStr};
-use super::misc::{DefaultValue};
 
 //use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -91,10 +90,10 @@ impl FieldVec{
                     }
                     PromptType::Partial =>{
                         match instr.field_type{
-                            InputType::Text => texts.push_back(astr::Astr::default_val()),
-                            InputType::DateTime => datetimes.push_back(data::DT::default_val()),
-                            InputType::U16 => u16s.push_back(u16::default_val()),
-                            InputType::Bool => bools.push_back(bool::default_val()),
+                            InputType::Text => texts.push_back(astr::Astr::default()),
+                            InputType::DateTime => datetimes.push_back(data::DT::default()),
+                            InputType::U16 => u16s.push_back(u16::default()),
+                            InputType::Bool => bools.push_back(bool::default()),
                         }
                         break;
                     }
@@ -108,7 +107,7 @@ impl FieldVec{
     fn handle_text(texts: &mut VecDeque<astr::Astr>, line: astr::Astr) -> bool{
         //check if freeze is in stdin
         //let start = SystemTime::now();
-        if line.is_empty() {return false;}
+        if line.is_empty() { return false; }
         //let end = SystemTime::now();
         //let dur = end.duration_since(start);
         //println!("{:?}", dur);

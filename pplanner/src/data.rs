@@ -9,9 +9,8 @@ use term_basics_linux as tbl;
 use super::conz;
 use super::astr;
 use super::save;
-use super::astr::AStr;
-use super::astr::ToAstr;
-use super::misc::{DefaultValue,UnwrapDefault};
+use super::astr::{Astr,AStr,ToAstr};
+use super::misc::{UnwrapDefault};
 use super::support;
 use super::wizard;
 
@@ -329,8 +328,8 @@ impl std::cmp::PartialEq for DT {
     }
 }
 
-impl DefaultValue for DT{
-    fn default_val() -> Self{
+impl Default for DT{
+    fn default() -> Self{
         DT::make_datetime((1,1,1900), (0,0,0)).expect("Expect: DefaultValue for DT")
     }
 }
@@ -431,8 +430,8 @@ impl astr::ToAstr for PointType{
     }
 }
 
-impl DefaultValue for PointType{
-    fn default_val() -> Self{
+impl Default for PointType{
+    fn default() -> Self{
         PointType::DefaultValue
     }
 }
@@ -633,13 +632,13 @@ impl PlanType{
         if string.is_empty() && partial{
             return PlanType::DefaultValue;
         }
-        if string[0] == b'l'{
+        if string.0[0] == b'l'{
             return PlanType::Long;
         }
-        if string[0] == b'i'{
+        if string.0[0] == b'i'{
             return PlanType::Idea;
         }
-        if string[0] == b'c'{
+        if string.0[0] == b'c'{
             return PlanType::Current;
         }
         PlanType::Short
@@ -658,8 +657,8 @@ impl astr::ToAstr for PlanType{
     }
 }
 
-impl DefaultValue for PlanType{
-    fn default_val() -> Self{
+impl Default for PlanType{
+    fn default() -> Self{
         PlanType::DefaultValue
     }
 }
@@ -902,8 +901,8 @@ impl astr::ToAstr for SliceType {
     }
 }
 
-impl DefaultValue for SliceType {
-    fn default_val() -> Self{
+impl Default for SliceType {
+    fn default() -> Self{
         SliceType::DefaultValue
     }
 }
@@ -976,10 +975,10 @@ impl std::cmp::PartialEq for Slice {
     }
 }
 
-impl DefaultValue for Slice{
-    fn default_val() -> Self{
+impl Default for Slice{
+    fn default() -> Self{
         let defdt = DT::make_datetime((1,1,1900), (0,0,0)).expect("Expect: DefaultValue for DT");
-        Self::from(defdt.clone(), defdt, astr::new(), SliceType::DefaultValue)
+        Self::from(defdt.clone(), defdt, Astr::new(), SliceType::DefaultValue)
     }
 }
 
@@ -1149,9 +1148,9 @@ impl std::cmp::PartialEq for Todo {
     }
 }
 
-impl DefaultValue for Todo{
-    fn default_val() -> Self{
-        Self{title: astr::new(), done: false}
+impl Default for Todo{
+    fn default() -> Self{
+        Self{title: Astr::new(), done: false}
     }
 }
 

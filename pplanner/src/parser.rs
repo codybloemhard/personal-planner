@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use super::state;
 use super::conz;
 use super::astr;
-use super::astr::{AStr,ToAstr};
+use super::astr::{Astr,AStr,ToAstr};
 use super::commands;
 
 type Func = fn(&mut state::State, astr::AstrVec, Option<VecDeque<astr::Astr>>);
@@ -154,17 +154,17 @@ impl Parser {
 
     fn extract_args(line: astr::Astr) -> (astr::Astr, astr::Astr){
         let mut mode = 0;
-        let mut command = astr::new();
-        let mut args = astr::new();
-        for ch in line{
+        let mut command = Astr::new();
+        let mut args = Astr::new();
+        for ch in line.0{
             if ch == b'('{
                 mode = 1;
             }else if ch == b')'{
                 break;
             }else if mode == 0{
-                command.push(ch);
+                command.0.push(ch);
             }else if mode == 1{
-                args.push(ch);
+                args.0.push(ch);
             }
         }
         (command,args)
