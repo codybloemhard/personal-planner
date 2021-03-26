@@ -48,7 +48,7 @@ impl FieldVec{
 
     pub fn execute(&self, inputs: &mut Option<VecDeque<astr::Astr>>) -> Option<WizardRes>{
         let mut texts: VecDeque<astr::Astr> = VecDeque::new();
-        let mut datetimes: VecDeque<data::DT> = VecDeque::new();
+        let mut datetimes: VecDeque<data::Dt> = VecDeque::new();
         let mut u16s: VecDeque<u16> = VecDeque::new();
         let mut bools = VecDeque::new();
         let ask = inputs.is_none();
@@ -91,7 +91,7 @@ impl FieldVec{
                     PromptType::Partial =>{
                         match instr.field_type{
                             InputType::Text => texts.push_back(astr::Astr::default()),
-                            InputType::DateTime => datetimes.push_back(data::DT::default()),
+                            InputType::DateTime => datetimes.push_back(data::Dt::default()),
                             InputType::U16 => u16s.push_back(u16::default()),
                             InputType::Bool => bools.push_back(bool::default()),
                         }
@@ -115,14 +115,14 @@ impl FieldVec{
         true
     }
 
-    fn handle_datetime(datetimes: &mut VecDeque<data::DT>, line: astr::Astr) -> bool{
+    fn handle_datetime(datetimes: &mut VecDeque<data::Dt>, line: astr::Astr) -> bool{
         let lines = line.split_str(&astr::astr_whitespace());
         if lines.len() != 2 {return false;}
         let tri0 = data::parse_hms(&lines[0]);
         let tri1 = data::parse_dmy(&lines[1]);
         if tri0.is_none() {return false;}
         if tri1.is_none() {return false;}
-        let dt1 = data::DT::make_datetime(tri1.unwrap(), tri0.unwrap());
+        let dt1 = data::Dt::make_datetime(tri1.unwrap(), tri0.unwrap());
         if dt1.is_none() {return false;}
         datetimes.push_back(dt1.unwrap());
         true
@@ -144,13 +144,13 @@ impl FieldVec{
 
 pub struct WizardRes{
     all_text: VecDeque<astr::Astr>,
-    all_datetime: VecDeque<data::DT>,
+    all_datetime: VecDeque<data::Dt>,
     all_u16s: VecDeque<u16>,
     all_bool: VecDeque<bool>,
 }
 
 impl WizardRes{
-    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::DT>, u16s: VecDeque<u16>, bools: VecDeque<bool>) -> Self{
+    pub fn new(text: VecDeque<astr::Astr>, dt: VecDeque<data::Dt>, u16s: VecDeque<u16>, bools: VecDeque<bool>) -> Self{
         WizardRes{
             all_text: text,
             all_datetime: dt,
@@ -163,7 +163,7 @@ impl WizardRes{
         self.all_text.pop_front()
     }
 
-    pub fn get_dt(&mut self) -> Option<data::DT>{
+    pub fn get_dt(&mut self) -> Option<data::Dt>{
         self.all_datetime.pop_front()
     }
 

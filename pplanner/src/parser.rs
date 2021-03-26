@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use super::state;
 use super::conz;
 use super::astr;
-use super::astr::{Astr,AStr,ToAstr};
+use super::astr::{Astr,AStr,ToAstr,AstrsRef};
 use super::commands;
 
 type Func = fn(&mut state::State, astr::AstrVec, Option<VecDeque<astr::Astr>>);
@@ -32,8 +32,8 @@ impl FuncTree{
         })
     }
 
-    fn push(&mut self, key: &astr::AstrVec, f: Func){
-        fn _push(root: &mut FuncTree, key: &astr::AstrVec, index: usize, f: Func){
+    fn push(&mut self, key: AstrsRef, f: Func){
+        fn _push(root: &mut FuncTree, key: AstrsRef, index: usize, f: Func){
             if index >= key.len() {return;}
             let last = index == key.len() - 1;
             let res = root.tree.get_mut(&key[index]);
@@ -63,8 +63,8 @@ impl FuncTree{
         _push(self, key, 0, f);
     }
 
-    fn find(&mut self, key: &astr::AstrVec) -> Option<Func>{
-        fn _find(root: &mut FuncTree, key: &astr::AstrVec, index: usize) -> Option<Func>{
+    fn find(&mut self, key: AstrsRef) -> Option<Func>{
+        fn _find(root: &mut FuncTree, key: AstrsRef, index: usize) -> Option<Func>{
             if index >= key.len() {return Option::None;}
             let last = index == key.len() - 1;
             let res = root.tree.get_mut(&key[index]);
@@ -146,10 +146,7 @@ impl Parser {
         if self.state.is_clean() {return true;}
         conz::println_type("Unsaved files! Do you really want to quit?\nYou can say no and try \"flush files\"", conz::MsgType::Highlight);
         let x = conz::prompt("Quit? y/*: ");
-        match x.as_ref(){
-            "y" => true,
-            _ => false,
-        }
+        matches!(x.as_ref(), "y")
     }
 
     fn extract_args(line: astr::Astr) -> (astr::Astr, astr::Astr){
@@ -168,25 +165,6 @@ impl Parser {
             }
         }
         (command,args)
-    }
-
-    pub fn start_loop(&mut self) {
-        conz::println_type("Henlo Fren!", conz::MsgType::Prompt);
-        conz::println_type("pplanner: a ascii cli time management tool.", conz::MsgType::Prompt);
-        conz::println_type("Made by Cody Bloemhard.", conz::MsgType::Prompt);
-        conz::println_type("Type help for help on commands.", conz::MsgType::Prompt);
-        loop{
-            let x = conz::prompt("cmd > ");
-            let y = x.as_ref();
-            match y{
-                "q" => if self.do_quit() {break;},
-                "quit" => if self.do_quit() {break;},
-                _ => {
-                    if self.parse_and_run(y, Option::None) {continue;}
-                }
-            }
-        }
-        conz::println_type("Bye!", conz::MsgType::Prompt);
     }
 
     pub fn parse_and_run(&mut self, rawstr: &str, inputs: Option<VecDeque<astr::Astr>>) -> bool{
@@ -236,52 +214,32 @@ impl Parser {
 }
 
 pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
-    let mut i = 1;
-    let mut to_exec = "";
-    let mut inputs = Option::None;
-    while i < args.len(){
-        let arg: &str = args[i].as_ref();
-        let last = i == args.len() - 1;
-        if arg == "--help" ||
-            arg == "help" {
+    let mut phase = 0;
+    let mut command = String::new();
+    let mut arguments = VecDeque::new();
+    for arg in args.iter().skip(1){
+        if arg == "help" || arg == "--help"{
             commands::help_cli();
-            i += 1;
-        }
-        else if arg == "-e"{
-            if last{
-                conz::println_type("Error: -e is the last argument, it needs a follow up argument with the command to execute.",
-                    conz::MsgType::Error);
-                return;
-            }
-            to_exec = args[i + 1].as_ref();
-            i += 2;
         }
         else if arg == "-i"{
-            if last{
-                conz::println_type("Error: -i is the last argument, it needs a follow up argument with the inputs to the command.",
-                    conz::MsgType::Error);
-                return;
-            }
-            let splitted = args[i + 1].to_astr().split_str(&astr::from_str(","));
-            let mut res = VecDeque::new();
+            phase = 1;
+        }
+        else if phase == 0{
+            command.push_str(&arg);
+            command.push(' ');
+        } else {
+            phase = 2;
+            let splitted = arg.to_astr().split_str(&astr::from_str(","));
             for s in splitted{
-                res.push_back(s);
+                arguments.push_back(s);
             }
-            inputs = Option::Some(res);
-            i += 2;
-        }else{
-            conz::print_type("Warning: redundant/unused argument: ", conz::MsgType::Error);
-            conz::println_type(arg, conz::MsgType::Highlight);
-            i += 1;
         }
     }
-    if to_exec != ""{
-        parser.parse_and_run(to_exec, inputs);
-    }
-    else if inputs.is_some(){
-        conz::print_type("Warning: There were inputs provided using flag ", conz::MsgType::Error);
-        conz::print_type("-i", conz::MsgType::Highlight);
-        conz::print_type(" while there was no command given to execute using ", conz::MsgType::Error);
-        conz::println_type("-e", conz::MsgType::Highlight);
-    }
+    let arguments = if phase == 2{
+        Some(arguments)
+    } else {
+        None
+    };
+    parser.parse_and_run(&command, arguments);
+    parser.do_quit();
 }

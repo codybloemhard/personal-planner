@@ -1,31 +1,50 @@
 # pplanner
 pplanner stands for Personal Planner.
-It is a tool to manage your time.
+It is a CLI/TUI tool to manage your time.
 ## build/install/usage
 pplanner is made in rust.
 To build it you need the rust tool chain.
 In the directory pplanner you can run things like `cargo build --release`.
 To install, run the script `install.sh`.
-To use: `pplanner`, `man pplanner`, `pplanner --help`, `pplanner -e help`.
+Help: `man pplanner`, `pplanner --help`.
+Example: `pplanner ls points`
 ## features
 - Points: Points in time like deadlines. Sorted on date with relative date for easy overview.
 - Todos: Todo list, sorted on urgency, with 3 catogories: todo,longterm,idea.
 ### commands
-- now
-- status
-- help
-- flush files
-- mk point
-- edit points
-- rm points
+- \_missing_help
+- \_test_keys
 - clean points
+- clean slices
+- clean todos
+- edit plans
+- edit points
+- edit slices
+- flush files
+- help
+- inspect point
+- inspect slice
+- license
+- ls commands
+- ls days
+- ls months
+- ls plans
+- ls plans archive
 - ls points
 - ls points archive
-- inspect point
-- mk todo
-- rm todos
-- edit todos
+- ls slices
+- ls slices archive
 - ls todos
 - ls todos archive
-## status
-This project is in active development.
+- mk plan
+- mk point
+- mk slice
+- mk todo
+- mv plans
+- now
+- rm plans
+- rm points
+- rm slices
+- rm todos
+- status
+- tick todos

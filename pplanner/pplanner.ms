@@ -1,56 +1,41 @@
-.TH man 8 "08 May 2019" "0.2" "pplanner man page"
+.TH man 8 "26 March 2021" "0.3" "pplanner man page"
 .SH NAME
 pplanner - Personal Planner
 .SH SYNOPSIS
 .B
-pplanner 
-.RB [ \--help ] 
-.RB [ \-e 
-.IR command
-.RB [ \-i 
+pplanner
+.RB [ \--help ]
+.RB [ \-i
 .IR inputs
 ]]
 .SH DESCRIPTION
-pplanner is a TUI/CLi tool for managing your time.
-You can use it by running pplanner, or by using it CLI style with flags and arguments.
-Running it and using the TUI is recommended, CLI is recommended for usage in scripts.
+pplanner is a CLI/TUI tool for managing your time.
 .SH OPTIONS
 .TP
 .B \--help
 Gives a help text.
 .TP
-.B \-e
-Execute pplanner command. It can ask for input and will output the results on stdout.
-.TP
 .B \-i
-Only valid when
-.B \-e
-is used. You provide the inputs for all the prompts and it will fill it in for you.
+You provide the inputs for all the prompts and it will fill it in for you.
 Inputs are separated by commas (,).
 .SH CLI EXAMPLES
 .PP
-pplanner
+pplanner status
 .PP
-pplanner -e status
+pplanner mk todo
 .PP
-pplanner -e 'clean' -i 'y'
+pplanner mk todo -i 'Need to do task,16,todo'
 .PP
-pplanner -e 'mk todo'
-.PP
-pplanner -e 'mk todo' -i 'Need to do task,16,todo'
-.PP
-pplanner -e 'mk todo' -i 'Less important,32,long'
+pplanner mk todo -i 'Less important,32,long'
 .SH SEE ALSO
 .PP
 pplanner --help
 .PP
-pplanner -e help
+pplanner ls commands
 .PP
-pplanner -e 'ls commands'
+pplanner 'help(now)'
 .PP
-pplanner -e 'help(now)'
-.PP
-pplanner -e 'help(ls points)'
+pplanner 'help(ls points)'
 .PP
 ect
 .SH BUGS

@@ -24,9 +24,5 @@ fn main() {
     }
     let mut parser = parser::Parser::new(state.unwrap());
     let args: Vec<String> = std::env::args().collect();
-    if args.len() > 1 {
-        parser::process_cli_args(args, &mut parser);
-    }else{
-        parser.start_loop();
-    }
+    parser::process_cli_args(args, &mut parser);
 }

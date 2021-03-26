@@ -12,8 +12,9 @@ impl<T: Default + PartialEq> UnwrapDefault<T> for T{
     }
 
     fn replace_if_not_default(&mut self, new: T){
-        if new == Self::default() {return;}
-        std::mem::replace(self, new);
+        if new == Self::default() { return; }
+        // std::mem::replace(self, new);
+        *self = new;
     }
 }
 

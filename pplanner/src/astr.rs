@@ -1,9 +1,12 @@
+use std::cmp::Ordering;
 use super::save;
+use super::save::{BufferRef};
 use std::fmt;
 
 #[derive(PartialEq,Eq,PartialOrd,Ord,Hash,Clone)]
 pub struct Astr(pub Vec<u8>);
 pub type AstrVec = Vec<Astr>;
+pub type AstrsRef<'a> = &'a[Astr];
 
 pub fn from_str(s: &str) -> Astr{
     let mut buffer = Vec::new();
@@ -132,9 +135,7 @@ impl AStr for Astr{
         for i in 0..(max-3){
             newstr.push(self.0[i as usize] as u8);
         }
-        for _ in 0..3 {
-            newstr.push(b'.');
-        }
+        newstr.resize(newstr.len() + 3, b'.');
         Astr(newstr)
     }
 
@@ -147,16 +148,18 @@ impl AStr for Astr{
     }
 
     fn pad_after(&self, max: u16) -> Astr{
-        if self.len() == max as usize {
-            self.copy_from_ref()
-        }else if self.len() < max as usize {
-            let mut newstr = self.copy_from_ref();
-            for _ in 0..(max-self.len() as u16){
-                newstr.0.push(b' ');
-            }
-            newstr
-        }else{
-            self.confine(max)
+        match self.len().cmp(&(max as usize)){
+            Ordering::Equal => {
+                self.copy_from_ref()
+            },
+            Ordering::Less => {
+                let mut newstr = self.copy_from_ref();
+                newstr.0.resize(newstr.len() + max as usize - self.len(), b' ');
+                newstr
+            },
+            Ordering::Greater => {
+                self.confine(max)
+            },
         }
     }
 
@@ -212,13 +215,13 @@ impl AStr for Astr{
 
 impl save::Bufferable for Astr{
     //type Return = Astr;
-    fn into_buffer(&self, vec: &mut Vec<u8>){
+    fn to_buffer(&self, vec: &mut Vec<u8>){
         let len = self.len() as u32;
-        u32::into_buffer(&len, vec);
+        u32::to_buffer(&len, vec);
         save::buffer_append_buffer(vec, &self.0);
     }
 
-    fn from_buffer(vec: &Vec<u8>, iter: &mut u32) -> Option<Self>{
+    fn from_buffer(vec: BufferRef, iter: &mut u32) -> Option<Self>{
         let res_len = u32::from_buffer(vec, iter);
         res_len?;
         let len = res_len.unwrap();
@@ -240,18 +243,16 @@ impl Default for Astr{
     }
 }
 
-pub fn unsplit(vec: &AstrVec, divider: u8) -> Astr{
+pub fn unsplit(vec: AstrsRef, divider: u8) -> Astr{
     let mut newstr = Vec::new();
-    let mut counter = 0;
     let max = vec.len() - 1;
-    for v in vec{
+    for (counter, v) in vec.iter().enumerate(){
         for ch in &v.0{
             newstr.push(*ch);
         }
         if counter != max{
             newstr.push(divider);
         }
-        counter+=1;
     }
     Astr(newstr)
 }
@@ -264,7 +265,8 @@ pub const CHAR_START_UPPER: u8 = 65;
 }*/
 
 pub fn char_is_letter_upper(ch: u8) -> bool{
-    ch >= CHAR_START_UPPER && ch <= 90
+    //ch >= CHAR_START_UPPER && ch <= 90
+    (CHAR_START_UPPER..=90).contains(&ch)
 }
 
 pub fn to_u32_checked(string: &Astr) -> Option<u32>{

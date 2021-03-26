@@ -64,7 +64,7 @@ pub fn help_cli(){
 pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    let dt = data::DT::new();
+    let dt = data::Dt::new();
     conz::print_type("Time:  ", conz::MsgType::Normal);
     conz::println_type(dt.str_time().disp(), conz::MsgType::Value);
     conz::print_type("Date:  ", conz::MsgType::Normal);
@@ -80,7 +80,7 @@ pub fn now(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<as
 pub fn status(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     now(state, args.clone(), inputs.clone());
     ls_points(state, args.clone(), inputs.clone());
-    ls_plans(state, args.clone(), inputs.clone());
+    ls_plans(state, args, inputs);
 }
 
 pub fn license(_: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
@@ -227,7 +227,7 @@ pub fn clean_points(state: &mut state::State, args: astr::AstrVec, mut inputs: O
     }
     let points = state.points.get_items().clone();
     let mut vec = Vec::new();
-    let now = data::DT::new();
+    let now = data::Dt::new();
     for (i, item) in points.iter().enumerate(){
         if !now.diff(&item.dt).neg{
             break;
@@ -246,14 +246,14 @@ pub fn edit_points(state: &mut state::State, args: astr::AstrVec, inputs: Option
 pub fn ls_points(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
-    support::pretty_print(state.points.get_items(), &data::DT::new());
+    support::pretty_print(state.points.get_items(), &data::Dt::new());
 }
 
 pub fn ls_points_archive(state: &mut state::State, args: astr::AstrVec, inputs: Option<VecDeque<astr::Astr>>){
     support::warn_unused_arguments(&args);
     support::warn_unused_inputs(&inputs);
     let res = state.points_archive.read();
-    support::pretty_print(&res, &data::DT::new());
+    support::pretty_print(&res, &data::Dt::new());
 }
 
 pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: Option<VecDeque<astr::Astr>>){
@@ -273,7 +273,7 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
             else {return;}
         }
         points[vec[0]].print();
-        let now = data::DT::new();
+        let now = data::Dt::new();
         let diff = now.diff(&points[vec[0]].dt);
         diff.print();
         return;
@@ -382,7 +382,7 @@ pub fn clean_slices(state: &mut state::State, args: astr::AstrVec, mut inputs: O
     if !conz::read_bool("Sure to remove them?: ", &mut inputs) {return;}
     let slices = state.slices.get_items().clone();
     let mut vec = Vec::new();
-    let now = data::DT::new();
+    let now = data::Dt::new();
     for (i, slice) in slices.iter().enumerate(){
         if !now.diff(&slice.start).neg{
             break;
@@ -429,7 +429,7 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
         }
         let slice = &slices[vec[0]];
         slice.print();
-        let now = data::DT::new();
+        let now = data::Dt::new();
         conz::println_type("Duration: ", conz::MsgType::Highlight);
         let diff = slice.end.diff(&slice.start);
         diff.print_as_duration();

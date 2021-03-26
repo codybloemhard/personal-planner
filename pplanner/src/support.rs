@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::cmp::Ordering;
 use term_basics_linux as tbl;
 
 use super::astr;
@@ -27,13 +28,16 @@ pub fn get_matches<T: Wizardable>(data: &[T], inputs: &mut Option<VecDeque<astr:
     for (i, item) in data.iter().enumerate(){
         let current = &item;
         let curr_score = partial.score_againts(current);
-        if curr_score > score{
-            score = curr_score;
-            vec.clear();
-            vec.push(i);
-        }
-        else if curr_score == score{
-            vec.push(i);
+        match curr_score.cmp(&score){
+            Ordering::Greater => {
+                score = curr_score;
+                vec.clear();
+                vec.push(i);
+            },
+            Ordering::Equal => {
+                vec.push(i);
+            }
+            _ => {  },
         }
     }
     if score == 0{
@@ -224,26 +228,23 @@ pub fn split_todos(todos: &[data::Plan]) -> (Vec<data::Plan>,Vec<data::Plan>,Vec
     let mut lon = Vec::new();
     let mut ide = Vec::new();
     let mut index = 0;
-    loop{
-        for (i,item) in todos.iter().enumerate(){
-            index = i;
-            if item.ttype == data::PlanType::Long { break; }
-            tod.push(item.clone());
-        }
-        for (i,item) in todos.iter().enumerate().skip(index){
-            index = i;
-            if item.ttype == data::PlanType::Idea { break; }
-            lon.push(item.clone());
-        }
-        for (i,item) in todos.iter().enumerate().skip(index){
-            index = i;
-            if item.ttype == data::PlanType::Current { break; }
-            ide.push(item.clone());
-        }
-        for (_,item) in todos.iter().enumerate().skip(index){
-            doi.push(item.clone());
-        }
-        break;
+    for (i,item) in todos.iter().enumerate(){
+        index = i;
+        if item.ttype == data::PlanType::Long { return (doi, tod, lon, ide); }
+        tod.push(item.clone());
+    }
+    for (i,item) in todos.iter().enumerate().skip(index){
+        index = i;
+        if item.ttype == data::PlanType::Idea { return (doi, tod, lon, ide); }
+        lon.push(item.clone());
+    }
+    for (i,item) in todos.iter().enumerate().skip(index){
+        index = i;
+        if item.ttype == data::PlanType::Current { return (doi, tod, lon, ide); }
+        ide.push(item.clone());
+    }
+    for (_,item) in todos.iter().enumerate().skip(index){
+        doi.push(item.clone());
     }
     (doi,tod,lon,ide)
 }

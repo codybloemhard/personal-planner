@@ -85,24 +85,25 @@ pub fn setup_config_dir() -> bool{
 }
 
 pub type Buffer = Vec<u8>;
+pub type BufferRef<'a> = &'a[u8];
 
 pub trait Bufferable where Self: std::marker::Sized{
-    fn into_buffer(&self, vec: &mut Buffer);
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>;
+    fn to_buffer(&self, vec: &mut Buffer);
+    fn from_buffer(vec: BufferRef, iter: &mut u32) -> Option<Self>;
 }
 
 impl Bufferable for u32{
-    fn into_buffer(&self, vec: &mut Buffer){
+    fn to_buffer(&self, vec: &mut Buffer){
         vec.push(((*self >> 24) & 0xff) as u8);
         vec.push(((*self >> 16) & 0xff) as u8);
         vec.push(((*self >> 8) & 0xff) as u8);
         vec.push((*self & 0xff) as u8);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+    fn from_buffer(vec: BufferRef, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 4 {return Option::None;}
         let mut val: u32 = 0;
-        val += u32::from(vec[(*iter + 0) as usize]) << 24;
+        val += u32::from(vec[(*iter    ) as usize]) << 24;
         val += u32::from(vec[(*iter + 1) as usize]) << 16;
         val += u32::from(vec[(*iter + 2) as usize]) << 8;
         val += u32::from(vec[(*iter + 3) as usize]);
@@ -112,15 +113,15 @@ impl Bufferable for u32{
 }
 
 impl Bufferable for u16{
-    fn into_buffer(&self, vec: &mut Buffer){
+    fn to_buffer(&self, vec: &mut Buffer){
         vec.push(((*self >> 8) & 0xff) as u8);
         vec.push((*self & 0xff) as u8);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+    fn from_buffer(vec: BufferRef, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 2 {return Option::None;}
         let mut val: u16 = 0;
-        val += u16::from(vec[(*iter + 0) as usize]) << 8;
+        val += u16::from(vec[(*iter    ) as usize]) << 8;
         val += u16::from(vec[(*iter + 1) as usize]);
         *iter += 2;
         Option::Some(val)
@@ -128,11 +129,11 @@ impl Bufferable for u16{
 }
 
 impl Bufferable for u8{
-    fn into_buffer(&self, vec: &mut Buffer){
+    fn to_buffer(&self, vec: &mut Buffer){
         vec.push(*self);
     }
 
-    fn from_buffer(vec: &Buffer, iter: &mut u32) -> Option<Self>{
+    fn from_buffer(vec: BufferRef, iter: &mut u32) -> Option<Self>{
         if (vec.len() as i32) - (*iter as i32) < 1 {return Option::None;}
         let val = vec[*iter as usize];
         *iter += 1;
@@ -140,13 +141,13 @@ impl Bufferable for u8{
     }
 }
 
-pub fn buffer_append_buffer(vec: &mut Buffer, string: &Buffer){
+pub fn buffer_append_buffer(vec: &mut Buffer, string: BufferRef){
     for byte in string{
         vec.push(*byte);
     }
 }
 
-pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
+pub fn buffer_write_file(path: &std::path::Path, vec: BufferRef) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
@@ -154,7 +155,7 @@ pub fn buffer_write_file(path: &std::path::Path, vec: &Buffer) -> bool{
     true
 }
 
-pub fn buffer_write_file_append(path: &std::path::Path, vec: &Buffer) -> bool{
+pub fn buffer_write_file_append(path: &std::path::Path, vec: BufferRef) -> bool{
     let file = OpenOptions::new().write(true).create(true).append(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
@@ -193,7 +194,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     fn content_to_buffer(vec: &[T]) -> Buffer{
         let mut buf = Vec::new();
         for x in vec{
-            x.into_buffer(&mut buf);
+            x.to_buffer(&mut buf);
         }
         buf
     }
@@ -216,7 +217,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         false
     }
 
-    fn buffer_to_content(&mut self, vec: &Buffer){
+    fn buffer_to_content(&mut self, vec: BufferRef){
         let mut iter: u32 = 0;
         self.content.clear();
         loop{
@@ -300,7 +301,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
     pub fn remove_indices(&mut self, mut indices: Vec<usize>) -> bool{
         if !misc::is_sorted(&indices){
             conz::println_type("Warning: remove_indices, should be sorted, is not.", conz::MsgType::Error);
-            indices.sort();
+            indices.sort_unstable();
         }
         let mut index = 0;
         let mut vec = Vec::new();
@@ -357,7 +358,7 @@ impl<T: Bufferable> ArchiveFile<T>{
     fn content_to_buffer(vec: &[T]) -> Buffer{
         let mut buf = Vec::new();
         for x in vec{
-            x.into_buffer(&mut buf);
+            x.to_buffer(&mut buf);
         }
         buf
     }
@@ -378,7 +379,7 @@ impl<T: Bufferable> ArchiveFile<T>{
         false
     }
 
-    fn buffer_to_content(&mut self, vec: &Buffer) -> Vec<T>{
+    fn buffer_to_content(&mut self, vec: BufferRef) -> Vec<T>{
         let mut iter: u32 = 0;
         let mut ret = Vec::new();
         loop{
