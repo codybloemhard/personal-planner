@@ -1,3 +1,4 @@
+#!/bin/sh
 # install binairy
 sudo mkdir -p /usr/local/bin
 cargo build --release

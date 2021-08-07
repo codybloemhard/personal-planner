@@ -20,7 +20,7 @@ impl<T: Default + PartialEq> UnwrapDefault<T> for T{
 
 pub fn is_sorted<T: PartialOrd>(vec: &[T]) -> bool{
     let len = vec.len();
-    if len <= 1 {return true;}
+    if len <= 1 { return true; }
     if len == 2 {
         return vec[0] <= vec[1];
     }
@@ -29,7 +29,7 @@ pub fn is_sorted<T: PartialOrd>(vec: &[T]) -> bool{
         if last > item {
             return false;
         }
-        last = &item;
+        last = item;
     }
     true
 }

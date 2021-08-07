@@ -37,12 +37,10 @@ fn setup_file(p: &str){
     let ok = buffer_write_file(pointpath, &Vec::new());
     if ok {
         conz::print_type("First time use: created path: ", conz::MsgType::Highlight);
-        conz::println_type(pathstr, conz::MsgType::Value);
+    } else {
+        conz::println_error("", "Error: Could not create file: ", pathstr);
     }
-    else {
-        conz::println_error("", "Error: Could not create file: ", &pathstr);
-        conz::println_type(pathstr, conz::MsgType::Value);
-    }
+    conz::println_type(pathstr, conz::MsgType::Value);
 }
 
 pub fn setup_config_dir() -> bool{
@@ -66,7 +64,7 @@ pub fn setup_config_dir() -> bool{
             conz::println_type(pathstr, conz::MsgType::Value);
         },
         sio::DirStatus::Error =>{
-            conz::println_error("", "Error: Could not create path: ", &pathstr);
+            conz::println_error("", "Error: Could not create path: ", pathstr);
             return false;
         },
         _ =>{
@@ -151,7 +149,7 @@ pub fn buffer_write_file(path: &std::path::Path, vec: BufferRef) -> bool{
     let file = OpenOptions::new().write(true).create(true).truncate(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
-    if opened.write_all(&vec).is_err() {return false;}
+    if opened.write_all(vec).is_err() { return false; }
     true
 }
 
@@ -159,7 +157,7 @@ pub fn buffer_write_file_append(path: &std::path::Path, vec: BufferRef) -> bool{
     let file = OpenOptions::new().write(true).create(true).append(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
-    if opened.write_all(&vec).is_err() {return false;}
+    if opened.write_all(vec).is_err() { return false; }
     true
 }
 
@@ -210,7 +208,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
         if !self.dirty {return true;}
         let pathstr = self.path.to_str();
         if let Some(pathstrv) = pathstr{
-            conz::println_error("", "Error: Cannot write items to file: ", &pathstrv);
+            conz::println_error("", "Error: Cannot write items to file: ", pathstrv);
         }else{
             conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
         }
@@ -235,7 +233,7 @@ impl<T: Bufferable + std::cmp::Ord + Clone> BufferFile<T>{
                 Option::None => {
                     let pathstr = bf.path.to_str();
                     if let Some(pathstrv) = pathstr{
-                        conz::println_error("", "Error: Cannot read file: ", &pathstrv);
+                        conz::println_error("", "Error: Cannot read file: ", pathstrv);
                     }else{
                         conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
                     }
@@ -372,7 +370,7 @@ impl<T: Bufferable> ArchiveFile<T>{
         }
         let pathstr = self.path.to_str();
         if let Some(pathstrv) = pathstr {
-            conz::println_error("", "Error: Cannot write items to file: ", &pathstrv);
+            conz::println_error("", "Error: Cannot write items to file: ", pathstrv);
         }else{
             conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
         }
@@ -396,7 +394,7 @@ impl<T: Bufferable> ArchiveFile<T>{
             Option::None => {
                 let pathstr = self.path.to_str();
                 if let Some(pathstrv) = pathstr{
-                    conz::println_error("", "Error: Cannot read file: ", &pathstrv);
+                    conz::println_error("", "Error: Cannot read file: ", pathstrv);
                 }else{
                     conz::println_type("Error: Cannot get string from path.", conz::MsgType::Error);
                 }

@@ -174,7 +174,7 @@ impl Parser {
         let search = self.ftree.find(&command);
         match search {
             Option::None => {
-                conz::println_error("Fail: Command not found: \"", &rawstr, "\"!");
+                conz::println_error("Fail: Command not found: \"", rawstr, "\"!");
                 let words = astr::from_str(rawstr).split_str(&astr::astr_whitespace());
                 let mut maxcount = 0.0;
                 let mut best = Vec::new();
@@ -225,7 +225,7 @@ pub fn process_cli_args(args: Vec<String>, parser: &mut Parser){
             phase = 1;
         }
         else if phase == 0{
-            command.push_str(&arg);
+            command.push_str(arg);
             command.push(' ');
         } else {
             phase = 2;

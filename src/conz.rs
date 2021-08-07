@@ -71,13 +71,13 @@ pub fn prompt(msg : &str) -> String{
 
 pub fn read_bool(msg: &str, inputs: &mut Option<VecDeque<astr::Astr>>) -> bool{
     let line;
-    if inputs.is_none(){line = prompt(&msg);}
+    if inputs.is_none(){line = prompt(msg);}
     else{
         let res = inputs.as_mut().unwrap().pop_front();
         if let Some(resv) = res {
             line = resv.to_string();
         } else{
-            line = prompt(&msg);
+            line = prompt(msg);
         }
     }
     tbl::string_to_bool(&line)

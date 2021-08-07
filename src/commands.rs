@@ -261,7 +261,7 @@ pub fn inspect_point(state: &mut state::State, args: astr::AstrVec, mut inputs: 
     conz::println_type("Inspect point(search first): ", conz::MsgType::Normal);
     loop{
         let points = state.points.get_items();
-        let (match_res, vec) = support::get_matches(&points,&mut inputs);
+        let (match_res, vec) = support::get_matches(points, &mut inputs);
         if match_res == support::MatchResult::None || vec.len() > 1{
             if vec.len() > 1{
                 conz::println_type("Fail: more than one result.", conz::MsgType::Error);
@@ -416,7 +416,7 @@ pub fn inspect_slice(state: &mut state::State, args: astr::AstrVec, mut inputs: 
     conz::println_type("Inspect slice(search first): ", conz::MsgType::Normal);
     loop{
         let slices = state.slices.get_items();
-        let (match_res, vec) = support::get_matches(&slices,&mut inputs);
+        let (match_res, vec) = support::get_matches(slices, &mut inputs);
         if match_res == support::MatchResult::None || vec.len() > 1{
             if vec.len() > 1{
                 conz::println_type("Fail: more than one result.", conz::MsgType::Error);
