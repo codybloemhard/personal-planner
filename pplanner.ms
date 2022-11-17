@@ -40,5 +40,5 @@ pplanner 'help(ls points)'
 ect
 .SH BUGS
 .SH AUTHOR
-Cody Bloemhard (cblmhrd@live.nl)
-https://github.com/ocdy1001/PersonalPlanner
+Cody Bloemhard (codybloemhard@gmail.com)
+https://gitlab.com/codybloemhard/PersonalPlanner
