@@ -191,7 +191,7 @@ impl Dt {
     }
 
     pub fn make_datetime(dmy: Dmy, hms: Hms) -> Option<Self>{
-        let datetime = Local.ymd_opt(dmy.2 as i32, dmy.1, dmy.0).and_hms_opt(hms.0, hms.1, hms.2);
+        let datetime = Local.with_ymd_and_hms(dmy.2 as i32, dmy.1, dmy.0, hms.0, hms.1, hms.2);
         if datetime == chrono::LocalResult::None {return Option::None;}
         Option::Some(Dt{ dt: datetime.unwrap(), })
     }

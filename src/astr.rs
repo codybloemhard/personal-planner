@@ -133,7 +133,7 @@ impl AStr for Astr{
         }
         let mut newstr = Vec::new();
         for i in 0..(max-3){
-            newstr.push(self.0[i as usize] as u8);
+            newstr.push(self.0[i as usize]);
         }
         newstr.resize(newstr.len() + 3, b'.');
         Astr(newstr)
@@ -142,7 +142,7 @@ impl AStr for Astr{
     fn cut(&self, max: u16) -> Astr{
         let mut newstr = Vec::new();
         for i in 0..(std::cmp::min(max, std::cmp::max(max, self.len() as u16))){
-            newstr.push(self.0[i as usize] as u8);
+            newstr.push(self.0[i as usize]);
         }
         Astr(newstr)
     }

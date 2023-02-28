@@ -72,7 +72,7 @@ impl FuncTree{
             if last{
                 res.unwrap().leaf
             }else{
-                _find(&mut res.unwrap(), key, index + 1)
+                _find(res.unwrap(), key, index + 1)
             }
         }
         _find(self, key, 0)

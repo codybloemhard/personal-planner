@@ -5,7 +5,7 @@ authors = ["Cody Bloemhard <codybloemhard@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-chrono = "0.4.6"
+chrono = "0.4.23"
 num-traits = "0.2"
 num-derive = "0.2"
 term-basics-linux = "0.2.4"
