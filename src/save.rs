@@ -154,7 +154,7 @@ pub fn buffer_write_file(path: &std::path::Path, vec: BufferRef) -> bool{
 }
 
 pub fn buffer_write_file_append(path: &std::path::Path, vec: BufferRef) -> bool{
-    let file = OpenOptions::new().write(true).create(true).append(true).open(path);
+    let file = OpenOptions::new().create(true).append(true).open(path);
     if file.is_err() { return false; }
     let mut opened = file.unwrap();
     if opened.write_all(vec).is_err() { return false; }

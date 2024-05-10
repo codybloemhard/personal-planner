@@ -387,11 +387,12 @@ pub fn parse_hms(string: &astr::Astr) -> Option<Dmy>{
     Option::Some((triplet[0].unwrap(),triplet[1].unwrap(),triplet[2].unwrap()))
 }
 
-#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone,Default)]
 pub enum PointType{
     None = 0,
     Deadline = 1,
     Event = 2,
+    #[default]
     DefaultValue = 255,
 }
 
@@ -428,12 +429,6 @@ impl astr::ToAstr for PointType{
             PointType::Event => "Event",
             PointType::DefaultValue => "Error",
         })
-    }
-}
-
-impl Default for PointType{
-    fn default() -> Self{
-        PointType::DefaultValue
     }
 }
 
@@ -612,12 +607,13 @@ impl wizard::Wizardable for Point{
     }
 }
 
-#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone,Default)]
 pub enum PlanType{
     Short,
     Long,
     Idea,
     Current,
+    #[default]
     DefaultValue,
 }
 
@@ -655,12 +651,6 @@ impl astr::ToAstr for PlanType{
             PlanType::Current => "Current",
             PlanType::DefaultValue => "Error",
         })
-    }
-}
-
-impl Default for PlanType{
-    fn default() -> Self{
-        PlanType::DefaultValue
     }
 }
 
@@ -856,12 +846,13 @@ impl conz::Printable for Plan{
     }
 }
 
-#[derive(FromPrimitive,ToPrimitive,Eq,Clone)]
+#[derive(FromPrimitive,ToPrimitive,Eq,Clone,Default)]
 pub enum SliceType{
     None = 0,
     Deadline = 1,
     Goto = 2,
     Activity = 3,
+    #[default]
     DefaultValue = 255,
 }
 
@@ -899,12 +890,6 @@ impl astr::ToAstr for SliceType {
             SliceType::Activity => "Activity",
             SliceType::DefaultValue => "Error",
         })
-    }
-}
-
-impl Default for SliceType {
-    fn default() -> Self{
-        SliceType::DefaultValue
     }
 }
 
