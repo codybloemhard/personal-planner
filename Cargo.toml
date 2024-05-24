@@ -1,12 +1,12 @@
 [package]
 name = "pplanner"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Cody Bloemhard <codybloemhard@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-chrono = "0.4.23"
-num-traits = "0.2"
-num-derive = "0.2"
-term-basics-linux = "0.2.4"
-simpleio = "0.1.1"
+chrono = "0.4.38"
+num-traits = "0.2.19"
+num-derive = "0.4.2"
+term-basics-linux = "0.2.4" # to bump
+simpleio = "0.1.1" # to bump
